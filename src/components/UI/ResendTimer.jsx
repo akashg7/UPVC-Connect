@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { colors, fonts, spacing } from '../../theme';
+import { View, Text, StyleSheet } from 'react-native';
+import AppText from '../AppText';
 
 const ResendTimer = ({ duration = 30, onResend }) => {
   const [timer, setTimer] = useState(duration);
@@ -24,16 +24,17 @@ const ResendTimer = ({ duration = 30, onResend }) => {
     setTimer(duration);
     setCanResend(false);
   };
-
+ 
   return (
     <View style={styles.container}>
-      <Text style={styles.timerText}>
-        {canResend ? 'Didn\'t receive code? ' : `Resend code in ${timer}s`}
-      </Text>
-      {canResend && (
-        <TouchableOpacity onPress={handleResend}>
-          <Text style={styles.resendText}>Resend OTP</Text>
-        </TouchableOpacity>
+      {canResend ? (
+        <AppText weight="Inter" style={styles.timerText}>
+          Didn't receive code?
+        </AppText>
+      ) : (
+        <AppText weight="Inter" style={styles.timerText}>
+          Resend code in {timer}s
+        </AppText>
       )}
     </View>
   );
@@ -44,17 +45,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: spacing.medium,
+    marginVertical: 20,
   },
   timerText: {
-    ...fonts.body,
-    color: colors.textSecondary,
-  },
-  resendText: {
-    ...fonts.body,
-    color: colors.primary,
-    marginLeft: spacing.small,
-    fontWeight: '600',
+    color: 'black',
+    fontSize: 14,
   },
 });
 

@@ -95,7 +95,7 @@ const VideoUploadWidget = ({ onVideoSelected, hasVideo }) => {
           </>
         ) : (
           <>
-            <Icon name="videocam" size={40} color="#2E86C1" />
+            <Icon name="videocam" size={40} color="#black" />
             <Text style={styles.videoText}>Tap to upload video</Text>
             <Text style={styles.hintText}>60 seconds max</Text>
           </>

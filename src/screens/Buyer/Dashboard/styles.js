@@ -1,298 +1,51 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import {StyleSheet, Dimensions} from 'react-native';
 
-const { width } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: '#F8FAFC',
-    padding: 24,
-    paddingBottom: 40,
-  },
-  headerContainer: {
-    marginBottom: 32,
-    marginTop: 32,
-  },
+  container: { 
+    backgroundColor: 'white', 
+  }, 
   header: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#1A1A1A',
-    fontFamily: 'Inter-ExtraBold',
-    marginBottom: 8,
-  },
-  subHeader: {
-    fontSize: 16,
-    color: '#666666',
-    fontFamily: 'Inter-Medium',
-  },
-  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    paddingHorizontal: 20,
+    paddingBottom:20, 
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    fontFamily: 'Inter-Bold',
+    logo: { 
+    width: 100, 
+    height: 30,  
+    // resizeMode: 'contain', 
   },
-  seeAll: {
-    fontSize: 14,
-    color: '#4CAF50',
-    fontFamily: 'Inter-SemiBold',
-  },
-  requestCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    marginBottom: 16,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  requestImage: {
-    width: '100%',
-    height: 160,
-  },
-  requestDetails: {
-    padding: 20,
-  },
-  requestHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  requestTitle: {
+  headerTitle: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    fontFamily: 'Inter-Bold',
-    flex: 1,
+    fontWeight: 'bold',
+    color: 'black',
+    letterSpacing: 1,
   },
-  statusBadge: {
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    marginLeft: 12,
+  tabScrollContainer: {
+    flexDirection:"row",
+    justifyContent:"space-between", 
+    borderBottomColor: '#e0e0e0',
   },
-  activeBadge: {
-    backgroundColor: '#E3F2FD',
+  tabButton: {
+    height: 30, 
+    paddingHorizontal: 10,
+    marginHorizontal: 5,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
   },
-  completedBadge: {
-    backgroundColor: '#E8F5E9',
+  activeTab: {
+    borderBottomColor: 'black',
   },
-  statusText: {
+  tabText: {
     fontSize: 12,
     fontWeight: '600',
-    fontFamily: 'Inter-SemiBold',
+    color: 'black',
+    letterSpacing: 1,
   },
-  requestDate: {
-    fontSize: 14,
-    color: '#666666',
-    fontFamily: 'Inter-Regular',
-    marginBottom: 16,
+  activeTabText: {
+    color: 'black',
   },
-  progressContainer: {
-    marginTop: 8,
-  },
-  progressTextContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  progressText: {
-    fontSize: 14,
-    color: '#666666',
-    fontFamily: 'Inter-Medium',
-  },
-  progressPercent: {
-    fontSize: 14,
-    color: '#4CAF50',
-    fontFamily: 'Inter-SemiBold',
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#4CAF50',
-    borderRadius: 3,
-  },
-  trendsCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-  },
-  trendsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  trendsTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    fontFamily: 'Inter-Bold',
-    marginLeft: 12,
-    flex: 1,
-  },
-  trendsInsights: {
-    marginBottom: 20,
-  },
-  insightItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  insightText: {
-    fontSize: 14,
-    color: '#666666',
-    fontFamily: 'Inter-Regular',
-    marginLeft: 8,
-    flex: 1,
-    lineHeight: 20,
-  },
-  trendsButton: {
-    backgroundColor: '#3F51B5',
-    marginTop: 8,
-  },
-    // New Premium Header Styles
-    headerContainer: {
-      // marginBottom: 32,
-      position: 'relative',
-      height: 220,
-    },
-    headerBackground: {
-      position: 'absolute',
-      top: 20,
-      left: 0,
-      right: 0,
-      height: 180,
-      backgroundColor: '#3F51B5',
-      borderRadius: 24,
-      // borderBottomRightRadius: 24,
-    },
-    headerContent: {
-      paddingHorizontal: 24,
-      paddingTop: 36,
-      zIndex: 2,
-    },
-    headerTopRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 24,
-    },
-    welcomeText: {
-      fontSize: 16,
-      color: 'rgba(255,255,255,0.8)',
-      fontFamily: 'Inter-Medium',
-    },
-    userName: {
-      fontSize: 22,
-      fontWeight: '700',
-      color: '#FFFFFF',
-      fontFamily: 'Inter-Bold',
-      marginTop: 4,
-    },
-    notificationButton: {
-      position: 'relative',
-      padding: 8,
-    },
-    notificationBadge: {
-      position: 'absolute',
-      top: 0,
-      right: 0,
-      backgroundColor: '#FF5252',
-      borderRadius: 10,
-      width: 20,
-      height: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
-      zIndex: 3,
-    },
-    notificationCount: {
-      color: '#FFFFFF',
-      fontSize: 12,
-      fontWeight: 'bold',
-    },
-    headerCard: {
-      backgroundColor: '#FFFFFF',
-      borderRadius: 16,
-      // padding: 24,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 10 },
-      shadowOpacity: 0.1,
-      shadowRadius: 20,
-      elevation: 10,
-      position: 'relative',
-      overflow: 'hidden',
-    },
-    headerCardContent: {
-      zIndex: 2,
-    },
-    headerCardTitle: {
-      fontSize: 24,
-      fontWeight: '800',
-      color: '#1A1A1A',
-      fontFamily: 'Inter-ExtraBold',
-      // marginBottom: 4,
-    },
-    headerCardSubtitle: {
-      fontSize: 16,
-      color: '#666666',
-      fontFamily: 'Inter-Medium',
-      marginBottom: 24,
-    },
-    statsRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      backgroundColor: '#F5F7FA',
-      borderRadius: 12,
-      paddingVertical: 8,
-      paddingHorizontal: 8,
-    },
-    statItem: {
-      alignItems: 'center',
-      flex: 1,
-    },
-    statValue: {
-      fontSize: 20,
-      fontWeight: '700',
-      color: '#3F51B5',
-      fontFamily: 'Inter-Bold',
-      marginBottom: 4,
-    },
-    statLabel: {
-      fontSize: 12,
-      color: '#666666',
-      fontFamily: 'Inter-Medium',
-      textAlign: 'center',
-    },
-    statDivider: {
-      width: 1,
-      height: 40,
-      backgroundColor: '#E0E0E0',
-    },
-    premiumBadge: {
-      position: 'absolute',
-      top: 20,
-      right: 20,
-      width: 60,
-      height: 60,
-      opacity: 0.1,
-    },
-});  
+});

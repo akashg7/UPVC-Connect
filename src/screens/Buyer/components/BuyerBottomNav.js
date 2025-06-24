@@ -6,6 +6,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome'; 
 import Ionicons from 'react-native-vector-icons/Ionicons'; 
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import AppText from '../../../components/AppText';
 
 const BuyerBottomNav = ({ state, descriptors, navigation }) => {
   return (
@@ -28,8 +29,8 @@ const BuyerBottomNav = ({ state, descriptors, navigation }) => {
           }
         };
 
-        const iconColor = isFocused ? '#3F51B5' : '#9E9E9E';
-        const textColor = isFocused ? '#3F51B5' : '#9E9E9E';
+        const iconColor = isFocused ? '#080000' : '#9E9E9E';
+        const textColor = isFocused ? '#080000' : '#9E9E9E';
 
         let iconComponent;
         switch (route.name) {
@@ -62,9 +63,9 @@ const BuyerBottomNav = ({ state, descriptors, navigation }) => {
           >
             <View style={styles.iconContainer}>
               {iconComponent}
-              <Text style={[styles.label, { color: textColor }]}>
+              <AppText weight='Regular' style={[styles.label, { color: textColor }]}>
                 {label}
-              </Text>
+              </AppText>
             </View>
             {isFocused && <View style={styles.activeIndicator} />}
           </TouchableOpacity>
@@ -99,14 +100,15 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     marginTop: 4,
-    fontWeight: '500',
+    // fontWeight: '500',
   },
   activeIndicator: {
     position: 'absolute',
     bottom: 0,
     height: 3,
     width: '60%',
-    backgroundColor: '#3F51B5',
+    // backgroundColor: '#3F51B5',
+    backgroundColor: '#080000',
     borderRadius: 2,
   },
 });

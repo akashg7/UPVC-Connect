@@ -145,12 +145,12 @@ const LeadCard = ({ name, location, requirement, time, amount, onPress }) => {
       >
         <View style={styles.cardHeader}>
           <View style={styles.avatar}>
-            <Icon name="person" size={24} color="#2E86C1" />
+            <Icon name="person" size={24}  />
           </View>
           <View style={styles.headerText}>
             <Text style={styles.name}>{name}</Text>
             <Text style={styles.location}>
-              <Icon name="location-on" size={14} color="#95A5A6" /> {location}
+              <Icon name="location-on" size={14}  /> {location}
             </Text>
           </View>
           <Text style={styles.time}>{time}</Text>
@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#EBF5FB',
+    // backgroundColor: '#EBF5FB',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   amount: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#28B463',
+    // color: '#28B463',
   },
 });
 

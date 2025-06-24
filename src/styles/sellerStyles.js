@@ -10,7 +10,7 @@ export const sellerStyles = StyleSheet.create({
   headline: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#2E86C1',
+    color: '#black',
     marginBottom: 16,
   },
   subhead: {
@@ -37,7 +37,7 @@ export const sellerStyles = StyleSheet.create({
     color: '#2C3E50',
   },
   button: {
-    backgroundColor: '#2E86C1',
+    backgroundColor: 'black',
     borderRadius: 12,
     padding: 16,
     alignItems: 'center',

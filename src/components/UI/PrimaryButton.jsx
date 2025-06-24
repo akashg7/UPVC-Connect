@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import { colors, fonts, spacing } from '../../theme';
+import AppText from '../AppText';
 
 const PrimaryButton = ({ title, onPress, style, loading = false, disabled = false }) => {
   return (
@@ -17,7 +18,7 @@ const PrimaryButton = ({ title, onPress, style, loading = false, disabled = fals
       {loading ? (
         <ActivityIndicator color={colors.background} />
       ) : (
-        <Text style={styles.buttonText}>{title}</Text>
+        <AppText weight="SemiBold" style={styles.buttonText}>{title}</AppText>
       )}
     </TouchableOpacity>
   );

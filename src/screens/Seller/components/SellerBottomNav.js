@@ -12,18 +12,20 @@ const { width } = Dimensions.get('window');
 const SellerBottomNav = ({ state, descriptors, navigation }) => {
   const tabs = [
     {
-      name: 'SellerDashboard',
+      name: 'LeadDetails',
       label: 'Home',
       Icon: Ionicons,
       iconName: 'home-outline',
       activeIconName: 'home',
     },
     {
-      name: 'LeadDetails',
-      label: 'Leads',
+      name: 'SellerDashboard',
+      label: 'Upload Video',
       Icon: MaterialCommunityIcons,
-      iconName: 'account-search-outline',
-      activeIconName: 'account-search',
+      // iconName: 'account-search-outline',
+      iconName: 'upload',
+      // activeIconName: 'account-search',
+      activeIconName: 'upload',
     },
     {
       name: 'MarketInsights',
@@ -81,11 +83,11 @@ const SellerBottomNav = ({ state, descriptors, navigation }) => {
               <IconComponent
                 name={isFocused ? tab.activeIconName : tab.iconName}
                 size={24}
-                color={isFocused ? '#2E86C1' : '#95A5A6'}
+                color={isFocused ? 'black' : '#95A5A6'}
               />
               <Text style={[
                 styles.label,
-                { color: isFocused ? '#2E86C1' : '#95A5A6' }
+                { color: isFocused ? 'black' : '#95A5A6' }
               ]}>
                 {tab.label}
               </Text>
@@ -146,12 +148,10 @@ const styles = StyleSheet.create({
   },
   activeIndicator: {
     position: 'absolute',
-    top: 0,
-    width: 30,
+    bottom: 0, 
+    width:'60%',
     height: 3,
-    backgroundColor: '#2E86C1',
-    borderBottomRightRadius: 3,
-    borderBottomLeftRadius: 3,
+    backgroundColor: 'black', 
   },
 });
 

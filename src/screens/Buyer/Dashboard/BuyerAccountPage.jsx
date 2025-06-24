@@ -1,753 +1,453 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Animated } from 'react-native'; 
-import * as Animatable from 'react-native-animatable';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Feather from 'react-native-vector-icons/Feather';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import AntDesign from 'react-native-vector-icons/AntDesign';
-import { RefreshControl } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import AppText from '../../../components/AppText';
 
-const BuyerAccountPage = ({ route }) => {
- 
-  // Form data
-  const { 
-    businessName = "AKASH",
-    pinCodes = "560003",
-    deliveryTime = "30-45 minutes",
-    phone = "+91 9876543210",
-    selectedProducts = ["Profiles", "Hardware", "Glass"],
-    videoUri = null
-  } = route.params || {};
+const { width, height } = Dimensions.get('window');
 
-  // Additional seller data
-  const [sellerStats, setSellerStats] = useState({
-    completedOrders: 12,
-    activeCustomers: 5,
-    // rating: 4.8,
-    // responseRate: "98%",
-    joinedDate: "Jan 2022",
-    // monthlyRevenue: "₹2,45,000",
-    topSelling: "Hardware"
-  });
+const UserAccount = () => {
+  const [name, setName] = useState('John Doe');
+  const [phone, setPhone] = useState('+91 9876543210');
+  const [editing, setEditing] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState('');
+  const [hoverRating, setHoverRating] = useState(0);
 
-  const [performanceMetrics] = useState([
-    { metric: "Order Completion", value: "99.2%", trend: "up" },
-    { metric: "Customer Satisfaction", value: "96.5%", trend: "up" },
-    { metric: "Avg. Preparation Time", value: "22 min", trend: "down" },
-    { metric: "Repeat Customers", value: "68%", trend: "up" },
-  ]);
-
-  const [recentReviews] = useState([
-    { user: "Priya M.", rating: 5, comment: "Fresh products and always on time!", date: "2 days ago" },
-    { user: "Rahul K.", rating: 4, comment: "Good quality but delivery was slightly late", date: "1 week ago" },
-    { user: "Neha S.", rating: 5, comment: "Best bakery in town! Highly recommend", date: "2 weeks ago" },
-  ]);
-
-  const [activeTab, setActiveTab] = useState('overview');
-  const fadeAnim = useState(new Animated.Value(0))[0];
-
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'performance':
-        return (
-          <PerformanceTab 
-            metrics={performanceMetrics} 
-            stats={sellerStats}
-          />
-        );
-      case 'reviews':
-        return <ReviewsTab reviews={recentReviews} />;
-      case 'products':
-        return <ProductsTab products={selectedProducts} />;
-      default:
-        return <ProductsTab products={selectedProducts} />;
-    }
+  const handleSubmitFeedback = () => {
+    console.log('Feedback submitted:', { rating, feedback });
+    // Here you would typically send the feedback to your backend
+    alert('Thank you for your feedback!');
+    setRating(0);
+    setFeedback('');
   };
 
-  const [refreshing, setRefreshing] = useState(false);
+    const handleSendMessage = () => {
+    // Navigate to contact screen or open message interface
+    // navigation.navigate('Contact');
+  };
 
-  const handleRefresh = () => {
-    setRefreshing(true);
-  
-    // Simulate fetching updated seller stats or product info
-    setTimeout(() => {
-      // Example: update a stat
-      setSellerStats((prev) => ({
-        ...prev,
-        completedOrders: prev.completedOrders + 1, // Dummy update
-      }));
-  
-      setRefreshing(false);
-    }, 1500);
+  const handlePhonePress = () => {
+    Linking.openURL('tel:+18001234567');
+  };
+
+  const handleEmailPress = () => {
+    Linking.openURL('mailto:support@example.com');
   };
 
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      <ScrollView contentContainerStyle={styles.scrollContainer} 
-      refreshControl={ <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} /> }>
-        {/* Header Section */}
-        <View style={styles.header}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {/* User Profile Section */}
+                     <Image
+                        source={require('../../../assets/logo.png')}
+                        style={styles.logo}
+                      />
+        <View style={styles.profileCard}>
           <View style={styles.profileHeader}>
-            <Animatable.View animation="fadeIn" duration={1000}>
-              <Image 
-                source={{uri : "https://media.istockphoto.com/id/1682296067/photo/happy-studio-portrait-or-professional-man-real-estate-agent-or-asian-businessman-smile-for.jpg?s=612x612&w=0&k=20&c=9zbG2-9fl741fbTWw5fNgcEEe4ll-JegrGlQQ6m54rg=" }} 
-                // source={require('../assets/seller-profile.jpg')} 
-                style={styles.profileImage}
+            <AppText weight='Bold' style={styles.sectionTitle}>PROFILE INFORMATION</AppText>
+            <TouchableOpacity onPress={() => setEditing(!editing)}>
+              <Icon 
+                name={editing ? 'check' : 'edit'} 
+                size={24} 
+                color="#000" 
               />
-            </Animatable.View>
-            <View style={styles.headerTextContainer}>
-              <Text style={styles.businessName}>{businessName}</Text>
-              <View style={styles.ratingContainer}>
-                <AntDesign name="star" size={18} color="#FFD700" />
-                {/* <Text style={styles.ratingText}>{sellerStats.rating}</Text> */}
-                <Text style={styles.reviewCount}>({sellerStats.completedOrders}+ orders)</Text>
-              </View>
-              <Text style={styles.joinedDate}>Member since {sellerStats.joinedDate}</Text>
-            </View>
+            </TouchableOpacity>
           </View>
           
-          <View style={styles.contactContainer}>
-            <TouchableOpacity style={styles.contactButton}>
-              <Feather name="phone" size={18} color="#fff" />
-              <Text style={styles.contactButtonText}>{phone}</Text>
-            </TouchableOpacity>
+          <View style={styles.inputContainer}>
+            <AppText weight='Inter' style={styles.inputLabel}>Full Name</AppText>
+            <TextInput
+              style={styles.inputField}
+              value={name}
+              onChangeText={setName}
+              editable={editing}
+              placeholder="Enter your name"
+              placeholderTextColor="#999"
+            />
+          </View>
+          
+          <View style={styles.inputContainer}>
+            <AppText weight='Inter' style={styles.inputLabel}>Phone Number</AppText>
+            <TextInput
+              style={styles.inputField}
+              value={phone}
+              onChangeText={setPhone}
+              editable={editing}
+              keyboardType="phone-pad"
+              placeholder="Enter phone number"
+              placeholderTextColor="#999"
+            />
           </View>
         </View>
 
-        {/* Stats Cards */}
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.statsScroll}
-        >
-          <StatCard 
-            icon="checkcircle" 
-            value={sellerStats.completedOrders} 
-            label="Orders Completed" 
-            color="#4CAF50"
-          />
-          <StatCard 
-            icon="users" 
-            value={sellerStats.activeCustomers} 
-            label="Active Customers" 
-            color="#2196F3"
-          />
-          {/* <StatCard 
-            icon="rupee" 
-            value={sellerStats.monthlyRevenue} 
-            label="Monthly Revenue" 
-            color="#FF9800"
-          /> */}
-          {/* <StatCard 
-            icon="clockcircle" 
-            value={deliveryTime} 
-            label="Avg. Delivery Time" 
-            color="#9C27B0"
-          /> */}
-        </ScrollView>
-
-        {/* Service Area */}
-        <Animatable.View 
-          animation="fadeInUp" 
-          duration={800}
-          style={styles.serviceAreaContainer}
-        >
-          <Text style={styles.sectionTitle}>Service Area</Text>
-          <View style={styles.pinCodeContainer}>
-            <FontAwesome name="map-marker" size={20} color="#E91E63" />
-            <Text style={styles.pinCodes}>{pinCodes}</Text>
-          </View>
-          <Text style={styles.deliveryTime}>
-            <MaterialIcons name="delivery-dining" size={18} color="#4CAF50" /> 
-            Delivery in {deliveryTime}
-          </Text>
-        </Animatable.View>
-
-        {/* Product Categories */}
-        {/* <Animatable.View 
-          animation="fadeInUp" 
-          duration={800}
-          style={styles.categoriesContainer}
-        >
-          <Text style={styles.sectionTitle}>Product Categories</Text>
-          <View style={styles.categoriesList}>
-            {selectedProducts.map((category, index) => (
-              <View key={index} style={styles.categoryPill}>
-                <Text style={styles.categoryText}>{category}</Text>
-              </View>
+        {/* Feedback Section */}
+        <View style={styles.sectionCard}>
+          <AppText weight='Bold' style={styles.sectionTitle}>FEEDBACK</AppText>
+          
+          <AppText weight='Inter' style={styles.feedbackQuestion}>
+            On a scale of 1 - 5 how would you rate us?
+          </AppText>
+          
+          <View style={styles.ratingContainer}>
+            {[1, 2, 3, 4, 5].map((star) => (
+              <TouchableOpacity 
+                key={star} 
+                onPress={() => setRating(star)}
+                onPressIn={() => setHoverRating(star)}
+                onPressOut={() => setHoverRating(0)}
+              >
+                <Icon 
+                  name={star <= (hoverRating || rating) ? 'star' : 'star-border'} 
+                  size={36} 
+                  color="#FFD700" 
+                  style={styles.starIcon}
+                />
+              </TouchableOpacity>
             ))}
           </View>
-        </Animatable.View> */}
-
-        {/* Tabs Navigation */}
-        
-
-        {/* Tab Content */}
-        {renderTabContent()}
-
-        {/* Promo Video (if available) */}
-        {videoUri && (
-          <Animatable.View 
-            animation="fadeInUp" 
-            duration={1000}
-            style={styles.videoContainer}
+          
+          <AppText weight='Inter' style={styles.feedbackPrompt}>
+            PLEASE SHARE YOUR INPUTS IF YOU THINK WE NEED TO DO SOMETHING BETTER
+          </AppText>
+          
+          <TextInput
+            style={styles.feedbackInput}
+            multiline
+            numberOfLines={5}
+            maxLength={500}
+            placeholder="Your valuable feedback here..."
+            placeholderTextColor="#999"
+            value={feedback}
+            onChangeText={setFeedback}
+          />
+          
+          <AppText weight='Inter' style={styles.charCount}>
+            {feedback.length}/500 characters
+          </AppText>
+ 
+          <TouchableOpacity 
+            style={styles.submitButton}
+            onPress={handleSubmitFeedback}
+            disabled={rating === 0}
           >
-            <Text style={styles.sectionTitle}>Our Story</Text>
-            <View style={styles.videoPlaceholder}>
-              <Ionicons name="play-circle" size={50} color="#fff" />
-              <Text style={styles.videoText}>Play Introduction Video</Text>
-            </View>
-          </Animatable.View>
-        )}
-      </ScrollView>
+            <AppText weight='Bold' style={styles.submitButtonText}>SUBMIT FEEDBACK</AppText>
+          </TouchableOpacity>
+        </View>
 
-      {/* Edit Profile Button */}
-      <TouchableOpacity style={styles.editButton}>
-        <Feather name="edit" size={20} color="#fff" />
-        <Text style={styles.editButtonText}>Edit Profile</Text>
+        {/* Additional Sections */}
+    <View style={styles.sectionCard}>
+      <AppText weight='Bold' style={styles.cardTitle}>CONTACT US</AppText>
+      
+      <View style={styles.contactInfoContainer}>
+        {/* Phone */}
+        <TouchableOpacity style={styles.contactItem} onPress={handlePhonePress}>
+          <Icon name="phone" size={16} color="#666" style={styles.icon} />
+          <View style={styles.contactTextContainer}>
+            <AppText weight='Inter' style={styles.contactLabel}>Phone</AppText>
+            <AppText weight='Inter' style={styles.contactValue}>+1 (800) 123-4567</AppText>
+          </View>
+        </TouchableOpacity>
+
+        {/* Email */}
+        <TouchableOpacity style={styles.contactItem} onPress={handleEmailPress}>
+          <Icon name="email" size={16} color="#666" style={styles.icon} />
+          <View style={styles.contactTextContainer}>
+            <AppText weight='Inter' style={styles.contactLabel}>Email</AppText>
+            <AppText weight='Inter' style={styles.contactValue}>support@example.com</AppText>
+          </View>
+        </TouchableOpacity>
+
+        {/* Address */}
+        <View style={styles.contactItem}>
+          <Icon name="location-on" size={16} color="#666" style={styles.icon} />
+          <View style={styles.contactTextContainer}>
+            <AppText weight='Inter' style={styles.contactLabel}>Address</AppText>
+            <AppText weight='Inter' style={styles.contactValue}>123 Business St, Suite 100, San Francisco, CA 94107</AppText>
+          </View>
+        </View>
+      </View>
+
+      <TouchableOpacity 
+        style={styles.messageButton}
+        onPress={handleSendMessage}
+      >
+        <AppText weight='Bold' style={styles.messageButtonText}>SEND MESSAGE</AppText>
       </TouchableOpacity>
-    </Animated.View>
+    </View>
+
+        <View style={styles.sectionCard}>
+          <AppText weight='Bold' style={styles.sectionTitle}>TERMS & CONDITIONS</AppText>
+          <AppText weight='SemiBold' style={styles.sectionText}>
+            By using our services, you agree to our terms and conditions. Please read them carefully to understand your rights and responsibilities.
+          </AppText>
+          <TouchableOpacity style={styles.linkButton}>
+            <AppText weight='SemiBold' style={styles.linkButtonText}>VIEW FULL TERMS</AppText>
+            <Icon name="chevron-right" size={20} color="#000" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.sectionCard}>
+          <AppText weight='Bold' style={styles.sectionTitle}>ABOUT US</AppText>
+          <AppText weight='SemiBold' style={styles.sectionText}>
+            We are committed to providing premium services with unmatched quality. Our team works tirelessly to ensure your complete satisfaction.
+          </AppText>
+          <TouchableOpacity style={styles.linkButton}>
+            <AppText weight='SemiBold' style={styles.linkButtonText}>LEARN MORE</AppText>
+            <Icon name="chevron-right" size={20} color="#000" />
+          </TouchableOpacity>
+        </View> 
+
+        {/* Logout Button */}
+        <TouchableOpacity style={styles.logoutButton}>
+          <AppText weight='SemiBold' style={styles.logoutButtonText}>LOGOUT</AppText>
+          <Icon name="exit-to-app" size={24} color="#000" />
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
-// Tab Components
-const OverviewTab = ({ sellerStats }) => (
-  <View style={styles.tabContent}>
-    <View style={styles.overviewItem}>
-      <MaterialIcons name="trending-up" size={24} color="#4CAF50" />
-      <View style={styles.overviewText}>
-        <Text style={styles.overviewTitle}>Business Growth</Text>
-        <Text style={styles.overviewValue}>Up by 27% this quarter</Text>
-      </View>
-    </View>
-    <View style={styles.overviewItem}>
-      <MaterialIcons name="local-offer" size={24} color="#FF9800" />
-      <View style={styles.overviewText}>
-        <Text style={styles.overviewTitle}>Top Selling</Text>
-        <Text style={styles.overviewValue}>{sellerStats.topSelling}</Text>
-      </View>
-    </View>
-    <View style={styles.overviewItem}>
-      <FontAwesome name="repeat" size={24} color="#2196F3" />
-      <View style={styles.overviewText}>
-        <Text style={styles.overviewTitle}>Repeat Rate</Text>
-        <Text style={styles.overviewValue}>{sellerStats.responseRate} response rate</Text>
-      </View>
-    </View>
-  </View>
-);
-
-const PerformanceTab = ({ metrics, stats }) => (
-  <View style={styles.tabContent}>
-    <Text style={styles.performanceTitle}>Key Metrics</Text>
-    {metrics.map((item, index) => (
-      <View key={index} style={styles.metricItem}>
-        <Text style={styles.metricName}>{item.metric}</Text>
-        <View style={styles.metricValueContainer}>
-          <Text style={styles.metricValue}>{item.value}</Text>
-          <MaterialIcons 
-            name={item.trend === "up" ? "arrow-drop-up" : "arrow-drop-down"} 
-            size={24} 
-            color={item.trend === "up" ? "#4CAF50" : "#F44336"} 
-          />
-        </View>
-      </View>
-    ))}
-    {/* <View style={styles.performanceChartPlaceholder}>
-      <Text style={styles.chartTitle}>Monthly Performance</Text>
-      
-      <View style={styles.chartLines}>
-        {[1, 2, 3, 4, 5].map((_, i) => (
-          <View key={i} style={styles.chartLine} />
-        ))}
-      </View>
-    </View> */}
-  </View>
-);
-
-const ReviewsTab = ({ reviews }) => (
-  <View style={styles.tabContent}>
-    {reviews.map((review, index) => (
-      <View key={index} style={styles.reviewItem}>
-        <View style={styles.reviewHeader}>
-          <Text style={styles.reviewUser}>{review.user}</Text>
-          <View style={styles.reviewRating}>
-            {[...Array(5)].map((_, i) => (
-              <AntDesign 
-                key={i} 
-                name={i < review.rating ? "star" : "staro"} 
-                size={16} 
-                color="#FFD700" 
-              />
-            ))}
-          </View>
-        </View>
-        <Text style={styles.reviewComment}>{review.comment}</Text>
-        <Text style={styles.reviewDate}>{review.date}</Text>
-      </View>
-    ))}
-    <TouchableOpacity style={styles.seeAllButton}>
-      <Text style={styles.seeAllText}>See All Reviews</Text>
-    </TouchableOpacity>
-  </View>
-);
-
-const ProductsTab = ({ products }) => (
-  <View style={styles.tabContent}>
-    <Text style={styles.productsTitle}>Your Product Categories</Text>
-    {products.map((product, index) => (
-      <View key={index} style={styles.productItem}>
-        <View style={styles.productIcon}>
-          <MaterialIcons 
-            name={getProductIcon(product)} 
-            size={24} 
-            color="#3F51B5" 
-          />
-        </View>
-        <Text style={styles.productName}>{product}</Text>
-        <MaterialIcons name="chevron-right" size={24} color="#9E9E9E" />
-      </View>
-    ))}
-    <TouchableOpacity style={styles.addProductButton}>
-      <Ionicons name="add-circle" size={20} color="#fff" />
-      <Text style={styles.addProductText}>Add New Product Category</Text>
-    </TouchableOpacity>
-  </View>
-);
-
-const StatCard = ({ icon, value, label, color }) => (
-  <Animatable.View 
-    animation="fadeInRight" 
-    duration={800}
-    style={[styles.statCard, { borderLeftColor: color }]}
-  >
-    <AntDesign name={icon} size={24} color={color} />
-    <Text style={styles.statValue}>{value}</Text>
-    <Text style={styles.statLabel}>{label}</Text>
-  </Animatable.View>
-);
-
-// Helper function for product icons
-const getProductIcon = (product) => {
-  switch(product.toLowerCase()) {
-    case 'bakery': return 'local-dining';
-    case 'dairy': return 'local-drink';
-    case 'organic': return 'spa';
-    case 'beverages': return 'local-bar';
-    case 'snacks': return 'fastfood';
-    default: return 'shopping-basket';
-  }
-};
-
-// Styles
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff', 
   },
   scrollContainer: {
-    paddingBottom: 100,
+    padding: 20, 
   },
-  header: {
-    marginTop:30,
+  logo: {
+    // marginTop:15,
+    alignSelf:"center",
+    width: 100, 
+    height: 100,  
+    resizeMode: 'contain', 
+  },
+  profileCard: {
     backgroundColor: '#fff',
+    borderRadius: 12,
     padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#eee',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  sectionCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#eee',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
   profileHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    // fontWeight: '800',
+    color: '#000',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
     marginBottom: 15,
   },
-  profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+  inputContainer: {
+    marginBottom: 15,
   },
-  headerTextContainer: {
-    marginLeft: 15,
-    flex: 1,
+  inputLabel: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    // fontWeight: '600',
   },
-  businessName: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#333',
+  inputField: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    color: '#000',
+    backgroundColor: '#f9f9f9',
+  },
+  feedbackQuestion: {
+    fontSize: 16,
+    color: '#000',
+    // fontWeight: '600',
+    marginBottom: 15,
+    textAlign: 'center',
   },
   ratingContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
+    justifyContent: 'center',
+    marginBottom: 25,
   },
-  ratingText: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 5,
-    color: '#333',
+  starIcon: {
+    marginHorizontal: 3,
   },
-  reviewCount: {
+  feedbackPrompt: {
     fontSize: 14,
-    color: '#777',
-    marginLeft: 5,
+    color: '#000',
+    // fontWeight: '700',
+    marginBottom: 15,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    lineHeight: 20,
   },
-  joinedDate: {
+  feedbackInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 15,
     fontSize: 14,
-    color: '#777',
-    marginTop: 5,
+    color: '#000',
+    backgroundColor: '#f9f9f9',
+    minHeight: 120,
+    textAlignVertical: 'top',
+    marginBottom: 10,
   },
-  contactContainer: {
-    marginTop: 10,
+  charCount: {
+    fontSize: 12,
+    color: '#999',
+    textAlign: 'right',
+    marginBottom: 20,
   },
-  contactButton: {
-    backgroundColor: '#3F51B5',
-    flexDirection: 'row',
+  submitButton: {
+    backgroundColor: '#000',
+    padding: 16,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    borderRadius: 8,
-    elevation: 2,
+    flexDirection: 'row',
   },
-  contactButtonText: {
+  submitButtonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  statsScroll: {
-    paddingHorizontal: 15,
-    paddingVertical: 20,
-  },
-  statCard: {
-    backgroundColor: '#fff',
-    width: 150,
-    padding: 15,
-    borderRadius: 10,
-    marginRight: 15,
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  statValue: {
-    fontSize: 22,
-    fontWeight: '700',
-    marginVertical: 5,
-    color: '#333',
-  },
-  statLabel: {
-    fontSize: 14,
-    color: '#777',
-  },
-  serviceAreaContainer: {
-    backgroundColor: '#fff',
-    marginHorizontal: 15,
-    marginBottom: 15,
-    padding: 20,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 15,
-  },
-  pinCodeContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  pinCodes: {
-    fontSize: 16,
-    color: '#555',
-    marginLeft: 10,
-  },
-  deliveryTime: {
-    fontSize: 16,
-    color: '#555',
-    marginTop: 5,
-  },
-  categoriesContainer: {
-    backgroundColor: '#fff',
-    marginHorizontal: 15,
-    marginBottom: 15,
-    padding: 20,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  categoriesList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  categoryPill: {
-    backgroundColor: '#E3F2FD',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
+    // fontWeight: '700',
+    letterSpacing: 1,
     marginRight: 10,
-    marginBottom: 10,
   },
-  categoryText: {
-    color: '#1976D2',
+  sectionText: {
     fontSize: 14,
-    fontWeight: '500',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-    marginHorizontal: 15,
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 15,
-    alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: 'transparent',
-  },
-  activeTab: {
-    borderBottomColor: '#3F51B5',
-  },
-  tabText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  tabContent: {
-    backgroundColor: '#fff',
-    marginHorizontal: 15,
-    marginBottom: 20,
-    padding: 20,
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  overviewItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  overviewText: {
-    marginLeft: 15,
-    flex: 1,
-  },
-  overviewTitle: {
-    fontSize: 16,
-    color: '#777',
-  },
-  overviewValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginTop: 3,
-  },
-  performanceTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 20,
-  },
-  metricItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  metricName: {
-    fontSize: 16,
     color: '#555',
+    lineHeight: 22,
+    marginBottom: 15,
   },
-  metricValueContainer: {
+  linkButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end',
   },
-  metricValue: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#333',
+  linkButtonText: {
+    color: '#000',
+    fontSize: 14,
+    // fontWeight: '700',
     marginRight: 5,
   },
-  performanceChartPlaceholder: {
-    marginTop: 30,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-  },
-  chartTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#555',
-    marginBottom: 15,
-  },
-  chartLines: {
-    width: '100%',
-    height: 150,
-    justifyContent: 'space-between',
-  },
-  chartLine: {
-    height: 1,
-    width: '100%',
-    backgroundColor: '#ddd',
-  },
-  reviewItem: {
-    marginBottom: 20,
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  reviewHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  reviewUser: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  reviewRating: {
-    flexDirection: 'row',
-  },
-  reviewComment: {
-    fontSize: 15,
-    color: '#555',
-    marginBottom: 5,
-  },
-  reviewDate: {
-    fontSize: 13,
-    color: '#999',
-  },
-  seeAllButton: {
-    alignSelf: 'center',
-    marginTop: 10,
-  },
-  seeAllText: {
-    color: '#3F51B5',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  productsTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 20,
-  },
-  productItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 15,
-    paddingBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  productIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#E8EAF6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  productName: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-  },
-  addProductButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#3F51B5',
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 10,
-  },
-  addProductText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  videoContainer: {
+  logoutButton: {
     backgroundColor: '#fff',
-    marginHorizontal: 15,
-    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#000',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  logoutButtonText: {
+    color: '#000',
+    fontSize: 16,
+    // fontWeight: '700',
+    letterSpacing: 1,
+    marginRight: 10,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
     padding: 20,
-    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom:20,
   },
-  videoPlaceholder: {
-    height: 180,
-    backgroundColor: '#333',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
+  cardTitle: {
+    fontSize: 14,
+    // fontWeight: '800',
+    color: '#000',
+    letterSpacing: 0.5,
+    marginBottom: 16,
+    textTransform: 'uppercase',
   },
-  videoText: {
-    color: '#fff',
-    fontSize: 16,
-    marginTop: 10,
+  contactInfoContainer: {
+    marginBottom: 16,
   },
-  editButton: {
-    position: 'absolute',
-    bottom: 30,
-    right: 20,
-    backgroundColor: '#3F51B5',
+  contactItem: {
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    alignItems: 'flex-start',
+    marginBottom: 16,
   },
-  editButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
+  icon: {
+    marginTop: 2,
+    marginRight: 12,
+  },
+  contactTextContainer: {
+    flex: 1,
+  },
+  contactLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+  },
+  contactValue: {
+    fontSize: 14,
+    // fontWeight: '600',
+    color: '#000',
+    lineHeight: 20,
+  },
+  messageButton: {
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  messageButtonText: {
+    fontSize: 14,
+    // fontWeight: '600',
+    color: '#000',
+    letterSpacing: 0.3,
   },
 });
 
-export default BuyerAccountPage;
+export default UserAccount;

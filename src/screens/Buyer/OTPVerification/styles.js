@@ -3,111 +3,95 @@ import { StyleSheet } from 'react-native';
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 24,
-    paddingTop: 48,
-    alignItems: 'center',
+    backgroundColor: 'white',
+    padding: 20,
+    justifyContent: 'center',
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 8,
+    // fontWeight: 'bold',
+    color: 'black',
+    marginBottom: 10,
     textAlign: 'center',
-    fontFamily: 'Inter-SemiBold', // Use your preferred font family
   },
   subTitle: {
     fontSize: 16,
-    color: '#666666',
-    marginBottom: 40,
-    textAlign: 'center',
-    fontFamily: 'Inter-Regular',
-    lineHeight: 24,
-  },
-  pinCodeContainer: {
-    width: 52,
-    height: 60,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    backgroundColor: '#FAFAFA',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 6,
-  },
-  activePinCodeContainer: {
-    borderColor: '#4CAF50',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#4CAF50',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  filledPinCodeContainer: {
-    borderColor: '#4CAF50',
-    backgroundColor: '#FFFFFF',
-  },
-  pinCodeText: {
-    fontSize: 24,
-    color: '#1A1A1A',
-    fontWeight: '600',
-    fontFamily: 'Inter-Medium',
-  },
-  focusStick: {
-    width: 2,
-    height: 30,
-    backgroundColor: '#4CAF50',
-  },
-  placeholderText: {
-    fontSize: 24,
-    color: '#BDBDBD',
-  },
-  disabledPinCodeContainer: {
-    backgroundColor: '#F5F5F5',
-    borderColor: '#EEEEEE',
-  },
-  resendContainer: {
-    marginTop: 32,
-    marginBottom: 40,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  resendText: {
-    color: '#666666',
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-  },
-  resendLink: {
-    color: '#4CAF50',
-    fontSize: 14,
-    fontWeight: '600',
-    fontFamily: 'Inter-SemiBold',
-    marginLeft: 4,
-  },
-  buttonContainer: {
-    width: '100%',
-    marginTop: 32,
-    paddingHorizontal: 16,
-  },
-  errorText: {
-    color: '#F44336',
-    fontSize: 14,
-    marginTop: 8,
-    fontFamily: 'Inter-Regular',
-    textAlign: 'center',
-  },
-  successText: {
-    color: '#4CAF50',
-    fontSize: 14,
-    marginTop: 8,
-    fontFamily: 'Inter-Regular',
+    color: 'black',
+    marginBottom: 30,
     textAlign: 'center',
   },
   otpContainer: {
-    marginVertical: 40,
-    width: '100%',
+    marginBottom: 20,
     justifyContent: 'center',
+    paddingHorizontal: 20, // Adjust this to control overall width
+  },
+  pinCodeContainer: {
+    borderWidth: 1,
+    borderColor: 'black',
+    borderRadius: 5,
+    height: 50,
+    width: 45, // Reduced width
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 5, // Reduced spacing between boxes
+  },
+  pinCodeText: {
+    fontSize: 20,
+    color: 'black',
+    textAlign: 'center',
+    includeFontPadding: false, // Ensures text is properly centered
+  },
+  focusStick: {
+    backgroundColor: 'black',
+    width: 2,
+  },
+  activePinCodeContainer: {
+    borderColor: 'black',
+    borderWidth: 2,
+  },
+  filledPinCodeContainer: {
+    borderColor: 'black',
+  }, 
+  button: {
+    backgroundColor: 'black',
+    padding: 15,
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+    resendButton: {
+    backgroundColor: 'black',
+    marginTop: 20,
+  },
+  disabledButton: {
+    backgroundColor: 'gray', // or any color you prefer for disabled state
+    opacity: 0.6,
+  },
+  loaderContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 100,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+  },
+  loaderText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: 'black',
+  },
+  contentBlurred: {
+    opacity: 0.5,
+  },
+  contentNormal: {
+    opacity: 1,
   },
 });
