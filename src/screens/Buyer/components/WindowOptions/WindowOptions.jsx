@@ -1,1102 +1,4 @@
-// import React, {useState, useRef} from 'react';
-// import {
-//   View,
-//   KeyboardAvoidingView,
-//   Platform,
-//   TouchableOpacity,
-//   ScrollView,
-//   StyleSheet,
-//   Dimensions,
-//   TextInput,
-//   Modal,
-//   FlatList,
-//   Animated,
-//   Image,
-// } from 'react-native';
-// import Icon from 'react-native-vector-icons/MaterialIcons';
-// import Video from 'react-native-video';
-// import DropDownPicker from 'react-native-dropdown-picker';
-// import {State} from 'react-native-gesture-handler';
-// import {useNavigation} from '@react-navigation/native';
-// import TopTabBar from '../../Dashboard/TopTabBar';
-// import AppText from '../../../../components/AppText';
-
-// const {width, height} = Dimensions.get('window');
-
-// const WindowOptions = () => {
-//   const [selectedDesign, setSelectedDesign] = useState(null);
-//   const [currentDesignIndex, setCurrentDesignIndex] = useState(0);
-//   const [showQuoteForm, setShowQuoteForm] = useState(false);
-//   const [addedQuotes, setAddedQuotes] = useState([]);
-//   const [quoteCount, setQuoteCount] = useState(0);
-//   const navigation = useNavigation();
-//   const [quoteData, setQuoteData] = useState({
-//     color: '',
-//     location: '',
-//     height: '',
-//     width: '',
-//     quantity: '',
-//     remarks: '',
-//   });
-
-//   // Dropdown states for color
-//   const [colorOpen, setColorOpen] = useState(false);
-//   const [colorValue, setColorValue] = useState(null);
-//   const [colorItems, setColorItems] = useState([
-//     {label: 'White', value: 'white'},
-//     {label: 'Black', value: 'black'},
-//     {label: 'Wooden Brown', value: 'brown'},
-//     {label: 'Silver Grey', value: 'grey'},
-//     {label: 'Golden Oak', value: 'golden'},
-//   ]);
-
-//   // Dropdown states for location
-//   const [locationOpen, setLocationOpen] = useState(false);
-//   const [locationValue, setLocationValue] = useState(null);
-//   const [locationItems, setLocationItems] = useState([
-//     {label: 'Balcony', value: 'balcony'},
-//     {label: 'Living Room', value: 'living_room'},
-//     {label: 'Bedroom', value: 'bedroom'},
-//     {label: 'Kitchen', value: 'kitchen'},
-//     {label: 'Bathroom', value: 'bathroom'},
-//   ]);
-
-//   const scrollX = useRef(new Animated.Value(0)).current;
-//   const flatListRef = useRef(null);
-
-//   const windowDesigns = [
-//     {
-//       id: 1,
-//       name: 'SLIDING WINDOWS',
-//       count: 8,
-//       designs: [
-//         {
-//           id: 1,
-//           title: '2 Track Sliding Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 2,
-//           title: '3 Track Sliding Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 3,
-//           title: '4 Track Sliding Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 4,
-//           title: '5 Track Sliding Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 5,
-//           title: '6 Track Sliding Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 6,
-//           title: '7 Track Sliding Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 7,
-//           title: '8 Track Sliding Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 8,
-//           title: '9 Track Sliding Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//       ],
-//     },
-//     {
-//       id: 2,
-//       name: 'SLIDING DOORS',
-//       count: 3,
-//       designs: [
-//         {
-//           id: 1,
-//           title: '2 Panel Sliding Door',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 2,
-//           title: '3 Panel Sliding Door',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 3,
-//           title: '4 Panel Sliding Door',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//       ],
-//     },
-//     {
-//       id: 3,
-//       name: 'CASEMENT WINDOWS',
-//       count: 4,
-//       designs: [
-//         {
-//           id: 1,
-//           title: 'Single Casement Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 2,
-//           title: 'Double Casement Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 3,
-//           title: 'French Casement Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 4,
-//           title: 'Push-out Casement Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//       ],
-//     },
-//     {
-//       id: 4,
-//       name: 'CASEMENT DOORS',
-//       count: 3,
-//       designs: [
-//         {
-//           id: 1,
-//           title: 'Single Casement Door',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 2,
-//           title: 'Double Casement Door',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 3,
-//           title: 'French Casement Door',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//       ],
-//     },
-//     {
-//       id: 5,
-//       name: 'FIXED WINDOWS',
-//       count: 1,
-//       designs: [
-//         {
-//           id: 1,
-//           title: 'Standard Fixed Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//       ],
-//     },
-//     {
-//       id: 6,
-//       name: 'BATHROOM VENTILATORS',
-//       count: 4,
-//       designs: [
-//         {
-//           id: 1,
-//           title: 'Small Ventilator',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 2,
-//           title: 'Medium Ventilator',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 3,
-//           title: 'Large Ventilator',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 4,
-//           title: 'Decorative Ventilator',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//       ],
-//     },
-//     {
-//       id: 7,
-//       name: 'COMBINATION WINDOWS',
-//       count: 4,
-//       designs: [
-//         {
-//           id: 1,
-//           title: 'Slider + Fixed Combo',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 2,
-//           title: 'Casement + Fixed Combo',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 3,
-//           title: 'Bay Window Combo',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 4,
-//           title: 'Bow Window Combo',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//       ],
-//     },
-//     {
-//       id: 8,
-//       name: 'SPECIAL ARCHITECTURAL WINDOWS',
-//       count: 8,
-//       designs: [
-//         {
-//           id: 1,
-//           title: 'Arch Top Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 2,
-//           title: 'Circle Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 3,
-//           title: 'Hexagon Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 4,
-//           title: 'Octagon Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 5,
-//           title: 'Triangle Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 6,
-//           title: 'Gothic Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 7,
-//           title: 'Elliptical Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//         {
-//           id: 8,
-//           title: 'Custom Shape Window',
-//           video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-//         },
-//       ],
-//     },
-//   ];
-
-//   const handleRequestQuote = () => {
-//     const finalQuoteData = {
-//       ...quoteData,
-//       color: colorValue,
-//       location: locationValue,
-//     };
-//     console.log('Quote requested:', finalQuoteData);
-//     setShowQuoteForm(false);
-//     // Reset form
-//     setColorValue(null);
-//     setLocationValue(null);
-//     setQuoteData({
-//       color: '',
-//       location: '',
-//       height: '',
-//       width: '',
-//       quantity: '',
-//       remarks: '',
-//     });
-//     //  navigation.navigate("BuyerInsights")
-//     navigation.navigate('BuyerMain', {screen: 'BuyerInsights'});
-//   };
-
-//   const handleDesignSelection = design => {
-//     if (selectedDesign && selectedDesign.id === design.id) {
-//       setSelectedDesign(null); // Collapse if clicking the same design
-//       setCurrentDesignIndex(0); // Reset index when collapsing
-//     } else {
-//       setSelectedDesign(design); // Expand the selected design
-//       setCurrentDesignIndex(0); // Reset index when expanding new design
-//     }
-//   };
-
-//   const handleNext = () => {
-//     if (currentDesignIndex < selectedDesign.designs.length - 1) {
-//       const newIndex = currentDesignIndex + 1;
-//       setCurrentDesignIndex(newIndex);
-//       flatListRef.current?.scrollToIndex({index: newIndex, animated: true});
-//     }
-//   };
-
-//   const handlePrev = () => {
-//     if (currentDesignIndex > 0) {
-//       const newIndex = currentDesignIndex - 1;
-//       setCurrentDesignIndex(newIndex);
-//       flatListRef.current?.scrollToIndex({index: newIndex, animated: true});
-//     }
-//   };
-
-//   const onSwipe = event => {
-//     if (event.nativeEvent.state === State.END) {
-//       const {translationX} = event.nativeEvent;
-//       if (translationX > 50) {
-//         // Swiped right - go previous
-//         handlePrev();
-//       } else if (translationX < -50) {
-//         // Swiped left - go next
-//         handleNext();
-//       }
-//     }
-//   };
-
-//   const onViewableItemsChanged = useRef(({viewableItems}) => {
-//     if (viewableItems.length > 0) {
-//       setCurrentDesignIndex(viewableItems[0].index);
-//     }
-//   }).current;
-
-//   const viewabilityConfig = useRef({
-//     itemVisiblePercentThreshold: 50,
-//   }).current;
-
-//   const handleAddQuote = () => {
-//     const newQuote = {
-//       ...quoteData,
-//       color: colorValue,
-//       location: locationValue,
-//       design:
-//         selectedDesign?.designs[currentDesignIndex]?.title || 'Unknown Design',
-//     };
-
-//     setAddedQuotes([...addedQuotes, newQuote]);
-//     setQuoteCount(quoteCount + 1);
-//     // setShowQuoteForm(false);
-
-//     // Reset form
-//     setColorValue(null);
-//     setLocationValue(null);
-//     setQuoteData({
-//       color: '',
-//       location: '',
-//       height: '',
-//       width: '',
-//       quantity: '',
-//       remarks: '',
-//     });
-//   };
-
-//   const renderDesignItem = ({item}) => (
-//     <View style={styles.carouselItem}>
-//       <AppText weight="SemiBold" style={styles.videoTitle}>
-//         {item.title}
-//       </AppText>
-//       <View style={styles.videoContainer}>
-//         <Video
-//           source={{uri: item.video}}
-//           style={styles.videoPlayer}
-//           paused={false}
-//           repeat={true}
-//           resizeMode="cover"
-//           controls={true}
-//         />
-//       </View>
-//     </View>
-//   );
-
-//   return (
-//     <View style={styles.container}>
-//       <View style={styles.Headercontainer}>
-//         {/* Back Button */}
-//         <TouchableOpacity
-//           style={styles.backButton}
-//           onPress={() => navigation.goBack()}>
-//           <Icon name="arrow-back" size={30} color="#000" />
-//         </TouchableOpacity>
-
-//         {/* Centered Logo */}
-//         <View style={styles.logoContainer}>
-//           <Image
-//             source={require('../../../../assets/logo.png')}
-//             style={styles.logo}
-//           />
-//         </View>
-//       </View>
-//       <TopTabBar />
-//       <ScrollView contentContainerStyle={styles.scrollContainer}>
-//         <AppText weight="Bold" style={styles.screenTitle}>
-//           CHOOSE DESIGN FOR QUOTE
-//         </AppText>
-
-//         {/* Design Categories */}
-//         {windowDesigns.map(design => (
-//           <React.Fragment key={design.id}>
-//             <TouchableOpacity
-//               style={[
-//                 styles.designCard,
-//                 selectedDesign?.id === design.id && styles.selectedDesignCard,
-//               ]}
-//               onPress={() => handleDesignSelection(design)}>
-//               <AppText weight="SemiBold" style={styles.designName}>
-//                 {design.name}
-//               </AppText>
-//               <View style={styles.countBadge}>
-//                 <AppText style={styles.countText}>{design.count}</AppText>
-//               </View>
-//             </TouchableOpacity>
-
-//             {/* Selected Design Details - shown only for the selected design */}
-//             {selectedDesign?.id === design.id && (
-//               <View style={styles.designDetails}>
-//                 {/* <PanGestureHandler onHandlerStateChange={onSwipe}> */}
-//                 <View>
-//                   <Animated.FlatList
-//                     ref={flatListRef}
-//                     data={selectedDesign.designs}
-//                     renderItem={renderDesignItem}
-//                     keyExtractor={item => item.id.toString()}
-//                     horizontal
-//                     pagingEnabled
-//                     showsHorizontalScrollIndicator={false}
-//                     onScroll={Animated.event(
-//                       [{nativeEvent: {contentOffset: {x: scrollX}}}],
-//                       {useNativeDriver: true},
-//                     )}
-//                     onViewableItemsChanged={onViewableItemsChanged}
-//                     viewabilityConfig={viewabilityConfig}
-//                     initialScrollIndex={currentDesignIndex}
-//                     getItemLayout={(data, index) => ({
-//                       length: width - 40,
-//                       offset: (width - 40) * index,
-//                       index,
-//                     })}
-//                   />
-//                 </View>
-//                 {/* </PanGestureHandler> */}
-
-//                 {/* Navigation Dots */}
-//                 <View style={styles.dotsContainer}>
-//                   {selectedDesign.designs.map((_, index) => (
-//                     <View
-//                       key={index}
-//                       style={[
-//                         styles.dot,
-//                         index === currentDesignIndex && styles.activeDot,
-//                       ]}
-//                     />
-//                   ))}
-//                 </View>
-
-//                 {/* Navigation Buttons */}
-//                 <View style={styles.navButtons}>
-//                   <TouchableOpacity
-//                     style={[
-//                       styles.navButton,
-//                       currentDesignIndex === 0 && styles.disabledNavButton,
-//                     ]}
-//                     onPress={handlePrev}
-//                     disabled={currentDesignIndex === 0}>
-//                     <Icon name="chevron-left" size={24} color="black" />
-//                   </TouchableOpacity>
-
-//                   <AppText weight="SemiBold" style={styles.counterText}>
-//                     {currentDesignIndex + 1} / {selectedDesign.designs.length}
-//                   </AppText>
-
-//                   <TouchableOpacity
-//                     style={[
-//                       styles.navButton,
-//                       currentDesignIndex ===
-//                         selectedDesign.designs.length - 1 &&
-//                         styles.disabledNavButton,
-//                     ]}
-//                     onPress={handleNext}
-//                     disabled={
-//                       currentDesignIndex === selectedDesign.designs.length - 1
-//                     }>
-//                     <Icon name="chevron-right" size={24} color="black" />
-//                   </TouchableOpacity>
-//                 </View>
-
-//                 {/* Design Features */}
-//                 <View style={styles.featuresContainer}>
-//                   <AppText weight="Bold" style={styles.featuresTitle}>
-//                     Key Features:
-//                   </AppText>
-//                   <View style={styles.featureItem}>
-//                     <Icon name="check-circle" size={18} color="black" />
-//                     <AppText weight="Inter" style={styles.featureText}>
-//                       Premium quality materials
-//                     </AppText>
-//                   </View>
-//                   <View style={styles.featureItem}>
-//                     <Icon name="check-circle" size={18} color="black" />
-//                     <AppText weight="Inter" style={styles.featureText}>
-//                       Weather resistant
-//                     </AppText>
-//                   </View>
-//                   <View style={styles.featureItem}>
-//                     <Icon name="check-circle" size={18} color="black" />
-//                     <AppText weight="Inter" style={styles.featureText}>
-//                       Energy efficient
-//                     </AppText>
-//                   </View>
-//                   <View style={styles.featureItem}>
-//                     <Icon name="check-circle" size={18} color="black" />
-//                     <AppText weight="Inter" style={styles.featureText}>
-//                       Noise reduction
-//                     </AppText>
-//                   </View>
-//                 </View>
-
-//                 {/* Request Quote Button */}
-//                 <TouchableOpacity
-//                   style={styles.quoteButton}
-//                   onPress={() => setShowQuoteForm(true)}>
-//                   <AppText weight="SemiBold" style={styles.quoteButtonText}>
-//                     REQUEST FOR QUOTE
-//                   </AppText>
-//                 </TouchableOpacity>
-//               </View>
-//             )}
-//           </React.Fragment>
-//         ))}
-//       </ScrollView>
-
-//       {/* Quote Request Modal */}
-//       <Modal
-//         visible={showQuoteForm}
-//         animationType="slide"
-//         transparent={true}
-//         onRequestClose={() => setShowQuoteForm(false)}>
-//         {/* <ScrollView style={styles.scrollModal} > */}
-//           <View style={styles.modalOverlay}>
-//             <View style={styles.modalContainer}>
-//               <View
-//                 style={{
-//                   flex: 1,
-//                   justifyContent: 'center',
-//                   alignItems: 'center',
-//                 }}>
-//                 <Image
-//                   source={require('../../../../assets/logo.png')}
-//                   style={styles.logo}
-//                 />
-//               </View>
-//               <AppText weight="SemiBold" style={styles.modalTitle}>
-//                 Request Quote
-//               </AppText>
-
-//               {/* Color Selection */}
-//               <View style={styles.inputContainer1}>
-//                 <AppText weight="SemiBold" style={styles.inputLabel}>
-//                   COLOR
-//                 </AppText>
-//                 <DropDownPicker
-//                   open={colorOpen}
-//                   value={colorValue}
-//                   items={colorItems}
-//                   setOpen={setColorOpen}
-//                   setValue={setColorValue}
-//                   setItems={setColorItems}
-//                   style={styles.dropdown}
-//                   dropDownContainerStyle={styles.dropdownContainer}
-//                   placeholder="Select a color"
-//                   zIndex={3000}
-//                   zIndexInverse={1000}
-//                 />
-//               </View>
-
-//               {/* Location Selection */}
-//               <View style={styles.inputContainer2}>
-//                 <AppText weight="SemiBold" style={styles.inputLabel}>
-//                   WHERE
-//                 </AppText>
-//                 <DropDownPicker
-//                   open={locationOpen}
-//                   value={locationValue}
-//                   items={locationItems}
-//                   setOpen={setLocationOpen}
-//                   setValue={setLocationValue}
-//                   setItems={setLocationItems}
-//                   style={styles.dropdown}
-//                   dropDownContainerStyle={styles.dropdownContainer}
-//                   placeholder="Select location"
-//                   zIndex={2000}
-//                   zIndexInverse={2000}
-//                 />
-//               </View>
-
-//               {/* Size Inputs */}
-//               <View style={styles.sizeContainer}>
-//                 <View style={styles.sizeInput}>
-//                   <AppText weight="SemiBold" style={styles.inputLabel}>
-//                     HEIGHT (ft)
-//                   </AppText>
-//                   <TextInput
-//                     style={styles.textInput}
-//                     keyboardType="numeric"
-//                     onChangeText={text =>
-//                       setQuoteData({...quoteData, height: text})
-//                     }
-//                     placeholder="Enter height"
-//                     value={quoteData.height}
-//                   />
-//                 </View>
-//                 <View style={styles.sizeInput}>
-//                   <AppText weight="SemiBold" style={styles.inputLabel}>
-//                     WIDTH (ft)
-//                   </AppText>
-//                   <TextInput
-//                     style={styles.textInput}
-//                     keyboardType="numeric"
-//                     onChangeText={text =>
-//                       setQuoteData({...quoteData, width: text})
-//                     }
-//                     placeholder="Enter width"
-//                     value={quoteData.width}
-//                   />
-//                 </View>
-//               </View>
-
-//               {/* Quantity Input */}
-//               <View style={styles.inputContainer}>
-//                 <AppText weight="SemiBold" style={styles.inputLabel}>
-//                   QUANTITY
-//                 </AppText>
-//                 <TextInput
-//                   style={styles.textInput}
-//                   keyboardType="numeric"
-//                   onChangeText={text =>
-//                     setQuoteData({...quoteData, quantity: text})
-//                   }
-//                   placeholder="Enter quantity"
-//                   value={quoteData.quantity}
-//                 />
-//               </View>
-
-//               {/* Remarks Input */}
-//               <View style={styles.inputContainer}>
-//                 <AppText weight="SemiBold" style={styles.inputLabel}>
-//                   REMARKS
-//                 </AppText>
-//                 <TextInput
-//                   style={[
-//                     styles.textInput,
-//                     {height: 80, textAlignVertical: 'top'},
-//                   ]}
-//                   multiline
-//                   numberOfLines={4}
-//                   onChangeText={text =>
-//                     setQuoteData({...quoteData, remarks: text})
-//                   }
-//                   placeholder="Any special requirements or notes"
-//                   value={quoteData.remarks}
-//                 />
-//               </View>
-
-//               {/* Form Actions */}
-//               <View style={styles.formActions}>
-//                 <View style={styles.actionButtons}>
-//                   <TouchableOpacity
-//                     style={styles.cancelButton}
-//                     onPress={() => setShowQuoteForm(false)}>
-//                     <AppText weight="SemiBold" style={styles.cancelButtonText}>
-//                       CANCEL
-//                     </AppText>
-//                   </TouchableOpacity>
-//                   <TouchableOpacity
-//                     style={styles.cancelButton}
-//                     onPress={handleAddQuote}>
-//                     <AppText weight="SemiBold" style={styles.cancelButtonText}>
-//                       ADD
-//                     </AppText>
-//                   </TouchableOpacity>
-//                 </View>
-//                 <View style={styles.categoryButton}>
-//                   <TouchableOpacity
-//                     style={styles.submitButton}
-//                     onPress={handleRequestQuote}>
-//                     {/* <Text style={styles.submitButtonText}>SUBMIT</Text> */}
-//                     <AppText weight="SemiBold" style={styles.submitButtonText}>
-//                       Select Categories
-//                     </AppText>
-//                   </TouchableOpacity>
-//                 </View>
-//               </View>
-//               {quoteCount > 0 && (
-//                 <TouchableOpacity
-//                   style={styles.floatingButton}
-//                   onPress={() =>
-//                     navigation.navigate('QuoteRequestPage', {
-//                       quotes: addedQuotes,
-//                     })
-//                   }>
-//                   <View style={styles.badge}>
-//                     <AppText weight="Inter" style={styles.badgeText}>
-//                       {quoteCount}
-//                     </AppText>
-//                   </View>
-//                   <AppText weight="Inter" style={styles.floatingButtonText}>
-//                     view
-//                   </AppText>
-//                 </TouchableOpacity>
-//               )}
-//             </View>
-//           </View>
-//         {/* </ScrollView> */}
-//       </Modal>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: 'white',
-//     paddingTop: 15,
-//   },
-//   Headercontainer: {
-//     position: 'relative', // allow absolute positioning inside
-//     height: 80, // adjust as needed
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginBottom: 10,
-//   },
-
-//   backButton: {
-//     position: 'absolute',
-//     left: 10,
-//     top: '50%',
-//     transform: [{translateY: -12}], // vertically center the icon
-//     padding: 5,
-//   },
-
-//   logoContainer: {
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     paddingTop: 20,
-//   },
-
-//   logo: {
-//     width: 100,
-//     height: 100,
-//     resizeMode: 'contain',
-//   },
-//   textArea: {
-//     height: 80,
-//     textAlignVertical: 'top',
-//   },
-//   scrollContainer: {
-//     padding: 20,
-//     paddingBottom: 40,
-//   },
-//   screenTitle: {
-//     fontSize: 22, 
-//     color: 'black',
-//     marginBottom: 25,
-//     textAlign: 'center',
-//     letterSpacing: 2, 
-//   },
-//   designCard: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     padding: 18,
-//     marginBottom: 12,
-//     backgroundColor: 'white',
-//     borderRadius: 8,
-//     borderWidth: 1,
-//     borderColor: '#e0e0e0',
-//     shadowColor: '#000',
-//     shadowOffset: {width: 0, height: 2},
-//     shadowOpacity: 0.1,
-//     shadowRadius: 4,
-//     elevation: 2,
-//   },
-//   selectedDesignCard: {
-//     borderColor: 'black',
-//     borderWidth: 2,
-//     shadowColor: '#000',
-//     shadowOffset: {width: 0, height: 4},
-//     shadowOpacity: 0.2,
-//     shadowRadius: 6,
-//     elevation: 4,
-//   },
-//   designName: {
-//     fontSize: 16,
-//     // fontWeight: '600',
-//     color: 'black',
-//     flex: 1,
-//   },
-//   countBadge: {
-//     backgroundColor: 'black',
-//     borderRadius: 12,
-//     width: 24,
-//     height: 24,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginLeft: 10,
-//   },
-//   countText: {
-//     color: 'white',
-//     fontWeight: 'bold',
-//     fontSize: 12,
-//   },
-//   designDetails: {
-//     marginVertical: 30,
-//   },
-//   carouselItem: {
-//     width: width - 40,
-//     paddingHorizontal: 10,
-//   },
-//   videoContainer: {
-//     height: 200,
-//     backgroundColor: 'black',
-//     borderRadius: 8,
-//     overflow: 'hidden',
-//     marginBottom: 20,
-//   },
-//   videoPlayer: {
-//     width: '100%',
-//     height: '100%',
-//   },
-//   videoTitle: {
-//     textAlign: 'center',
-//     fontSize: 18,
-//     // fontWeight: 'bold',
-//     color: 'black',
-//     marginBottom: 15,
-//   },
-//   featuresContainer: {
-//     marginBottom: 25,
-//   },
-//   featuresTitle: {
-//     fontSize: 18,
-//     // fontWeight: 'bold',
-//     color: 'black',
-//     marginBottom: 15,
-//   },
-//   featureItem: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     marginBottom: 10,
-//   },
-//   featureText: {
-//     fontSize: 14,
-//     color: 'black',
-//     marginLeft: 10,
-//   },
-//   quoteButton: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: 'black',
-//     padding: 16,
-//     borderRadius: 8,
-//     alignItems: 'center',
-//     marginTop: 10,
-//   },
-//   quoteButtonText: {
-//     color: 'white',
-//     fontSize: 16,
-//     // fontWeight: 'bold',
-//     letterSpacing: 2,
-//   },
-//   modalOverlay: {
-//     flex: 1,
-//     backgroundColor: 'rgba(0,0,0,0.5)',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//   }, 
-//   modalContainer: {
-//     width: width - 40, 
-//     backgroundColor: 'white',
-//     borderRadius: 12,
-//     padding: 25,
-//     shadowColor: '#000',
-//     shadowOffset: {width: 0, height: 4},
-//     shadowOpacity: 0.3,
-//     shadowRadius: 10,
-//     elevation: 5,
-//   },
-//   modalTitle: {
-//     fontSize: 20,
-//     // fontWeight: 'bold',
-//     color: 'black',
-//     marginVertical: 25,
-//     marginTop: 50,
-//     textAlign: 'center',
-//   },
-//   inputContainer1: {
-//     marginBottom: 20,
-//     zIndex: 4,
-//   },
-//   inputContainer2: {
-//     marginBottom: 20,
-//     zIndex: 3,
-//   },
-//   inputContainer: {
-//     marginBottom: 20,
-//   },
-//   inputLabel: {
-//     fontSize: 14,
-//     color: 'black',
-//     marginBottom: 8,
-//     // fontWeight: '600',
-//   },
-//   dropdown: {
-//     borderWidth: 1,
-//     borderColor: '#e0e0e0',
-//     borderRadius: 4,
-//     backgroundColor: 'white',
-//   },
-//   dropdownContainer: {
-//     borderWidth: 1,
-//     borderColor: '#e0e0e0',
-//     backgroundColor: 'white',
-//   },
-//   textInput: {
-//     borderWidth: 1,
-//     borderColor: '#e0e0e0',
-//     borderRadius: 4,
-//     padding: 12,
-//     fontSize: 16,
-//     color: 'black',
-//     backgroundColor: 'white',
-//   },
-//   sizeContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     marginBottom: 20,
-//   },
-//   sizeInput: {
-//     width: '48%',
-//   },
-//   formActions: {
-//     flexDirection: 'col',
-//     justifyContent: 'space-between',
-//     marginTop: 15,
-//   },
-//   actionButtons: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     marginVertical: 15,
-//   },
-//   categoryButton: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     // marginVertical: 15,
-//   },
-//   cancelButton: {
-//     borderWidth: 1,
-//     borderColor: 'black',
-//     borderRadius: 6,
-//     padding: 14,
-//     flex: 1,
-//     marginRight: 10,
-//     alignItems: 'center',
-//   },
-//   cancelButtonText: {
-//     color: 'black',
-//     // fontWeight: 'bold',
-//   },
-//   submitButton: {
-//     backgroundColor: 'black',
-//     borderRadius: 6,
-//     padding: 14,
-//     flex: 1,
-//     alignItems: 'center',
-//   },
-//   submitButtonText: {
-//     color: 'white',
-//     fontSize: 16,
-//     // fontWeight: 'bold',
-//   },
-//   // New styles for carousel navigation
-//   navButtons: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     marginBottom: 20,
-//   },
-//   navButton: {
-//     padding: 10,
-//     borderRadius: 20,
-//     backgroundColor: '#f0f0f0',
-//   },
-//   disabledNavButton: {
-//     opacity: 0.5,
-//   },
-//   counterText: {
-//     fontSize: 16,
-//     // fontWeight: 'bold',
-//     color: 'black',
-//   },
-//   dotsContainer: {
-//     flexDirection: 'row',
-//     justifyContent: 'center',
-//     marginBottom: 15,
-//   },
-//   dot: {
-//     width: 8,
-//     height: 8,
-//     borderRadius: 4,
-//     backgroundColor: '#ccc',
-//     marginHorizontal: 4,
-//   },
-//   activeDot: {
-//     backgroundColor: 'black',
-//   },
-//   floatingButton: {
-//     position: 'absolute',
-//     top: 10,
-//     right: 10,
-//     backgroundColor: 'black',
-//     borderRadius: 25,
-//     paddingVertical: 10,
-//     paddingHorizontal: 15,
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     shadowColor: '#000',
-//     shadowOffset: {width: 0, height: 2},
-//     shadowOpacity: 0.3,
-//     shadowRadius: 4,
-//     elevation: 5,
-//   },
-//   badge: {
-//     backgroundColor: 'red',
-//     borderRadius: 10,
-//     width: 20,
-//     height: 20,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginRight: 8,
-//   },
-//   badgeText: {
-//     color: 'white',
-//     fontSize: 12,
-//     // fontWeight: 'bold',
-//   },
-//   floatingButtonText: {
-//     color: 'white',
-//     fontSize: 14,
-//     // fontWeight: 'bold',
-//   },
-// });
-
-// export default WindowOptions;
-import React, { useState, useRef } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   KeyboardAvoidingView,
@@ -1106,20 +8,22 @@ import {
   StyleSheet,
   Dimensions,
   TextInput,
-  Modal,
-  FlatList,
+  Modal, 
   Animated,
   Image,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
 import DropDownPicker from 'react-native-dropdown-picker';
-import { State } from 'react-native-gesture-handler';
-import { useNavigation } from '@react-navigation/native';
+import {State} from 'react-native-gesture-handler';
+import {useNavigation} from '@react-navigation/native';
 import TopTabBar from '../../Dashboard/TopTabBar';
 import AppText from '../../../../components/AppText';
-
-const { width, height } = Dimensions.get('window');
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
+const {width, height} = Dimensions.get('window');
 
 const WindowOptions = () => {
   const [selectedDesign, setSelectedDesign] = useState(null);
@@ -1127,6 +31,10 @@ const WindowOptions = () => {
   const [showQuoteForm, setShowQuoteForm] = useState(false);
   const [addedQuotes, setAddedQuotes] = useState([]);
   const [quoteCount, setQuoteCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [windowDesigns, setWindowDesigns] = useState([]);
+  const [buyerId, setBuyerId] = useState(null);
   const navigation = useNavigation();
   const [quoteData, setQuoteData] = useState({
     color: '',
@@ -1141,121 +49,69 @@ const WindowOptions = () => {
   const [colorOpen, setColorOpen] = useState(false);
   const [colorValue, setColorValue] = useState(null);
   const [colorItems, setColorItems] = useState([
-    { label: 'White', value: 'white' },
-    { label: 'Black', value: 'black' },
-    { label: 'Wooden Brown', value: 'brown' },
-    { label: 'Silver Grey', value: 'grey' },
-    { label: 'Golden Oak', value: 'golden' },
+    {label: 'White', value: 'white'},
+    {label: 'Black', value: 'black'},
+    {label: 'Wooden Brown', value: 'brown'},
+    {label: 'Silver Grey', value: 'grey'},
+    {label: 'Golden Oak', value: 'golden'},
   ]);
 
   // Dropdown states for location
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationValue, setLocationValue] = useState(null);
   const [locationItems, setLocationItems] = useState([
-    { label: 'Balcony', value: 'balcony' },
-    { label: 'Living Room', value: 'living_room' },
-    { label: 'Bedroom', value: 'bedroom' },
-    { label: 'Kitchen', value: 'kitchen' },
-    { label: 'Bathroom', value: 'bathroom' },
+    {label: 'Balcony', value: 'balcony'},
+    {label: 'Living Room', value: 'living_room'},
+    {label: 'Bedroom', value: 'bedroom'},
+    {label: 'Kitchen', value: 'kitchen'},
+    {label: 'Bathroom', value: 'bathroom'},
   ]);
 
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef(null);
 
-  const windowDesigns = [
-    {
-      id: 1,
-      name: 'SLIDING WINDOWS',
-      count: 8,
-      designs: [
-        { id: 1, title: '2 Track Sliding Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 2, title: '3 Track Sliding Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 3, title: '4 Track Sliding Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 4, title: '5 Track Sliding Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 5, title: '6 Track Sliding Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 6, title: '7 Track Sliding Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 7, title: '8 Track Sliding Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 8, title: '9 Track Sliding Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-      ],
-    },
-    {
-      id: 2,
-      name: 'SLIDING DOORS',
-      count: 3,
-      designs: [
-        { id: 1, title: '2 Panel Sliding Door', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 2, title: '3 Panel Sliding Door', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 3, title: '4 Panel Sliding Door', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-      ],
-    },
-    {
-      id: 3,
-      name: 'CASEMENT WINDOWS',
-      count: 4,
-      designs: [
-        { id: 1, title: 'Single Casement Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 2, title: 'Double Casement Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 3, title: 'French Casement Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 4, title: 'Push-out Casement Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-      ],
-    },
-    {
-      id: 4,
-      name: 'CASEMENT DOORS',
-      count: 3,
-      designs: [
-        { id: 1, title: 'Single Casement Door', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 2, title: 'Double Casement Door', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 3, title: 'French Casement Door', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-      ],
-    },
-    {
-      id: 5,
-      name: 'FIXED WINDOWS',
-      count: 1,
-      designs: [
-        { id: 1, title: 'Standard Fixed Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-      ],
-    },
-    {
-      id: 6,
-      name: 'BATHROOM VENTILATORS',
-      count: 4,
-      designs: [
-        { id: 1, title: 'Small Ventilator', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 2, title: 'Medium Ventilator', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 3, title: 'Large Ventilator', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 4, title: 'Decorative Ventilator', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-      ],
-    },
-    {
-      id: 7,
-      name: 'COMBINATION WINDOWS',
-      count: 4,
-      designs: [
-        { id: 1, title: 'Slider + Fixed Combo', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 2, title: 'Casement + Fixed Combo', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 3, title: 'Bay Window Combo', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 4, title: 'Bow Window Combo', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-      ],
-    },
-    {
-      id: 8,
-      name: 'SPECIAL ARCHITECTURAL WINDOWS',
-      count: 8,
-      designs: [
-        { id: 1, title: 'Arch Top Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 2, title: 'Circle Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 3, title: 'Hexagon Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 4, title: 'Octagon Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 5, title: 'Triangle Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 6, title: 'Gothic Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 7, title: 'Elliptical Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-        { id: 8, title: 'Custom Shape Window', video: 'https://www.w3schools.com/html/mov_bbb.mp4' },
-      ],
-    },
-  ];
+  useEffect(() => {
+    
+    const fetchData = async () => {
+      try {  
+        const token = await AsyncStorage.getItem('buyerToken');
+        if (token) { 
+          setBuyerId(token); 
+        }
+ 
+        const response = await axios.get('http://192.168.1.27:9000/api/options');
+        const formattedData = response.data.map(item => ({
+          id: item._id,
+          name: item.title.toUpperCase(),
+          count: item.subOptions.length,
+          designs: item.subOptions.map(subItem => ({
+            id: subItem._id,
+            title: subItem.title,
+            video: subItem.videoUrl,
+            features: subItem.features
+          }))
+        }));
+        setWindowDesigns(formattedData);
 
+        const responseQuotes = await axios.get('http://192.168.1.27:9000/api/quotes/buyer', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        setQuoteCount(responseQuotes?.data?.count)
+
+      } catch (err) {
+        setError(err.message);
+        console.error('Error fetching data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+  
   const handleRequestQuote = () => {
     const finalQuoteData = {
       ...quoteData,
@@ -1264,6 +120,7 @@ const WindowOptions = () => {
     };
     console.log('Quote requested:', finalQuoteData);
     setShowQuoteForm(false);
+    
     // Reset form
     setColorValue(null);
     setLocationValue(null);
@@ -1273,9 +130,10 @@ const WindowOptions = () => {
       height: '',
       width: '',
       quantity: '',
-      remarks: '',
+      remark: '',
     });
-    navigation.navigate('BuyerMain', { screen: 'BuyerInsights' });
+    
+    navigation.navigate('BuyerMain', {screen: 'BuyerInsights'});
   };
 
   const handleDesignSelection = design => {
@@ -1292,7 +150,7 @@ const WindowOptions = () => {
     if (currentDesignIndex < selectedDesign.designs.length - 1) {
       const newIndex = currentDesignIndex + 1;
       setCurrentDesignIndex(newIndex);
-      flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+      flatListRef.current?.scrollToIndex({index: newIndex, animated: true});
     }
   };
 
@@ -1300,22 +158,11 @@ const WindowOptions = () => {
     if (currentDesignIndex > 0) {
       const newIndex = currentDesignIndex - 1;
       setCurrentDesignIndex(newIndex);
-      flatListRef.current?.scrollToIndex({ index: newIndex, animated: true });
+      flatListRef.current?.scrollToIndex({index: newIndex, animated: true});
     }
   };
-
-  const onSwipe = event => {
-    if (event.nativeEvent.state === State.END) {
-      const { translationX } = event.nativeEvent;
-      if (translationX > 50) {
-        handlePrev();
-      } else if (translationX < -50) {
-        handleNext();
-      }
-    }
-  };
-
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
+  
+  const onViewableItemsChanged = useRef(({viewableItems}) => {
     if (viewableItems.length > 0) {
       setCurrentDesignIndex(viewableItems[0].index);
     }
@@ -1325,38 +172,79 @@ const WindowOptions = () => {
     itemVisiblePercentThreshold: 50,
   }).current;
 
-  const handleAddQuote = () => {
+// In your WindowOptions component
+const handleAddQuote = async () => {
+  try {
+    // Get token from storage
+    const token = await AsyncStorage.getItem('buyerToken');
+     
+    if (!token || !selectedDesign || !colorValue || !locationValue || 
+        !quoteData.height || !quoteData.width || !quoteData.quantity) {
+      Alert.alert('Error', 'Please fill all required fields');
+      return;
+    }
+
+    const currentDesign = selectedDesign.designs[currentDesignIndex];
+    
     const newQuote = {
-      ...quoteData,
+      // buyerId: userId, // Use the decoded user ID
+      productType: selectedDesign.name.toLowerCase().replace(/\s+/g, '-'),
+      product: currentDesign.id,
       color: colorValue,
-      location: locationValue,
-      design: selectedDesign?.designs[currentDesignIndex]?.title || 'Unknown Design',
+      installationLocation: locationValue,
+      height: parseFloat(quoteData.height),
+      width: parseFloat(quoteData.width),
+      quantity: parseInt(quoteData.quantity),
+      remark: quoteData.remarks || '',
     };
 
-    setAddedQuotes([...addedQuotes, newQuote]);
-    setQuoteCount(quoteCount + 1);
-    // Reset form
-    setColorValue(null);
-    setLocationValue(null);
-    setQuoteData({
-      color: '',
-      location: '',
-      height: '',
-      width: '',
-      quantity: '',
-      remarks: '',
-    });
-    setShowQuoteForm(false)
-  };
+    const success = await submitQuote(newQuote, token); // Pass token for auth
+    if (success) {
+      setAddedQuotes([...addedQuotes, newQuote]);
+      setQuoteCount(quoteCount + 1);
+      
+      // Reset form
+      setColorValue(null);
+      setLocationValue(null);
+      setQuoteData({
+        color: '',
+        location: '',
+        height: '',
+        width: '',
+        quantity: '',
+        remark: '',
+      });
+      setShowQuoteForm(false);
+    }
+  } catch (error) {
+    console.error('Error adding quote:', error);
+    Alert.alert('Error', 'Failed to submit quote');
+  }
+};
 
-  const renderDesignItem = ({ item }) => (
+const submitQuote = async (quoteData, token) => {
+  try {
+    const response = await axios.post('http://192.168.1.27:9000/api/quotes', quoteData, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    return response.status === 200 || response.status === 201;
+  } catch (error) {
+    console.error('Error submitting quote:', error);
+    throw error;
+  }
+};
+
+  const renderDesignItem = ({item}) => (
     <View style={styles.carouselItem}>
       <AppText weight="SemiBold" style={styles.videoTitle}>
         {item.title}
       </AppText>
       <View style={styles.videoContainer}>
         <Video
-          source={{ uri: item.video }}
+          source={{uri: item.video}}
           style={styles.videoPlayer}
           paused={false}
           repeat={true}
@@ -1366,6 +254,31 @@ const WindowOptions = () => {
       </View>
     </View>
   );
+
+  const renderFeatureItem = (feature, index) => (
+    <View key={index} style={styles.featureItem}>
+      <Icon name="check-circle" size={18} color="black" />
+      <AppText weight="Inter" style={styles.featureText}>
+        {feature}
+      </AppText>
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="black" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <AppText style={styles.errorText}>Error loading window options: {error}</AppText>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -1383,10 +296,44 @@ const WindowOptions = () => {
         </View>
       </View>
       <TopTabBar />
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <ScrollView 
+        contentContainerStyle={[
+          styles.scrollContainer, 
+          windowDesigns.length < 3 && {justifyContent: 'flex-start'}
+        ]}
+      >
         <AppText weight="Bold" style={styles.screenTitle}>
           CHOOSE DESIGN FOR QUOTE
         </AppText>
+        
+        {quoteCount > 0 && (
+          <View style={styles.topQuote}>
+            <TouchableOpacity
+              style={styles.floatingButton}
+              onPress={() =>
+                navigation.navigate('QuoteRequestPage', {quotes: addedQuotes})
+              }>
+              <View style={styles.badge}>
+                <AppText weight="Inter" style={styles.badgeText}>
+                  {quoteCount}
+                </AppText>
+              </View>
+              <AppText weight="Bold" style={styles.floatingButtonText}>
+                view
+              </AppText>
+            </TouchableOpacity>
+
+            <View style={styles.categoryButton}>
+              <TouchableOpacity
+                style={styles.submitButton2}
+                onPress={handleRequestQuote}>
+                <AppText weight="SemiBold" style={styles.submitButtonText}>
+                  Select Categories
+                </AppText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
         {windowDesigns.map(design => (
           <React.Fragment key={design.id}>
             <TouchableOpacity
@@ -1414,8 +361,8 @@ const WindowOptions = () => {
                     pagingEnabled
                     showsHorizontalScrollIndicator={false}
                     onScroll={Animated.event(
-                      [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                      { useNativeDriver: true },
+                      [{nativeEvent: {contentOffset: {x: scrollX}}}],
+                      {useNativeDriver: true},
                     )}
                     onViewableItemsChanged={onViewableItemsChanged}
                     viewabilityConfig={viewabilityConfig}
@@ -1454,11 +401,14 @@ const WindowOptions = () => {
                   <TouchableOpacity
                     style={[
                       styles.navButton,
-                      currentDesignIndex === selectedDesign.designs.length - 1 &&
+                      currentDesignIndex ===
+                        selectedDesign.designs.length - 1 &&
                         styles.disabledNavButton,
                     ]}
                     onPress={handleNext}
-                    disabled={currentDesignIndex === selectedDesign.designs.length - 1}>
+                    disabled={
+                      currentDesignIndex === selectedDesign.designs.length - 1
+                    }>
                     <Icon name="chevron-right" size={24} color="black" />
                   </TouchableOpacity>
                 </View>
@@ -1466,30 +416,9 @@ const WindowOptions = () => {
                   <AppText weight="Bold" style={styles.featuresTitle}>
                     Key Features:
                   </AppText>
-                  <View style={styles.featureItem}>
-                    <Icon name="check-circle" size={18} color="black" />
-                    <AppText weight="Inter" style={styles.featureText}>
-                      Premium quality materials
-                    </AppText>
-                  </View>
-                  <View style={styles.featureItem}>
-                    <Icon name="check-circle" size={18} color="black" />
-                    <AppText weight="Inter" style={styles.featureText}>
-                      Weather resistant
-                    </AppText>
-                  </View>
-                  <View style={styles.featureItem}>
-                    <Icon name="check-circle" size={18} color="black" />
-                    <AppText weight="Inter" style={styles.featureText}>
-                      Energy efficient
-                    </AppText>
-                  </View>
-                  <View style={styles.featureItem}>
-                    <Icon name="check-circle" size={18} color="black" />
-                    <AppText weight="Inter" style={styles.featureText}>
-                      Noise reduction
-                    </AppText>
-                  </View>
+                  {selectedDesign.designs[currentDesignIndex]?.features?.map((feature, index) => 
+                    renderFeatureItem(feature, index)
+                  )}
                 </View>
                 <TouchableOpacity
                   style={styles.quoteButton}
@@ -1513,7 +442,7 @@ const WindowOptions = () => {
           style={styles.modalOverlay}>
           <ScrollView contentContainerStyle={styles.modalScrollContent}>
             <View style={styles.modalContainer}>
-              <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+              <View style={{justifyContent: 'center', alignItems: 'center'}}>
                 <Image
                   source={require('../../../../assets/logo.png')}
                   style={styles.logo}
@@ -1566,7 +495,9 @@ const WindowOptions = () => {
                   <TextInput
                     style={styles.textInput}
                     keyboardType="numeric"
-                    onChangeText={text => setQuoteData({ ...quoteData, height: text })}
+                    onChangeText={text =>
+                      setQuoteData({...quoteData, height: text})
+                    }
                     placeholder="Enter height"
                     value={quoteData.height}
                   />
@@ -1578,7 +509,9 @@ const WindowOptions = () => {
                   <TextInput
                     style={styles.textInput}
                     keyboardType="numeric"
-                    onChangeText={text => setQuoteData({ ...quoteData, width: text })}
+                    onChangeText={text =>
+                      setQuoteData({...quoteData, width: text})
+                    }
                     placeholder="Enter width"
                     value={quoteData.width}
                   />
@@ -1591,7 +524,9 @@ const WindowOptions = () => {
                 <TextInput
                   style={styles.textInput}
                   keyboardType="numeric"
-                  onChangeText={text => setQuoteData({ ...quoteData, quantity: text })}
+                  onChangeText={text =>
+                    setQuoteData({...quoteData, quantity: text})
+                  }
                   placeholder="Enter quantity"
                   value={quoteData.quantity}
                 />
@@ -1601,10 +536,15 @@ const WindowOptions = () => {
                   REMARKS
                 </AppText>
                 <TextInput
-                  style={[styles.textInput, { height: 80, textAlignVertical: 'top' }]}
+                  style={[
+                    styles.textInput,
+                    {height: 80, textAlignVertical: 'top'},
+                  ]}
                   multiline
                   numberOfLines={4}
-                  onChangeText={text => setQuoteData({ ...quoteData, remarks: text })}
+                  onChangeText={text =>
+                    setQuoteData({...quoteData, remarks: text})
+                  }
                   placeholder="Any special requirements or notes"
                   value={quoteData.remarks}
                 />
@@ -1636,22 +576,6 @@ const WindowOptions = () => {
                   </TouchableOpacity>
                 </View>
               </View>
-              {quoteCount > 0 && (
-                <TouchableOpacity
-                  style={styles.floatingButton}
-                  onPress={() =>
-                    navigation.navigate('QuoteRequestPage', { quotes: addedQuotes })
-                  }>
-                  <View style={styles.badge}>
-                    <AppText weight="Inter" style={styles.badgeText}>
-                      {quoteCount}
-                    </AppText>
-                  </View>
-                  <AppText weight="Inter" style={styles.floatingButtonText}>
-                    view
-                  </AppText>
-                </TouchableOpacity>
-              )}
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -1677,13 +601,28 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 10,
     top: '50%',
-    transform: [{ translateY: -12 }],
+    transform: [{translateY: -12}],
     padding: 5,
   },
+  loaderContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
   logoContainer: {
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: 20,
+  },
+  errorContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    textAlign: 'center',
   },
   logo: {
     width: 100,
@@ -1705,6 +644,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 2,
   },
+  topQuote: {
+    paddingHorizontal: 20,
+  },
   designCard: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -1716,7 +658,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
@@ -1725,7 +667,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderWidth: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
@@ -1824,7 +766,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 25,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 5,
@@ -1893,6 +835,7 @@ const styles = StyleSheet.create({
   categoryButton: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 20,
   },
   cancelButton: {
     borderWidth: 1,
@@ -1910,6 +853,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     borderRadius: 6,
     padding: 14,
+    flex: 1,
+    alignItems: 'center',
+  },
+  submitButton2: {
+    backgroundColor: 'black',
+    borderRadius: 6,
+    padding: 6,
     flex: 1,
     alignItems: 'center',
   },
@@ -1951,20 +901,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
   },
   floatingButton: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'black',
-    borderRadius: 25,
     paddingVertical: 10,
     paddingHorizontal: 15,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    backgroundColor: 'black',
+    borderRadius: 6,
+    padding: 6,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
   },
   badge: {
     backgroundColor: 'red',
@@ -1986,3 +933,167 @@ const styles = StyleSheet.create({
 });
 
 export default WindowOptions;
+ 
+    // },
+    // {
+    //   id: 3,
+    //   name: 'CASEMENT WINDOWS',
+    //   count: 4,
+    //   designs: [
+    //     {
+    //       id: 1,
+    //       title: 'Single Casement Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 2,
+    //       title: 'Double Casement Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 3,
+    //       title: 'French Casement Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 4,
+    //       title: 'Push-out Casement Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 4,
+    //   name: 'CASEMENT DOORS',
+    //   count: 3,
+    //   designs: [
+    //     {
+    //       id: 1,
+    //       title: 'Single Casement Door',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 2,
+    //       title: 'Double Casement Door',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 3,
+    //       title: 'French Casement Door',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 5,
+    //   name: 'FIXED WINDOWS',
+    //   count: 1,
+    //   designs: [
+    //     {
+    //       id: 1,
+    //       title: 'Standard Fixed Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 6,
+    //   name: 'BATHROOM VENTILATORS',
+    //   count: 4,
+    //   designs: [
+    //     {
+    //       id: 1,
+    //       title: 'Small Ventilator',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 2,
+    //       title: 'Medium Ventilator',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 3,
+    //       title: 'Large Ventilator',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 4,
+    //       title: 'Decorative Ventilator',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 7,
+    //   name: 'COMBINATION WINDOWS',
+    //   count: 4,
+    //   designs: [
+    //     {
+    //       id: 1,
+    //       title: 'Slider + Fixed Combo',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 2,
+    //       title: 'Casement + Fixed Combo',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 3,
+    //       title: 'Bay Window Combo',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 4,
+    //       title: 'Bow Window Combo',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: 8,
+    //   name: 'SPECIAL ARCHITECTURAL WINDOWS',
+    //   count: 8,
+    //   designs: [
+    //     {
+    //       id: 1,
+    //       title: 'Arch Top Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 2,
+    //       title: 'Circle Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 3,
+    //       title: 'Hexagon Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 4,
+    //       title: 'Octagon Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 5,
+    //       title: 'Triangle Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 6,
+    //       title: 'Gothic Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 7,
+    //       title: 'Elliptical Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //     {
+    //       id: 8,
+    //       title: 'Custom Shape Window',
+    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
+    //     },
+    //   ],
+    // },

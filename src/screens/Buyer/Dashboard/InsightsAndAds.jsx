@@ -1,353 +1,136 @@
-import React, { useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  FlatList, 
+  FlatList,
   Platform,
   Image,
 } from 'react-native';
-import Video from 'react-native-video'; 
+import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import TopTabBar from './TopTabBar';
 import AppText from '../../../components/AppText';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
-const { width, height } = Dimensions.get('window');
-
-// Enhanced dummy data for categories
-const categories = [
-  {
-    id: 1,
-    title: 'ELITE CREST',
-    description: 'Exquisite uPVC windows crafted with top-tier globally sourced profiles and designs, engineered for unmatched durability & elegance. Backed by comprehensive warranties, they deliver cutting-edge performance and timeless sophistication.',
-    note: 'Curated brands chosen exclusively for you',
-    brands: [
-      {
-        id: 1,
-        name: 'Veka',
-        // video: 'https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4',
-        video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-        featured: ['German Engineering', 'UV Protection', 'Thermal Insulation'],
-        benefits: ['15-Year Warranty', 'Burglar Proof', 'Custom Colors'],
-      },
-      {
-        id: 2,
-        name: 'Aluplast',
-        video: 'https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-1170-large.mp4',
-        featured: ['Eco-Friendly', 'Superior Glazing', 'Weatherproof'],
-        benefits: ['20-Year Warranty', 'Energy Saving', 'Noise Reduction'],
-      },
-      {
-        id: 3,
-        name: 'Schüco',
-        video: 'https://assets.mixkit.co/videos/preview/mixkit-woman-walking-on-a-path-in-a-forest-1226-large.mp4',
-        featured: ['Premium Quality', 'Sleek Design', 'Durability'],
-        benefits: ['Lifetime Warranty', 'High Security', 'Custom Designs'],
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: 'LUXE FRAME',
-    description: 'Superior uPVC windows featuring high quality precision-engineered profiles. Supported by robust warranties, they offer enduring performance. Manufactured with Indian-made profiles and tailor-made for Indian climates.',
-    brands: [
-      {
-        id: 1,
-        name: 'Fenesta',
-        video: 'https://assets.mixkit.co/videos/preview/mixkit-woman-walking-on-a-path-in-a-forest-1226-large.mp4',
-        featured: ['Weather Resistance', 'Energy Efficient', 'Noise Reduction'],
-        benefits: ['10-Year Warranty', 'Premium Materials', 'Custom Designs'],
-      },
-      {
-        id: 2,
-        name: 'Aparna Venster',
-        video: 'https://assets.mixkit.co/videos/preview/mixkit-tree-with-yellow-flowers-1173-large.mp4',
-        featured: ['Durable', 'Low Maintenance', 'Aesthetic'],
-        benefits: ['12-Year Warranty', 'Secure', 'Weatherproof'],
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: 'CORE VANTAGE',
-    description: 'Affordable uPVC windows manufactured with Chinese profiles, designed to meet budget-conscious needs. Offers basic functionality but may yellow (discolour) over time in areas with high UV radiation.',
-    brands: [
-      {
-        id: 1,
-        name: 'LG Hausys',
-        video: 'https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-1170-large.mp4',
-        featured: ['Cost Effective', 'Basic Functionality', 'Standard Designs'],
-        benefits: ['5-Year Warranty', 'Weather Resistant', 'Low Maintenance'],
-      },
-    ],
-  },
-];
-
-// Define sections for the FlatList
-const sections = [
-  { type: 'header', data: {} },
-  ...categories.map((category) => ({
-    type: 'category',
-    data: category,
-  })),
-];
+const {width, height} = Dimensions.get('window');
 
 const MarketInsights = ({navigation}) => {
-  const flatListRefs = useRef({});
-  
-  const [activeIndices, setActiveIndices] = useState(
-    categories.reduce((acc, category) => {
-      acc[category.id] = 0;
-      return acc;
-    }, {})
-  );
-  
-  const handleCategorySelect = (category) => {
-    console.log(`Selected category: ${category.title}`);
-    // Add navigation or other logic here
-    navigation.navigate("QuoteRequestPage")
-  };
+  const [buyerId, setBuyerId] = useState(null);
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = await AsyncStorage.getItem('buyerToken');
+        if (token) {
+          setBuyerId(token);
+        } 
+        const categoryresponse = await axios.get(
+          'http://192.168.1.27:9000/api/categories',
+        ); 
+        setCategories(categoryresponse?.data);
+      } catch (err) {
+        console.error('Error fetching categories:', err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Define sections for the FlatList
+  const sections = [
+    {type: 'header', data: {}},
+    ...categories.map(category => ({
+      type: 'category',
+      data: category,
+    })),
+  ];
  
-  const onViewableItemsChanged = useRef(({ viewableItems }) => {
-    if (viewableItems.length > 0) {
-      const { item, index } = viewableItems[0];
-      const categoryId = item.categoryId;
-      setActiveIndices(prev => ({ ...prev, [categoryId]: index }));
-    }
-  }).current;
-
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 50,
-    minimumViewTime: 300,
-  }).current;
-
-  const renderBrandItem = ({ item, category }) => (
-    <View style={styles.brandContainer}>
-      <AppText weight='SemiBold' style={styles.brandTitle}>{item.name}</AppText>
-      <View style={styles.videoContainer}>
-        <Video
-          source={{ uri: item.video }}
-          style={styles.video}
-          resizeMode="cover"
-          // repeat
-          // muted
-          paused={false}
-          // controls={false} 
-          repeat={true}
-          // resizeMode="cover"
-          controls={true}
-        />
-        <LinearGradient
-          colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0)']}
-          style={styles.videoOverlay}
-          start={{ x: 0.5, y: 1 }}
-          end={{ x: 0.5, y: 0 }}
-        />
-      </View>
-      <View style={styles.featuresContainer}>
-        <View style={styles.featureColumn}>
-          <View style={styles.sectionHeader}>
-            <Icon name="featured-play-list" size={20} color="#000" style={styles.sectionIcon} />
-            <AppText weight='SemiBold' style={styles.sectionTitle}>FEATURES</AppText>
-          </View>
-          {item.featured.map((feature, index) => (
-            <View key={`feature-${index}`} style={styles.featureItem}>
-              <Icon name="check-circle" size={18} color="#000" style={styles.featureIcon} />
-              <AppText weight='Inter' style={styles.featureText}>{feature}</AppText>
-            </View>
-          ))}
-        </View>
-        <View style={styles.featureColumn}>
-          <View style={styles.sectionHeader}>
-            <Icon name="stars" size={20} color="#000" style={styles.sectionIcon} />
-            <AppText weight='SemiBold' style={styles.sectionTitle}>BENEFITS</AppText>
-          </View>
-          {item.benefits.map((benefit, index) => (
-            <View key={`benefit-${index}`} style={styles.featureItem}>
-              <Icon name="star" size={18} color="#000" style={styles.featureIcon} />
-              <AppText weight='Inter' style={styles.featureText}>{benefit}</AppText>
-            </View>
-          ))}
-        </View>
-      </View>
-    </View>
-  );
-
-  const renderBrandCarousel = (category) => {
-    const currentIndex = activeIndices[category.id] || 0;
-
-    return ( 
-        <View style={styles.carouselContainer}> 
-           
-              <FlatList
-                ref={(ref) => (flatListRefs.current[category.id] = ref)}
-                data={category.brands.map(brand => ({ ...brand, categoryId: category.id }))}
-                renderItem={({ item }) => renderBrandItem({ item, category })}
-                keyExtractor={(item) => `${item.categoryId}-${item.id}`}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onViewableItemsChanged={onViewableItemsChanged}
-                viewabilityConfig={viewabilityConfig}
-                initialScrollIndex={0}
-                getItemLayout={(data, index) => ({
-                  length: width - 40,
-                  offset: (width - 40) * index,
-                  index,
-                })}
-                scrollEnabled={true}
-              /> 
-
-          {/* Navigation Dots */}
-          <View style={styles.dotsContainer}>
-            {category.brands.map((_, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => {
-                  flatListRefs.current[category.id]?.scrollToIndex({ index, animated: true });
-                  setActiveIndices(prev => ({ ...prev, [category.id]: index }));
-                }}
-              >
-                <View
-                  style={[
-                    styles.dot,
-                    index === currentIndex && styles.activeDot,
-                  ]}
-                />
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Navigation Buttons */}
-          {category.brands.length > 1 && (
-            <View style={styles.navButtons}>
-              <TouchableOpacity
-                style={[
-                  styles.navButton,
-                  currentIndex === 0 && styles.disabledNavButton,
-                ]}
-                onPress={() => {
-                  if (currentIndex > 0) {
-                    const newIndex = currentIndex - 1;
-                    flatListRefs.current[category.id]?.scrollToIndex({
-                      index: newIndex,
-                      animated: true,
-                    });
-                    setActiveIndices(prev => ({ ...prev, [category.id]: newIndex }));
-                  }
-                }}
-                disabled={currentIndex === 0}
-              >
-                <Icon name="chevron-left" size={24} color="#000" />
-              </TouchableOpacity>
-              <AppText weight='Inter' style={styles.counterText}>
-                {currentIndex + 1} / {category.brands.length}
-              </AppText>
-              <TouchableOpacity
-                style={[
-                  styles.navButton,
-                  currentIndex === category.brands.length - 1 && styles.disabledNavButton,
-                ]}
-                onPress={() => {
-                  if (currentIndex < category.brands.length - 1) {
-                    const newIndex = currentIndex + 1;
-                    flatListRefs.current[category.id]?.scrollToIndex({
-                      index: newIndex,
-                      animated: true,
-                    });
-                    setActiveIndices(prev => ({ ...prev, [category.id]: newIndex }));
-                  }
-                }}
-                disabled={currentIndex === category.brands.length - 1}
-              >
-                <Icon name="chevron-right" size={24} color="#000" />
-              </TouchableOpacity>
-            </View>
-          )}
-        </View> 
-    );
+  const handleCategorySelect = (category) => {
+    navigation.navigate('QuoteRequestPage', { 
+      selectedCategory: category 
+    });
   };
 
-  const renderSection = ({ item }) => {
+  const renderSection = ({item}) => {
     if (item.type === 'header') {
       return (
         <View style={styles.header}>
-          <AppText weight='Bold' style={styles.headerText}>SELECT YOUR PREFERRED CATEGORY</AppText>
-          <AppText weight='SemiBold' style={styles.subHeaderText}>
-            We've categorized uPVC windows into 3 tiers to match your style & requirements. Please select one category to explore the premium brands we offer.
+          <AppText weight="Bold" style={styles.headerText}>
+            SELECT YOUR PREFERRED CATEGORY
+          </AppText>
+          <AppText weight="SemiBold" style={styles.subHeaderText}>
+            We've categorized uPVC windows into 3 tiers to match your style &
+            requirements. Please select one category to explore the premium
+            brands we offer.
           </AppText>
         </View>
       );
     } else if (item.type === 'category') {
+      // console.log('item : ', item);
       const category = item.data;
       return (
         <View style={styles.categoryCard}>
-          <LinearGradient 
-            colors={['#f8f8f8', '#ffffff']} 
+          <LinearGradient
+            colors={['#f8f8f8', '#ffffff']}
             style={styles.cardGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-          >
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}>
             <View style={styles.cardHeader}>
               <View style={styles.titleContainer}>
-                <AppText weight='SemiBold' style={styles.categoryTitle}>{category.title}</AppText>
-                {category.note && (
-                  <AppText weight='Inter' style={styles.premiumNoteText}>{category.note}</AppText>
-                )}
+                <AppText weight="SemiBold" style={styles.categoryTitle}>
+                  {category.name}
+                </AppText>
               </View>
               <TouchableOpacity
                 style={styles.selectButton}
-                onPress={() => handleCategorySelect(category)}
-              >
-                <AppText weight='SemiBold' style={styles.selectButtonText}>SELECT</AppText>
-                <Icon name="arrow-forward" size={18} color="#fff" style={styles.selectIcon} />
+                onPress={() => handleCategorySelect(category)}>
+                <AppText weight="SemiBold" style={styles.selectButtonText}>
+                  SELECT
+                </AppText>
+                <Icon
+                  name="arrow-forward"
+                  size={18}
+                  color="#fff"
+                  style={styles.selectIcon}
+                />
               </TouchableOpacity>
             </View>
-            <AppText weight='Inter' style={styles.categoryDescription}>{category.description}</AppText>
-            <View style={styles.divider} />
-            {renderBrandCarousel(category)}
+            <AppText weight="Inter" style={styles.categoryDescription}>
+              {category.description}
+            </AppText>
+            <View style={styles.videoContainer}>
+             <Video
+                source={{uri: `http://192.168.1.27:9000${category.videoUrl}`}}
+                style={styles.video}
+                resizeMode="cover"
+                paused={true}
+                repeat={false}
+                controls={true}
+              />
+              <LinearGradient
+                colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0)']}
+                style={styles.videoOverlay}
+                start={{x: 0.5, y: 1}}
+                end={{x: 0.5, y: 0}}
+              />
+            </View> 
           </LinearGradient>
         </View>
       );
     }
     return null;
-  }; 
+  };
 
   return (
     <View style={styles.mainContainer}>
-        
-       <Image
-                  source={require('../../../assets/logo.png')}
-                  style={styles.logo}
-                />
-                        {/* <ScrollView
-                          horizontal
-                          showsHorizontalScrollIndicator={false}
-                          contentContainerStyle={styles.tabScrollContainer}>
-                          {tabs.map((tab, index) => (
-                            <TouchableOpacity
-                              key={index}
-                              style={[
-                                styles.tabButton,
-                                // activeTab === index && styles.activeTab,
-                              ]}
-                              onPress={() => setActiveTab(index)}
-                              activeOpacity={0.7}>
-                              <Text
-                                style={[
-                                  styles.tabText,
-                                  // activeTab === index && styles.activeTabText,
-                                ]}>
-                                {tab}
-                              </Text>
-                            </TouchableOpacity>
-                          ))}
-                        </ScrollView> */}
-                          
-        <TopTabBar />
+      <Image source={require('../../../assets/logo.png')} style={styles.logo} />
+      <TopTabBar />
       <FlatList
         data={sections}
         renderItem={renderSection}
@@ -362,19 +145,18 @@ const MarketInsights = ({navigation}) => {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    flex: 1,
-    // flexDirection:"col",
+    flex: 1, 
     backgroundColor: 'white',
   },
   container: {
-    padding: 20, 
+    padding: 20,
   },
   logo: {
-    marginTop:15,
-    alignSelf:"center",
-    width: 100, 
-    height: 100,  
-    resizeMode: 'contain', 
+    marginTop: 15,
+    alignSelf: 'center',
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
   },
   flatList: {
     backgroundColor: 'transparent',
@@ -382,13 +164,13 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 30,
     padding: 25,
-    flexDirection:"column",
+    flexDirection: 'column',
     backgroundColor: '#fff',
     borderRadius: 16,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
+        shadowOffset: {width: 0, height: 6},
         shadowOpacity: 0.1,
         shadowRadius: 12,
       },
@@ -420,7 +202,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
+        shadowOffset: {width: 0, height: 6},
         shadowOpacity: 0.1,
         shadowRadius: 12,
       },
@@ -430,7 +212,7 @@ const styles = StyleSheet.create({
     }),
   },
   cardGradient: {
-    padding: 25, 
+    padding: 25,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -477,7 +259,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.3,
         shadowRadius: 3,
       },
@@ -497,7 +279,7 @@ const styles = StyleSheet.create({
   },
   carouselContainer: {
     marginTop: 10,
-     width: width - 40
+    width: width - 40,
   },
   brandContainer: {
     width: width - 40,
@@ -505,31 +287,30 @@ const styles = StyleSheet.create({
   },
   brandTitle: {
     fontSize: 18,
-    // fontWeight: '700',
     color: '#000',
     marginBottom: 15,
     textAlign: 'center',
     letterSpacing: 1,
   },
   videoContainer: {
-    width: '88%', 
-    borderRadius: 12, 
-    marginBottom: 20,
+    width: '100%',
+    borderRadius: 12,
+    // marginBottom: 20,
     backgroundColor: '#000',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
+        shadowOffset: {width: 0, height: 6},
         shadowOpacity: 0.3,
         shadowRadius: 8,
       },
       android: {
         elevation: 6,
       },
-    }), 
-  aspectRatio: 9 / 16, 
-  borderRadius: 10,
-  overflow: 'hidden', 
+    }),
+    aspectRatio: 9 / 16,
+    borderRadius: 10,
+    overflow: 'hidden',
   },
   video: {
     width: '100%',
@@ -613,7 +394,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.1,
         shadowRadius: 3,
       },
@@ -629,7 +410,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     // fontWeight: '600',
     color: '#000',
-  }, 
+  },
   headerTitle: {
     fontSize: 18,
     // fontWeight: 'bold',
@@ -637,12 +418,12 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   tabScrollContainer: {
-    flexDirection:"row",
-    justifyContent:"space-between", 
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     borderBottomColor: '#e0e0e0',
   },
   tabButton: {
-    height: 30, 
+    height: 30,
     paddingHorizontal: 10,
     marginHorizontal: 5,
     borderBottomWidth: 2,

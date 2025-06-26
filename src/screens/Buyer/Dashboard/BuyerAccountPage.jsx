@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,11 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../../components/AppText';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
+import {CommonActions, useNavigation} from '@react-navigation/native'; 
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const UserAccount = () => {
   const [name, setName] = useState('John Doe');
@@ -24,15 +27,17 @@ const UserAccount = () => {
   const [feedback, setFeedback] = useState('');
   const [hoverRating, setHoverRating] = useState(0);
 
+  const navigation = useNavigation();
+
   const handleSubmitFeedback = () => {
-    console.log('Feedback submitted:', { rating, feedback });
+    console.log('Feedback submitted:', {rating, feedback});
     // Here you would typically send the feedback to your backend
     alert('Thank you for your feedback!');
     setRating(0);
     setFeedback('');
   };
 
-    const handleSendMessage = () => {
+  const handleSendMessage = () => {
     // Navigate to contact screen or open message interface
     // navigation.navigate('Contact');
   };
@@ -45,31 +50,60 @@ const UserAccount = () => {
     Linking.openURL('mailto:support@example.com');
   };
 
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.clear();
+
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'LoginScreen'}],
+        }),
+      );
+
+      Toast.show({
+        type: 'success',
+        position: 'top',
+        text1: 'Success',
+        text2: 'Logged out successfully',
+        visibilityTime: 3000,
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Error',
+        text2: 'Failed to logout',
+        visibilityTime: 3000,
+      });
+    }
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
+      style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* User Profile Section */}
-                     <Image
-                        source={require('../../../assets/logo.png')}
-                        style={styles.logo}
-                      />
+        <Image
+          source={require('../../../assets/logo.png')}
+          style={styles.logo}
+        />
         <View style={styles.profileCard}>
           <View style={styles.profileHeader}>
-            <AppText weight='Bold' style={styles.sectionTitle}>PROFILE INFORMATION</AppText>
+            <AppText weight="Bold" style={styles.sectionTitle}>
+              PROFILE INFORMATION
+            </AppText>
             <TouchableOpacity onPress={() => setEditing(!editing)}>
-              <Icon 
-                name={editing ? 'check' : 'edit'} 
-                size={24} 
-                color="#000" 
-              />
+              <Icon name={editing ? 'check' : 'edit'} size={24} color="#000" />
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.inputContainer}>
-            <AppText weight='Inter' style={styles.inputLabel}>Full Name</AppText>
+            <AppText weight="Inter" style={styles.inputLabel}>
+              Full Name
+            </AppText>
             <TextInput
               style={styles.inputField}
               value={name}
@@ -79,9 +113,11 @@ const UserAccount = () => {
               placeholderTextColor="#999"
             />
           </View>
-          
+
           <View style={styles.inputContainer}>
-            <AppText weight='Inter' style={styles.inputLabel}>Phone Number</AppText>
+            <AppText weight="Inter" style={styles.inputLabel}>
+              Phone Number
+            </AppText>
             <TextInput
               style={styles.inputField}
               value={phone}
@@ -96,34 +132,37 @@ const UserAccount = () => {
 
         {/* Feedback Section */}
         <View style={styles.sectionCard}>
-          <AppText weight='Bold' style={styles.sectionTitle}>FEEDBACK</AppText>
-          
-          <AppText weight='Inter' style={styles.feedbackQuestion}>
+          <AppText weight="Bold" style={styles.sectionTitle}>
+            FEEDBACK
+          </AppText>
+
+          <AppText weight="Inter" style={styles.feedbackQuestion}>
             On a scale of 1 - 5 how would you rate us?
           </AppText>
-          
+
           <View style={styles.ratingContainer}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <TouchableOpacity 
-                key={star} 
+            {[1, 2, 3, 4, 5].map(star => (
+              <TouchableOpacity
+                key={star}
                 onPress={() => setRating(star)}
                 onPressIn={() => setHoverRating(star)}
-                onPressOut={() => setHoverRating(0)}
-              >
-                <Icon 
-                  name={star <= (hoverRating || rating) ? 'star' : 'star-border'} 
-                  size={36} 
-                  color="#FFD700" 
+                onPressOut={() => setHoverRating(0)}>
+                <Icon
+                  name={
+                    star <= (hoverRating || rating) ? 'star' : 'star-border'
+                  }
+                  size={36}
+                  color="#FFD700"
                   style={styles.starIcon}
                 />
               </TouchableOpacity>
             ))}
           </View>
-          
-          <AppText weight='Inter' style={styles.feedbackPrompt}>
+
+          <AppText weight="Inter" style={styles.feedbackPrompt}>
             PLEASE SHARE YOUR INPUTS IF YOU THINK WE NEED TO DO SOMETHING BETTER
           </AppText>
-          
+
           <TextInput
             style={styles.feedbackInput}
             multiline
@@ -134,86 +173,124 @@ const UserAccount = () => {
             value={feedback}
             onChangeText={setFeedback}
           />
-          
-          <AppText weight='Inter' style={styles.charCount}>
+
+          <AppText weight="Inter" style={styles.charCount}>
             {feedback.length}/500 characters
           </AppText>
- 
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={styles.submitButton}
             onPress={handleSubmitFeedback}
-            disabled={rating === 0}
-          >
-            <AppText weight='Bold' style={styles.submitButtonText}>SUBMIT FEEDBACK</AppText>
+            disabled={rating === 0}>
+            <AppText weight="Bold" style={styles.submitButtonText}>
+              SUBMIT FEEDBACK
+            </AppText>
           </TouchableOpacity>
         </View>
 
         {/* Additional Sections */}
-    <View style={styles.sectionCard}>
-      <AppText weight='Bold' style={styles.cardTitle}>CONTACT US</AppText>
-      
-      <View style={styles.contactInfoContainer}>
-        {/* Phone */}
-        <TouchableOpacity style={styles.contactItem} onPress={handlePhonePress}>
-          <Icon name="phone" size={16} color="#666" style={styles.icon} />
-          <View style={styles.contactTextContainer}>
-            <AppText weight='Inter' style={styles.contactLabel}>Phone</AppText>
-            <AppText weight='Inter' style={styles.contactValue}>+1 (800) 123-4567</AppText>
-          </View>
-        </TouchableOpacity>
+        <View style={styles.sectionCard}>
+          <AppText weight="Bold" style={styles.cardTitle}>
+            CONTACT US
+          </AppText>
 
-        {/* Email */}
-        <TouchableOpacity style={styles.contactItem} onPress={handleEmailPress}>
-          <Icon name="email" size={16} color="#666" style={styles.icon} />
-          <View style={styles.contactTextContainer}>
-            <AppText weight='Inter' style={styles.contactLabel}>Email</AppText>
-            <AppText weight='Inter' style={styles.contactValue}>support@example.com</AppText>
-          </View>
-        </TouchableOpacity>
+          <View style={styles.contactInfoContainer}>
+            {/* Phone */}
+            <TouchableOpacity
+              style={styles.contactItem}
+              onPress={handlePhonePress}>
+              <Icon name="phone" size={16} color="#666" style={styles.icon} />
+              <View style={styles.contactTextContainer}>
+                <AppText weight="Inter" style={styles.contactLabel}>
+                  Phone
+                </AppText>
+                <AppText weight="Inter" style={styles.contactValue}>
+                  +1 (800) 123-4567
+                </AppText>
+              </View>
+            </TouchableOpacity>
 
-        {/* Address */}
-        <View style={styles.contactItem}>
-          <Icon name="location-on" size={16} color="#666" style={styles.icon} />
-          <View style={styles.contactTextContainer}>
-            <AppText weight='Inter' style={styles.contactLabel}>Address</AppText>
-            <AppText weight='Inter' style={styles.contactValue}>123 Business St, Suite 100, San Francisco, CA 94107</AppText>
+            {/* Email */}
+            <TouchableOpacity
+              style={styles.contactItem}
+              onPress={handleEmailPress}>
+              <Icon name="email" size={16} color="#666" style={styles.icon} />
+              <View style={styles.contactTextContainer}>
+                <AppText weight="Inter" style={styles.contactLabel}>
+                  Email
+                </AppText>
+                <AppText weight="Inter" style={styles.contactValue}>
+                  support@example.com
+                </AppText>
+              </View>
+            </TouchableOpacity>
+
+            {/* Address */}
+            <View style={styles.contactItem}>
+              <Icon
+                name="location-on"
+                size={16}
+                color="#666"
+                style={styles.icon}
+              />
+              <View style={styles.contactTextContainer}>
+                <AppText weight="Inter" style={styles.contactLabel}>
+                  Address
+                </AppText>
+                <AppText weight="Inter" style={styles.contactValue}>
+                  123 Business St, Suite 100, San Francisco, CA 94107
+                </AppText>
+              </View>
+            </View>
           </View>
+
+          <TouchableOpacity
+            style={styles.messageButton}
+            onPress={handleSendMessage}>
+            <AppText weight="Bold" style={styles.messageButtonText}>
+              SEND MESSAGE
+            </AppText>
+          </TouchableOpacity>
         </View>
-      </View>
-
-      <TouchableOpacity 
-        style={styles.messageButton}
-        onPress={handleSendMessage}
-      >
-        <AppText weight='Bold' style={styles.messageButtonText}>SEND MESSAGE</AppText>
-      </TouchableOpacity>
-    </View>
 
         <View style={styles.sectionCard}>
-          <AppText weight='Bold' style={styles.sectionTitle}>TERMS & CONDITIONS</AppText>
-          <AppText weight='SemiBold' style={styles.sectionText}>
-            By using our services, you agree to our terms and conditions. Please read them carefully to understand your rights and responsibilities.
+          <AppText weight="Bold" style={styles.sectionTitle}>
+            TERMS & CONDITIONS
+          </AppText>
+          <AppText weight="SemiBold" style={styles.sectionText}>
+            By using our services, you agree to our terms and conditions. Please
+            read them carefully to understand your rights and responsibilities.
           </AppText>
           <TouchableOpacity style={styles.linkButton}>
-            <AppText weight='SemiBold' style={styles.linkButtonText}>VIEW FULL TERMS</AppText>
+            <AppText weight="SemiBold" style={styles.linkButtonText}>
+              VIEW FULL TERMS
+            </AppText>
             <Icon name="chevron-right" size={20} color="#000" />
           </TouchableOpacity>
         </View>
 
         <View style={styles.sectionCard}>
-          <AppText weight='Bold' style={styles.sectionTitle}>ABOUT US</AppText>
-          <AppText weight='SemiBold' style={styles.sectionText}>
-            We are committed to providing premium services with unmatched quality. Our team works tirelessly to ensure your complete satisfaction.
+          <AppText weight="Bold" style={styles.sectionTitle}>
+            ABOUT US
+          </AppText>
+          <AppText weight="SemiBold" style={styles.sectionText}>
+            We are committed to providing premium services with unmatched
+            quality. Our team works tirelessly to ensure your complete
+            satisfaction.
           </AppText>
           <TouchableOpacity style={styles.linkButton}>
-            <AppText weight='SemiBold' style={styles.linkButtonText}>LEARN MORE</AppText>
+            <AppText weight="SemiBold" style={styles.linkButtonText}>
+              LEARN MORE
+            </AppText>
             <Icon name="chevron-right" size={20} color="#000" />
           </TouchableOpacity>
-        </View> 
+        </View>
 
         {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutButton}>
-          <AppText weight='SemiBold' style={styles.logoutButtonText}>LOGOUT</AppText>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <AppText weight="SemiBold" style={styles.logoutButtonText}>
+            LOGOUT
+          </AppText>
           <Icon name="exit-to-app" size={24} color="#000" />
         </TouchableOpacity>
       </ScrollView>
@@ -224,17 +301,17 @@ const UserAccount = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff', 
+    backgroundColor: '#fff',
   },
   scrollContainer: {
-    padding: 20, 
+    padding: 20,
   },
   logo: {
     // marginTop:15,
-    alignSelf:"center",
-    width: 100, 
-    height: 100,  
-    resizeMode: 'contain', 
+    alignSelf: 'center',
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
   },
   profileCard: {
     backgroundColor: '#fff',
@@ -244,7 +321,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eee',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 2,
@@ -257,7 +334,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eee',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 2,
@@ -393,11 +470,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
-    marginBottom:20,
+    marginBottom: 20,
   },
   cardTitle: {
     fontSize: 14,
