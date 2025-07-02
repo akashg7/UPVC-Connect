@@ -1,9 +1,181 @@
+// import React, { useRef, useState, useEffect } from 'react';
+// import { View, FlatList, Dimensions, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+// import Video from 'react-native-video';
+// import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+// import { styles } from './styles';
+// import AppText from '../../../../components/AppText';
+// import { useNavigation } from '@react-navigation/native';
+// import axios from 'axios';
+
+// const { width } = Dimensions.get('window');
+
+// const WindowPrices = () => {
+//   const videoRef = useRef(null);
+//   const [videoError, setVideoError] = useState(false);
+//   const [videoReady, setVideoReady] = useState(false);
+//   const [loading, setLoading] = useState(true);
+//   const [homepageData, setHomepageData] = useState(null);
+//   const navigation = useNavigation();
+
+//   useEffect(() => {
+//     const fetchHomepageData = async () => {
+//       try {
+//         const response = await axios.get('https://upvc-backend.onrender.com/api/homepage');
+//         setHomepageData(response.data.data);
+//       } catch (error) {
+//         console.error('Error fetching homepage data:', error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+
+//     fetchHomepageData();
+//   }, []);
+
+//   useEffect(() => {
+//     const timer = setTimeout(() => {
+//       setVideoReady(true);
+//     }, 500);
+//     return () => clearTimeout(timer);
+//   }, []);
+
+//   // const handleMomentPress = (time) => {
+//   //   if (videoRef.current) {
+//   //     videoRef.current.seek(time);
+//   //   }
+//   // };
+//   const handleMomentPress = (timestamp) => {
+//   if (videoRef.current) {
+//     // Convert "00.00" format to seconds
+//     const [minutes, seconds] = timestamp.split('.').map(Number);
+//     const seekTime = (minutes * 60) + seconds;
+    
+//     videoRef.current.seek(seekTime);
+    
+//     // Optional: Add visual feedback
+//     setActiveMoment(timestamp);
+//   }
+// };
+
+//   const formatTimestamp = (timestamp) => {
+//     const [minutes, seconds] = timestamp.split('.');
+//     return `${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}`;
+//   };
+
+//   if (loading) {
+//     return (
+//       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+//         <ActivityIndicator size="large" color="#000000" />
+//       </View>
+//     );
+//   }
+
+//   if (!homepageData) {
+//     return (
+//       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+//         <MaterialIcons name="error-outline" size={50} color="#000000" />
+//         <AppText weight="Inter" style={{ marginTop: 10 }}>Failed to load data</AppText>
+//       </View>
+//     );
+//   }
+//   console.log("homepageData : " , homepageData)
+//   return (
+//     <View style={styles.container}>
+//       <View style={styles.descriptionContainer}>
+//         <AppText weight="Inter" style={styles.descriptionTitle}>{homepageData.title}</AppText>
+//         <AppText weight="Inter" style={styles.descriptionText}>
+//           {homepageData.subtitle}
+//         </AppText>
+//       </View>
+
+//       {/* Video Player */}
+//       <View style={styles.videoContainer}>
+//         {!videoError ? (
+//           <Video
+//             ref={videoRef}
+//             source={{ uri:`https://upvc-backend.onrender.com/${homepageData.videoUrl}` }}
+//             style={styles.videoPlayer}
+//             paused={false}
+//             repeat={true}
+//             resizeMode="cover"
+//             controls={true}
+//             onError={() => setVideoError(true)}
+//             bufferConfig={{
+//               minBufferMs: 15000,
+//               maxBufferMs: 30000,
+//               bufferForPlaybackMs: 2500,
+//               bufferForPlaybackAfterRebufferMs: 5000
+//             }}
+//           />
+//         ) : (
+//           <View style={styles.videoFallback}>
+//             <MaterialIcons name="error-outline" size={50} color="#FFFFFF" />
+//             <AppText weight='Regular' style={styles.fallbackText}>Video unavailable</AppText>
+//           </View>
+//         )}
+//       </View>
+
+//       {/* Key Moments Carousel */}
+//       {homepageData?.keyMoments && homepageData?.keyMoments?.length > 0 && (
+//         <View style={styles.carouselContainer}>
+//           <AppText weight="Inter" style={styles.carouselTitle}>KEY VIDEO MOMENTS</AppText>
+//           <FlatList
+//             horizontal
+//             data={homepageData.keyMoments}
+//             renderItem={({ item }) => (
+//               <TouchableOpacity
+//                 style={styles.carouselItem}
+//                 onPress={() => handleMomentPress(parseInt(item.timestamp.split('.')[0]))}
+//               >
+//                 <View style={styles.carouselContent}>
+//                   <Image
+//                     source={{ uri: `https://upvc-backend.onrender.com/${item.thumbnail}` }}
+//                     style={styles.thumbnailImage}
+//                     resizeMode="cover"
+//                   />
+//                   <View style={styles.carouselTextContainer}>
+//                     <AppText weight="Inter" style={styles.carouselText}>{item.title}</AppText>
+//                     <AppText weight="Inter" style={styles.carouselTimestamp}>
+//                       {formatTimestamp(item.timestamp)}
+//                     </AppText>
+//                   </View>
+//                   <View style={styles.playIconContainer}>
+//                     <MaterialIcons name="play-circle-outline" size={24} color="#000000" />
+//                   </View>
+//                 </View>
+//               </TouchableOpacity>
+//             )}
+//             keyExtractor={(item) => item._id}
+//             showsHorizontalScrollIndicator={false}
+//             contentContainerStyle={styles.carouselListContent}
+//             snapToInterval={width * 0.75 + 15}
+//             snapToAlignment="start"
+//             decelerationRate="fast"
+//           />
+//         </View>
+//       )}
+
+//       <View style={styles.buyNowContainer}>
+//         <TouchableOpacity
+//           style={styles.buyNowButton}
+//           onPress={() => navigation.navigate('BuyNowScreen')}
+//         >
+//           <AppText weight="Inter" style={styles.buyNowText}>BUY NOW</AppText>
+//         </TouchableOpacity>
+//       </View>
+//     </View>
+//   );
+// };
+
+// export default WindowPrices;
 import React, { useRef, useState, useEffect } from 'react';
-import { View, Text, FlatList, Dimensions, TouchableOpacity } from 'react-native';
+import { View, FlatList, Dimensions, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import Video from 'react-native-video';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { styles } from './styles'; 
+import { styles } from './styles';
 import AppText from '../../../../components/AppText';
+import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
 
 const { width } = Dimensions.get('window');
 
@@ -11,6 +183,25 @@ const WindowPrices = () => {
   const videoRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [homepageData, setHomepageData] = useState(null);
+  const [activeMoment, setActiveMoment] = useState(null);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchHomepageData = async () => {
+      try {
+        const response = await axios.get('https://upvc-backend.onrender.com/api/homepage');
+        setHomepageData(response.data.data);
+      } catch (error) {
+        console.error('Error fetching homepage data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHomepageData();
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -19,38 +210,49 @@ const WindowPrices = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const videoKeyMoments = [
-    { id: 1, title: 'Material Selection', time: 0, timestamp: '00:00' },
-    { id: 2, title: 'Customization Options', time: 30, timestamp: '00:30' },
-    { id: 3, title: 'Installation Process', time: 60, timestamp: '01:00' },
-    { id: 4, title: 'Quality Check', time: 90, timestamp: '01:30' },
-  ];
+  const handleMomentPress = (timestamp) => {
+    if (videoRef.current) {
+      // Convert "00.00" format to seconds
+      const [minutes, seconds] = timestamp.split('.').map(Number);
+      const seekTime = (minutes * 60) + seconds;
+      
+      videoRef.current.seek(seekTime);
+      setActiveMoment(timestamp);
+    }
+  };
 
-  const renderCarouselItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.carouselItem}
-      onPress={() => videoRef.current?.seek(item.time)}
-    >
-      <View style={styles.carouselContent}>
-        <View style={styles.carouselTextContainer}>
-          <AppText weight="SemiBold" style={styles.carouselText}>{item.title}</AppText>
-          <AppText  weight="SemiBold" style={styles.carouselTimestamp}>{item.timestamp}</AppText>
-        </View>
-        <View style={styles.playIconContainer}>
-          <MaterialIcons name="play-circle-outline" size={24} color="#000000" />
-        </View>
+  const formatTimestamp = (timestamp) => {
+    const [minutes, seconds] = timestamp.split('.');
+    return `${minutes.padStart(2, '0')}:${seconds.padStart(2, '0')}`;
+  };
+
+  const isMomentActive = (timestamp) => {
+    return activeMoment === timestamp;
+  };
+
+  if (loading) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color="#000000" />
       </View>
-    </TouchableOpacity>
-  );
+    );
+  }
+
+  if (!homepageData) {
+    return (
+      <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+        <MaterialIcons name="error-outline" size={50} color="#000000" />
+        <AppText weight="Inter" style={{ marginTop: 10 }}>Failed to load data</AppText>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      {/* Description */}
-       {/* <TopTabBar /> */}
       <View style={styles.descriptionContainer}>
-        <AppText weight="Bold" style={styles.descriptionTitle}>Buying UPVC Windows & Doors!</AppText>
-        <AppText weight="SemiBold" style={styles.descriptionText}>
-          Watch this exclusive video on the entire process from extension of frames to installation, to understand what sets high-quality windows apart.
+        <AppText weight="Inter" style={styles.descriptionTitle}>{homepageData.title}</AppText>
+        <AppText weight="Inter" style={styles.descriptionText}>
+          {homepageData.subtitle}
         </AppText>
       </View>
 
@@ -59,14 +261,19 @@ const WindowPrices = () => {
         {!videoError ? (
           <Video
             ref={videoRef}
-            // source={{ uri: 'https://www.w3schools.com/html/mov_bbb.mp4' }} // Placeholder URL
-            source={require('../../../../assets/dummy.mp4')} // Uncomment if using a local video
+            source={{ uri: `https://upvc-backend.onrender.com/${homepageData.videoUrl}` }}
             style={styles.videoPlayer}
             paused={false}
             repeat={true}
             resizeMode="cover"
             controls={true}
             onError={() => setVideoError(true)}
+            bufferConfig={{
+              minBufferMs: 15000,
+              maxBufferMs: 30000,
+              bufferForPlaybackMs: 2500,
+              bufferForPlaybackAfterRebufferMs: 5000
+            }}
           />
         ) : (
           <View style={styles.videoFallback}>
@@ -77,27 +284,74 @@ const WindowPrices = () => {
       </View>
 
       {/* Key Moments Carousel */}
-      <View style={styles.carouselContainer}>
-        <AppText weight="SemiBold" style={styles.carouselTitle}>KEY VIDEO MOMENTS</AppText>
-        <FlatList
-          horizontal
-          data={videoKeyMoments}
-          renderItem={renderCarouselItem}
-          keyExtractor={(item) => item.id.toString()}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.carouselContent}
-          snapToInterval={width * 0.75 + 15} // Adjusted for marginRight
-          snapToAlignment="start"
-          decelerationRate="fast"
-        />
-      </View>
-      <TouchableOpacity 
-        style={styles.buyNowButton}
-        onPress={() => navigation.navigate('BuyNowScreen')}
-      >
-        <AppText weight="SemiBold" style={styles.buyNowText}>BUY NOW</AppText>
-      </TouchableOpacity>
+      {homepageData?.keyMoments && homepageData?.keyMoments?.length > 0 && (
+        <View style={styles.carouselContainer}>
+          <AppText weight="Inter" style={styles.carouselTitle}>KEY VIDEO MOMENTS</AppText>
+          <FlatList
+            horizontal
+            data={homepageData.keyMoments}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={[
+                  styles.carouselItem,
+                  isMomentActive(item.timestamp) && styles.activeCarouselItem
+                ]}
+                onPress={() => handleMomentPress(item.timestamp)}
+              >
+                <View style={styles.carouselContent}>
+                  <Image
+                    source={{ uri: `https://upvc-backend.onrender.com/${item.thumbnail}` }}
+                    style={styles.thumbnailImage}
+                    resizeMode="cover"
+                  />
+                  <View style={styles.carouselTextContainer}>
+                    <AppText 
+                      weight="Inter" 
+                      style={[
+                        styles.carouselText,
+                        isMomentActive(item.timestamp) && styles.activeCarouselText
+                      ]}
+                    >
+                      {item.title}
+                    </AppText>
+                    <AppText 
+                      weight="Inter" 
+                      style={[
+                        styles.carouselTimestamp,
+                        isMomentActive(item.timestamp) && styles.activeCarouselTimestamp
+                      ]}
+                    >
+                      {formatTimestamp(item.timestamp)}
+                    </AppText>
+                  </View>
+                  <View style={styles.playIconContainer}>
+                    <MaterialIcons 
+                      name={isMomentActive(item.timestamp) ? "play-circle" : "play-circle-outline"} 
+                      size={24} 
+                      color={isMomentActive(item.timestamp) ? "#000000" : "#000000"} 
+                    />
+                  </View>
+                </View>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item) => item._id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.carouselListContent}
+            snapToInterval={width * 0.75 + 15}
+            snapToAlignment="start"
+            decelerationRate="fast"
+          />
+        </View>
+      )}
 
+      <View style={styles.buyNowContainer}>
+        <TouchableOpacity
+          style={styles.buyNowButton}
+          onPress={() => navigation.navigate('BuyNowScreen')}
+        >
+          <AppText weight="Inter" style={styles.buyNowText}>BUY NOW</AppText>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };

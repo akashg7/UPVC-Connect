@@ -23,9 +23,14 @@ import TopTabBar from '../../Dashboard/TopTabBar';
 import AppText from '../../../../components/AppText';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const {width, height} = Dimensions.get('window');
 
 const WindowOptions = () => {
+  
+  const insets = useSafeAreaInsets();
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedDesign, setSelectedDesign] = useState(null);
   const [currentDesignIndex, setCurrentDesignIndex] = useState(0);
   const [showQuoteForm, setShowQuoteForm] = useState(false);
@@ -70,16 +75,70 @@ const WindowOptions = () => {
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef(null);
 
-  useEffect(() => {
+  // useEffect(() => {
     
+  //   const fetchData = async () => {
+  //     try {  
+  //       const token = await AsyncStorage.getItem('buyerToken');
+  //       if(!token){
+  //         return
+  //       }
+  //       if (token) { 
+  //         setBuyerId(token); 
+  //       }
+ 
+  //       const response = await axios.get('https://upvc-backend.onrender.com/api/options');
+  //       const formattedData = response.data.map(item => ({
+  //         id: item._id,
+  //         name: item.title.toUpperCase(),
+  //         count: item.subOptions.length,
+  //         designs: item.subOptions.map(subItem => ({
+  //           id: subItem._id,
+  //           title: subItem.title,
+  //           video: subItem.videoUrl,
+  //           features: subItem.features
+  //         }))
+  //       }));
+  //       setWindowDesigns(formattedData);
+
+  //       const responseQuotes = await axios.get('https://upvc-backend.onrender.com/api/quotes/buyer', {
+  //         headers: {
+  //           'Authorization': `Bearer ${token}`,
+  //           'Content-Type': 'application/json'
+  //         }
+  //       })
+  //       setQuoteCount(responseQuotes?.data?.count)
+
+  //     } catch (err) {
+  //       setError(err.message);
+  //       console.error('Error fetching data:', err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchData();
+  // }, []);
+  
+  useEffect(() => {
     const fetchData = async () => {
       try {  
         const token = await AsyncStorage.getItem('buyerToken');
+        setIsLoggedIn(!!token); // Set login status based on token existence
+        
         if (token) { 
-          setBuyerId(token); 
+          setBuyerId(token);
+          // Only fetch quotes if logged in
+          const responseQuotes = await axios.get('https://upvc-backend.onrender.com/api/quotes/buyer', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          setQuoteCount(responseQuotes?.data?.count);
         }
- 
-        const response = await axios.get('http://192.168.1.27:9000/api/options');
+
+        const response = await axios.get('https://upvc-backend.onrender.com/api/options');
         const formattedData = response.data.map(item => ({
           id: item._id,
           name: item.title.toUpperCase(),
@@ -93,14 +152,6 @@ const WindowOptions = () => {
         }));
         setWindowDesigns(formattedData);
 
-        const responseQuotes = await axios.get('http://192.168.1.27:9000/api/quotes/buyer', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        })
-        setQuoteCount(responseQuotes?.data?.count)
-
       } catch (err) {
         setError(err.message);
         console.error('Error fetching data:', err);
@@ -111,7 +162,7 @@ const WindowOptions = () => {
 
     fetchData();
   }, []);
-  
+
   const handleRequestQuote = () => {
     const finalQuoteData = {
       ...quoteData,
@@ -171,12 +222,17 @@ const WindowOptions = () => {
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 50,
   }).current;
-
-// In your WindowOptions component
+ 
 const handleAddQuote = async () => {
-  try {
-    // Get token from storage
+
+  try {  
     const token = await AsyncStorage.getItem('buyerToken');
+    
+    if (!token) {
+      Alert.alert('Login Required', 'Please login to generate a quote');
+      setShowQuoteForm(false);
+      return;
+    }
      
     if (!token || !selectedDesign || !colorValue || !locationValue || 
         !quoteData.height || !quoteData.width || !quoteData.quantity) {
@@ -186,8 +242,7 @@ const handleAddQuote = async () => {
 
     const currentDesign = selectedDesign.designs[currentDesignIndex];
     
-    const newQuote = {
-      // buyerId: userId, // Use the decoded user ID
+    const newQuote = { 
       productType: selectedDesign.name.toLowerCase().replace(/\s+/g, '-'),
       product: currentDesign.id,
       color: colorValue,
@@ -224,7 +279,7 @@ const handleAddQuote = async () => {
 
 const submitQuote = async (quoteData, token) => {
   try {
-    const response = await axios.post('http://192.168.1.27:9000/api/quotes', quoteData, {
+    const response = await axios.post('https://upvc-backend.onrender.com/api/quotes', quoteData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -239,7 +294,7 @@ const submitQuote = async (quoteData, token) => {
 
   const renderDesignItem = ({item}) => (
     <View style={styles.carouselItem}>
-      <AppText weight="SemiBold" style={styles.videoTitle}>
+      <AppText weight="Inter" style={styles.videoTitle}>
         {item.title}
       </AppText>
       <View style={styles.videoContainer}>
@@ -281,326 +336,360 @@ const submitQuote = async (quoteData, token) => {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.Headercontainer}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={30} color="#000" />
-        </TouchableOpacity>
-        <View style={styles.logoContainer}>
-          <Image
-            source={require('../../../../assets/logo.png')}
-            style={styles.logo}
-          />
+    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+      <View style={styles.container}>
+        <View style={styles.Headercontainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}>
+            <Icon name="arrow-back" size={30} color="#000" />
+          </TouchableOpacity>
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../../../../assets/logo.png')}
+              style={styles.logo}
+            />
+          </View>
         </View>
-      </View>
-      <TopTabBar />
-      <ScrollView 
-        contentContainerStyle={[
-          styles.scrollContainer, 
-          windowDesigns.length < 3 && {justifyContent: 'flex-start'}
-        ]}
-      >
-        <AppText weight="Bold" style={styles.screenTitle}>
-          CHOOSE DESIGN FOR QUOTE
-        </AppText>
-        
-        {quoteCount > 0 && (
-          <View style={styles.topQuote}>
-            <TouchableOpacity
-              style={styles.floatingButton}
-              onPress={() =>
-                navigation.navigate('QuoteRequestPage', {quotes: addedQuotes})
-              }>
-              <View style={styles.badge}>
-                <AppText weight="Inter" style={styles.badgeText}>
-                  {quoteCount}
-                </AppText>
-              </View>
-              <AppText weight="Bold" style={styles.floatingButtonText}>
-                view
-              </AppText>
-            </TouchableOpacity>
-
-            <View style={styles.categoryButton}>
+        <TopTabBar />
+        <ScrollView 
+          contentContainerStyle={[
+            styles.scrollContainer, 
+            windowDesigns.length < 3 && {justifyContent: 'flex-start'}
+          ]}
+        >
+          <AppText weight="Inter" style={styles.screenTitle}>
+            CHOOSE DESIGN FOR QUOTE
+          </AppText>
+          
+          {/* {quoteCount > 0 && (
+            <View style={styles.topQuote}>
               <TouchableOpacity
-                style={styles.submitButton2}
-                onPress={handleRequestQuote}>
-                <AppText weight="SemiBold" style={styles.submitButtonText}>
-                  Select Categories
+                style={styles.floatingButton}
+                onPress={() =>
+                  navigation.navigate('QuoteRequestPage', {quotes: addedQuotes})
+                }>
+                <View style={styles.badge}>
+                  <AppText weight="Inter" style={styles.badgeText}>
+                    {quoteCount}
+                  </AppText>
+                </View>
+                <AppText weight="Inter" style={styles.floatingButtonText}>
+                  View
                 </AppText>
               </TouchableOpacity>
-            </View>
-          </View>
-        )}
-        {windowDesigns.map(design => (
-          <React.Fragment key={design.id}>
-            <TouchableOpacity
-              style={[
-                styles.designCard,
-                selectedDesign?.id === design.id && styles.selectedDesignCard,
-              ]}
-              onPress={() => handleDesignSelection(design)}>
-              <AppText weight="SemiBold" style={styles.designName}>
-                {design.name}
-              </AppText>
-              <View style={styles.countBadge}>
-                <AppText style={styles.countText}>{design.count}</AppText>
-              </View>
-            </TouchableOpacity>
-            {selectedDesign?.id === design.id && (
-              <View style={styles.designDetails}>
-                <View>
-                  <Animated.FlatList
-                    ref={flatListRef}
-                    data={selectedDesign.designs}
-                    renderItem={renderDesignItem}
-                    keyExtractor={item => item.id.toString()}
-                    horizontal
-                    pagingEnabled
-                    showsHorizontalScrollIndicator={false}
-                    onScroll={Animated.event(
-                      [{nativeEvent: {contentOffset: {x: scrollX}}}],
-                      {useNativeDriver: true},
-                    )}
-                    onViewableItemsChanged={onViewableItemsChanged}
-                    viewabilityConfig={viewabilityConfig}
-                    initialScrollIndex={currentDesignIndex}
-                    getItemLayout={(data, index) => ({
-                      length: width - 40,
-                      offset: (width - 40) * index,
-                      index,
-                    })}
-                  />
-                </View>
-                <View style={styles.dotsContainer}>
-                  {selectedDesign.designs.map((_, index) => (
-                    <View
-                      key={index}
-                      style={[
-                        styles.dot,
-                        index === currentDesignIndex && styles.activeDot,
-                      ]}
-                    />
-                  ))}
-                </View>
-                <View style={styles.navButtons}>
-                  <TouchableOpacity
-                    style={[
-                      styles.navButton,
-                      currentDesignIndex === 0 && styles.disabledNavButton,
-                    ]}
-                    onPress={handlePrev}
-                    disabled={currentDesignIndex === 0}>
-                    <Icon name="chevron-left" size={24} color="black" />
-                  </TouchableOpacity>
-                  <AppText weight="SemiBold" style={styles.counterText}>
-                    {currentDesignIndex + 1} / {selectedDesign.designs.length}
-                  </AppText>
-                  <TouchableOpacity
-                    style={[
-                      styles.navButton,
-                      currentDesignIndex ===
-                        selectedDesign.designs.length - 1 &&
-                        styles.disabledNavButton,
-                    ]}
-                    onPress={handleNext}
-                    disabled={
-                      currentDesignIndex === selectedDesign.designs.length - 1
-                    }>
-                    <Icon name="chevron-right" size={24} color="black" />
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.featuresContainer}>
-                  <AppText weight="Bold" style={styles.featuresTitle}>
-                    Key Features:
-                  </AppText>
-                  {selectedDesign.designs[currentDesignIndex]?.features?.map((feature, index) => 
-                    renderFeatureItem(feature, index)
-                  )}
-                </View>
+
+              <View style={styles.categoryButton}>
                 <TouchableOpacity
-                  style={styles.quoteButton}
-                  onPress={() => setShowQuoteForm(true)}>
-                  <AppText weight="SemiBold" style={styles.quoteButtonText}>
-                    REQUEST FOR QUOTE
+                  style={styles.submitButton2}
+                  onPress={handleRequestQuote}>
+                  <AppText weight="Inter" style={styles.submitButtonText}>
+                    Select Categories
                   </AppText>
                 </TouchableOpacity>
               </View>
-            )}
-          </React.Fragment>
-        ))}
-      </ScrollView>
-      <Modal
-        visible={showQuoteForm}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowQuoteForm(false)}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.modalOverlay}>
-          <ScrollView contentContainerStyle={styles.modalScrollContent}>
-            <View style={styles.modalContainer}>
-              <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                <Image
-                  source={require('../../../../assets/logo.png')}
-                  style={styles.logo}
-                />
-              </View>
-              <AppText weight="SemiBold" style={styles.modalTitle}>
-                Request Quote
-              </AppText>
-              <View style={styles.inputContainer1}>
-                <AppText weight="SemiBold" style={styles.inputLabel}>
-                  COLOR
-                </AppText>
-                <DropDownPicker
-                  open={colorOpen}
-                  value={colorValue}
-                  items={colorItems}
-                  setOpen={setColorOpen}
-                  setValue={setColorValue}
-                  setItems={setColorItems}
-                  style={styles.dropdown}
-                  dropDownContainerStyle={styles.dropdownContainer}
-                  placeholder="Select a color"
-                  zIndex={3000}
-                  zIndexInverse={1000}
-                />
-              </View>
-              <View style={styles.inputContainer2}>
-                <AppText weight="SemiBold" style={styles.inputLabel}>
-                  WHERE
-                </AppText>
-                <DropDownPicker
-                  open={locationOpen}
-                  value={locationValue}
-                  items={locationItems}
-                  setOpen={setLocationOpen}
-                  setValue={setLocationValue}
-                  setItems={setLocationItems}
-                  style={styles.dropdown}
-                  dropDownContainerStyle={styles.dropdownContainer}
-                  placeholder="Select location"
-                  zIndex={2000}
-                  zIndexInverse={2000}
-                />
-              </View>
-              <View style={styles.sizeContainer}>
-                <View style={styles.sizeInput}>
-                  <AppText weight="SemiBold" style={styles.inputLabel}>
-                    HEIGHT (ft)
-                  </AppText>
-                  <TextInput
-                    style={styles.textInput}
-                    keyboardType="numeric"
-                    onChangeText={text =>
-                      setQuoteData({...quoteData, height: text})
-                    }
-                    placeholder="Enter height"
-                    value={quoteData.height}
-                  />
-                </View>
-                <View style={styles.sizeInput}>
-                  <AppText weight="SemiBold" style={styles.inputLabel}>
-                    WIDTH (ft)
-                  </AppText>
-                  <TextInput
-                    style={styles.textInput}
-                    keyboardType="numeric"
-                    onChangeText={text =>
-                      setQuoteData({...quoteData, width: text})
-                    }
-                    placeholder="Enter width"
-                    value={quoteData.width}
-                  />
-                </View>
-              </View>
-              <View style={styles.inputContainer}>
-                <AppText weight="SemiBold" style={styles.inputLabel}>
-                  QUANTITY
-                </AppText>
-                <TextInput
-                  style={styles.textInput}
-                  keyboardType="numeric"
-                  onChangeText={text =>
-                    setQuoteData({...quoteData, quantity: text})
-                  }
-                  placeholder="Enter quantity"
-                  value={quoteData.quantity}
-                />
-              </View>
-              <View style={styles.inputContainer}>
-                <AppText weight="SemiBold" style={styles.inputLabel}>
-                  REMARKS
-                </AppText>
-                <TextInput
-                  style={[
-                    styles.textInput,
-                    {height: 80, textAlignVertical: 'top'},
-                  ]}
-                  multiline
-                  numberOfLines={4}
-                  onChangeText={text =>
-                    setQuoteData({...quoteData, remarks: text})
-                  }
-                  placeholder="Any special requirements or notes"
-                  value={quoteData.remarks}
-                />
-              </View>
-              <View style={styles.formActions}>
-                <View style={styles.actionButtons}>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={() => setShowQuoteForm(false)}>
-                    <AppText weight="SemiBold" style={styles.cancelButtonText}>
-                      CANCEL
-                    </AppText>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={handleAddQuote}>
-                    <AppText weight="SemiBold" style={styles.cancelButtonText}>
-                      ADD
-                    </AppText>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.categoryButton}>
-                  <TouchableOpacity
-                    style={styles.submitButton}
-                    onPress={handleRequestQuote}>
-                    <AppText weight="SemiBold" style={styles.submitButtonText}>
-                      Select Categories
-                    </AppText>
-                  </TouchableOpacity>
-                </View>
-              </View>
             </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </Modal>
+          )} */}
+          {isLoggedIn && quoteCount > 0 && (
+  <View style={styles.topQuote}>
+    <TouchableOpacity
+      style={styles.floatingButton}
+      onPress={() =>
+        navigation.navigate('QuoteRequestPage', {quotes: addedQuotes})
+      }>
+      <View style={styles.badge}>
+        <AppText weight="Inter" style={styles.badgeText}>
+          {quoteCount}
+        </AppText>
+      </View>
+      <AppText weight="Inter" style={styles.floatingButtonText}>
+        View
+      </AppText>
+    </TouchableOpacity>
+
+    <View style={styles.categoryButton}>
+      <TouchableOpacity
+        style={styles.submitButton2}
+        onPress={handleRequestQuote}>
+        <AppText weight="Inter" style={styles.submitButtonText}>
+          Select Categories
+        </AppText>
+      </TouchableOpacity>
+    </View>
+  </View>
+)}
+          {windowDesigns.map(design => (
+            <React.Fragment key={design.id}>
+              <TouchableOpacity
+                style={[
+                  styles.designCard,
+                  selectedDesign?.id === design.id && styles.selectedDesignCard,
+                ]}
+                onPress={() => handleDesignSelection(design)}>
+                <AppText weight="Medium" style={styles.designName}>
+                  {design.name}
+                </AppText>
+                <View style={styles.countBadge}>
+                  <AppText style={styles.countText}>{design.count}</AppText>
+                </View>
+              </TouchableOpacity>
+              {selectedDesign?.id === design.id && (
+                <View style={styles.designDetails}>
+                  <View>
+                    <Animated.FlatList
+                      ref={flatListRef}
+                      data={selectedDesign.designs}
+                      renderItem={renderDesignItem}
+                      keyExtractor={item => item.id.toString()}
+                      horizontal
+                      pagingEnabled
+                      showsHorizontalScrollIndicator={false}
+                      onScroll={Animated.event(
+                        [{nativeEvent: {contentOffset: {x: scrollX}}}],
+                        {useNativeDriver: true},
+                      )}
+                      onViewableItemsChanged={onViewableItemsChanged}
+                      viewabilityConfig={viewabilityConfig}
+                      initialScrollIndex={currentDesignIndex}
+                      getItemLayout={(data, index) => ({
+                        length: width - 40,
+                        offset: (width - 40) * index,
+                        index,
+                      })}
+                    />
+                  </View>
+                  <View style={styles.dotsContainer}>
+                    {selectedDesign.designs.map((_, index) => (
+                      <View
+                        key={index}
+                        style={[
+                          styles.dot,
+                          index === currentDesignIndex && styles.activeDot,
+                        ]}
+                      />
+                    ))}
+                  </View>
+                  <View style={styles.navButtons}>
+                    <TouchableOpacity
+                      style={[
+                        styles.navButton,
+                        currentDesignIndex === 0 && styles.disabledNavButton,
+                      ]}
+                      onPress={handlePrev}
+                      disabled={currentDesignIndex === 0}>
+                      <Icon name="chevron-left" size={24} color="black" />
+                    </TouchableOpacity>
+                    <AppText weight="Inter" style={styles.counterText}>
+                      {currentDesignIndex + 1} / {selectedDesign.designs.length}
+                    </AppText>
+                    <TouchableOpacity
+                      style={[
+                        styles.navButton,
+                        currentDesignIndex ===
+                          selectedDesign.designs.length - 1 &&
+                          styles.disabledNavButton,
+                      ]}
+                      onPress={handleNext}
+                      disabled={
+                        currentDesignIndex === selectedDesign.designs.length - 1
+                      }>
+                      <Icon name="chevron-right" size={24} color="black" />
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.featuresContainer}>
+                    <AppText weight="weight=" style={styles.featuresTitle}>
+                      Key Features:
+                    </AppText>
+                    {selectedDesign.designs[currentDesignIndex]?.features?.map((feature, index) => 
+                      renderFeatureItem(feature, index)
+                    )}
+                  </View>
+                  {/* <TouchableOpacity
+                    style={styles.quoteButton}
+                    onPress={() => setShowQuoteForm(true)}>
+                    <AppText weight="Inter" style={styles.quoteButtonText}>
+                      REQUEST FOR QUOTE
+                    </AppText>
+                  </TouchableOpacity> */}
+                  <TouchableOpacity
+                    style={styles.quoteButton}
+                    onPress={() => {
+                      if (!isLoggedIn) {
+                        Alert.alert('Login Required', 'Please login to generate a quote');
+                        return;
+                      }
+                      setShowQuoteForm(true);
+                    }}>
+                    <AppText weight="Inter" style={styles.quoteButtonText}>
+                      REQUEST FOR QUOTE
+                    </AppText>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </React.Fragment>
+          ))}
+        </ScrollView>
+        <Modal
+          visible={showQuoteForm}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={() => setShowQuoteForm(false)}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.modalOverlay}>
+            <ScrollView contentContainerStyle={styles.modalScrollContent}>
+              <View style={styles.modalContainer}>
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                  <Image
+                    source={require('../../../../assets/logo.png')}
+                    style={styles.logo}
+                  />
+                </View>
+                <AppText weight="Inter" style={styles.modalTitle}>
+                  Request Quote
+                </AppText>
+                <View style={styles.inputContainer1}>
+                  <AppText weight="Inter" style={styles.inputLabel}>
+                    COLOR
+                  </AppText>
+                  <DropDownPicker
+                    open={colorOpen}
+                    value={colorValue}
+                    items={colorItems}
+                    setOpen={setColorOpen}
+                    setValue={setColorValue}
+                    setItems={setColorItems}
+                    style={styles.dropdown}
+                    dropDownContainerStyle={styles.dropdownContainer}
+                    placeholder="Select a color"
+                    zIndex={3000}
+                    zIndexInverse={1000}
+                  />
+                </View>
+                <View style={styles.inputContainer2}>
+                  <AppText weight="Inter" style={styles.inputLabel}>
+                    WHERE
+                  </AppText>
+                  <DropDownPicker
+                    open={locationOpen}
+                    value={locationValue}
+                    items={locationItems}
+                    setOpen={setLocationOpen}
+                    setValue={setLocationValue}
+                    setItems={setLocationItems}
+                    style={styles.dropdown}
+                    dropDownContainerStyle={styles.dropdownContainer}
+                    placeholder="Select location"
+                    zIndex={2000}
+                    zIndexInverse={2000}
+                  />
+                </View>
+                <View style={styles.sizeContainer}>
+                  <View style={styles.sizeInput}>
+                    <AppText weight="Inter" style={styles.inputLabel}>
+                      HEIGHT (ft)
+                    </AppText>
+                    <TextInput
+                      style={styles.textInput}
+                      keyboardType="numeric"
+                      onChangeText={text =>
+                        setQuoteData({...quoteData, height: text})
+                      }
+                      placeholder="Enter height"
+                      value={quoteData.height}
+                    />
+                  </View>
+                  <View style={styles.sizeInput}>
+                    <AppText weight="Inter" style={styles.inputLabel}>
+                      WIDTH (ft)
+                    </AppText>
+                    <TextInput
+                      style={styles.textInput}
+                      keyboardType="numeric"
+                      onChangeText={text =>
+                        setQuoteData({...quoteData, width: text})
+                      }
+                      placeholder="Enter width"
+                      value={quoteData.width}
+                    />
+                  </View>
+                </View>
+                <View style={styles.inputContainer}>
+                  <AppText weight="Inter" style={styles.inputLabel}>
+                    QUANTITY
+                  </AppText>
+                  <TextInput
+                    style={styles.textInput}
+                    keyboardType="numeric"
+                    onChangeText={text =>
+                      setQuoteData({...quoteData, quantity: text})
+                    }
+                    placeholder="Enter quantity"
+                    value={quoteData.quantity}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <AppText weight="Inter" style={styles.inputLabel}>
+                    REMARKS
+                  </AppText>
+                  <TextInput
+                    style={[
+                      styles.textInput,
+                      {height: 80, textAlignVertical: 'top'},
+                    ]}
+                    multiline
+                    numberOfLines={4}
+                    onChangeText={text =>
+                      setQuoteData({...quoteData, remarks: text})
+                    }
+                    placeholder="Any special requirements or notes"
+                    value={quoteData.remarks}
+                  />
+                </View>
+                <View style={styles.formActions}>
+                  <View style={styles.actionButtons}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => setShowQuoteForm(false)}>
+                      <AppText weight="Inter" style={styles.cancelButtonText}>
+                        CANCEL
+                      </AppText>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={handleAddQuote}>
+                      <AppText weight="Inter" style={styles.cancelButtonText}>
+                        ADD
+                      </AppText>
+                    </TouchableOpacity>
+                  </View> 
+                </View>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        </Modal>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: 'white',
-    paddingTop: 15,
+    paddingBottom: 25,
   },
   Headercontainer: {
-    position: 'relative',
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
+    // position: 'relative',
+    // height: 80,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    // marginBottom: 10,
   },
-  backButton: {
+  backButton: { 
     position: 'absolute',
     left: 10,
-    top: '50%',
+    top: '30%',
     transform: [{translateY: -12}],
     padding: 5,
   },
@@ -612,7 +701,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: 20,
+    // paddingTop: 20,
   },
   errorContainer: {
     justifyContent: 'center',
@@ -626,19 +715,15 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 100,
-    height: 100,
-    resizeMode: 'contain',
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
+    height: 50,
+    // resizeMode: 'contain',
+  }, 
   scrollContainer: {
     padding: 20,
     paddingBottom: 40,
   },
   screenTitle: {
-    fontSize: 22,
+    fontSize: 20,
     color: 'black',
     marginBottom: 25,
     textAlign: 'center',
@@ -673,9 +758,10 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   designName: {
-    fontSize: 16,
+    fontSize: 14,
     color: 'black',
     flex: 1,
+    letterSpacing:2,
   },
   countBadge: {
     backgroundColor: 'black',
@@ -689,7 +775,7 @@ const styles = StyleSheet.create({
   countText: {
     color: 'white',
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 10,
   },
   designDetails: {
     marginVertical: 30,
@@ -711,15 +797,16 @@ const styles = StyleSheet.create({
   },
   videoTitle: {
     textAlign: 'center',
-    fontSize: 18,
+    fontSize: 16,
     color: 'black',
     marginBottom: 15,
   },
   featuresContainer: {
     marginBottom: 25,
+    marginHorizontal:15,
   },
   featuresTitle: {
-    fontSize: 18,
+    fontSize: 14,
     color: 'black',
     marginBottom: 15,
   },
@@ -729,7 +816,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   featureText: {
-    fontSize: 14,
+    fontSize: 12,
     color: 'black',
     marginLeft: 10,
   },
@@ -745,7 +832,7 @@ const styles = StyleSheet.create({
   },
   quoteButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 14,
     letterSpacing: 2,
   },
   modalOverlay: {
@@ -764,7 +851,7 @@ const styles = StyleSheet.create({
     width: width - 40,
     backgroundColor: 'white',
     borderRadius: 12,
-    padding: 25,
+    padding: 15,
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.3,
@@ -772,10 +859,11 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 18,
     color: 'black',
-    marginVertical: 25,
-    marginTop: 50,
+    paddingBottom:10,
+    // marginVertical: 25,
+    // marginTop: 50,
     textAlign: 'center',
   },
   inputContainer1: {
@@ -790,7 +878,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   inputLabel: {
-    fontSize: 14,
+    fontSize: 12,
     color: 'black',
     marginBottom: 8,
   },
@@ -810,7 +898,7 @@ const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
     borderRadius: 4,
     padding: 12,
-    fontSize: 16,
+    fontSize: 14,
     color: 'black',
     backgroundColor: 'white',
   },
@@ -825,7 +913,7 @@ const styles = StyleSheet.create({
   formActions: {
     flexDirection: 'column',
     justifyContent: 'space-between',
-    marginTop: 15,
+    // marginTop: 15,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -924,7 +1012,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     color: 'white',
-    fontSize: 12,
+    fontSize: 10,
   },
   floatingButtonText: {
     color: 'white',

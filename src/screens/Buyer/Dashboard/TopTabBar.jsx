@@ -53,12 +53,13 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomColor: 'black',
+    // borderWidth:1,
   }, 
   tabText: {
     // fontSize: 14,
     // color: '#333',
         fontSize: 12,
-    fontWeight: '600',
+    // fontWeight: '600',
     color: 'black',
     letterSpacing: 1,
   },

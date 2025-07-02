@@ -15,10 +15,12 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Geolocation from '@react-native-community/geolocation';
 import AppText from '../../../components/AppText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const GOOGLE_MAPS_API_KEY = "abcd"; 
 
 const LocationSelectionScreen = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -124,7 +126,10 @@ const LocationSelectionScreen = () => {
     </TouchableOpacity>
   );
 
+  
   return (
+    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+
     <View style={styles.container}> 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
@@ -174,11 +179,12 @@ const LocationSelectionScreen = () => {
           ) : (
             <>
               <Icon name="my-location" size={20} color="#000000" />
-              <AppText weight='SemiBold' style={styles.currentLocationText}>Use Current Location</AppText>
+              <AppText weight='Inter' style={styles.currentLocationText}>Use Current Location</AppText>
             </>
           )}
         </TouchableOpacity>
       </ScrollView>
+    </View>
     </View>
   );
 };
@@ -197,11 +203,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16, 
   },
   logo: {
-    marginTop:15,
-    alignSelf:"center",
+    // marginTop:15,
+    // alignSelf:"center",
     width: 100, 
-    height: 100,  
-    resizeMode: 'contain', 
+    height: 50,  
+    // resizeMode: 'contain', 
   },
   headerTitle: {
     fontSize: 18,

@@ -20,6 +20,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DropDownPicker from 'react-native-dropdown-picker';
 import EditQuoteModal from './EditQuoteModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const {width, height} = Dimensions.get('window');
 
@@ -30,6 +31,9 @@ const QuoteRequestPage = ({navigation, route}) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (selectedCategory === undefined){
+        Alert.alert('Please Select Category to generate Lead!');
+      }
       try {
         const token = await AsyncStorage.getItem('buyerToken');
         if (!token) {
@@ -38,7 +42,7 @@ const QuoteRequestPage = ({navigation, route}) => {
         }
 
         const responseQuotes = await axios.get(
-          'http://192.168.1.27:9000/api/quotes/buyer',
+          'https://upvc-backend.onrender.com/api/quotes/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -48,7 +52,7 @@ const QuoteRequestPage = ({navigation, route}) => {
         );
 
         const userRes = await axios.get(
-          'http://192.168.1.27:9000/api/buyer',
+          'https://upvc-backend.onrender.com/api/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -184,7 +188,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       // console.log('Submitting lead data:', leadData);
 
       const response = await axios.post(
-        'http://192.168.1.27:9000/api/seller/lead',
+        'https://upvc-backend.onrender.com/api/seller/lead',
         leadData,
         {
           headers: {
@@ -221,9 +225,8 @@ const QuoteRequestPage = ({navigation, route}) => {
   const [currentQuote, setCurrentQuote] = useState(null);
   const [isUpdating, setIsUpdating] = useState(false);
 
-  // Replace your existing handleEditItem with this:
   const handleEditItem = (quote) => {
-    setCurrentQuote(quote);
+    setCurrentQuote(JSON.parse(JSON.stringify(quote))); // Deep copy to avoid reference issues
     setIsEditModalVisible(true);
   };
 
@@ -233,7 +236,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       const token = await AsyncStorage.getItem('buyerToken');
       
       const response = await axios.put(
-        `http://192.168.1.27:9000/api/quotes/${updatedQuote._id}`,
+        `https://upvc-backend.onrender.com/api/quotes/${updatedQuote._id}`,
         updatedQuote,
         {
           headers: {
@@ -246,7 +249,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       if (response.status === 200) { 
         setIsEditModalVisible(false);
         const updatedQuotes = await axios.get(
-          'http://192.168.1.27:9000/api/quotes/buyer',
+          'https://upvc-backend.onrender.com/api/quotes/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -263,17 +266,11 @@ const QuoteRequestPage = ({navigation, route}) => {
         setIsUpdating(false);
     }
   };
-
-  // const handleEditItem = itemId => {
-  //   setEditingItemId(itemId);
-  //   // In a real app, you would navigate to an edit screen or show a modal
-  //   Alert.alert('Edit Item', 'Editing functionality would be implemented here');
-  // };
-
+ 
   const handleDeleteItem = async quoteId => {
     try {
       const token = await AsyncStorage.getItem('buyerToken');
-      await axios.delete(`http://192.168.1.27:9000/api/quotes/${quoteId}`, {
+      await axios.delete(`https://upvc-backend.onrender.com/api/quotes/${quoteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -281,7 +278,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
       // Refresh quotes after deletion
       const response = await axios.get(
-        'http://192.168.1.27:9000/api/quotes/buyer',
+        'https://upvc-backend.onrender.com/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -289,7 +286,7 @@ const QuoteRequestPage = ({navigation, route}) => {
         },
       );
       setQuotes(response?.data);
-
+      
       Alert.alert('Success', 'Quote deleted successfully');
     } catch (error) {
       console.error('Error deleting quote:', error);
@@ -304,7 +301,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       useNativeDriver: true,
     }).start(() => {
       setIsSubmitted(false);
-      // navigation.navigate('BuyerMain');
+      navigation.navigate('BuyerMain');
     });
   };
 
@@ -312,7 +309,7 @@ const QuoteRequestPage = ({navigation, route}) => {
     const navigation = useNavigation();
     return (
       <View style={styles.sectionContainer}>
-        <View style={styles.Headercontainer}>
+        <View >
           {/* Back Button */}
           <TouchableOpacity
             style={styles.backButton}
@@ -328,7 +325,7 @@ const QuoteRequestPage = ({navigation, route}) => {
             />
           </View>
         </View>
-        <AppText weight="SemiBold" style={styles.sectionTopHeader}>
+        <AppText weight="Inter" style={styles.sectionTopHeader}>
           YOUR SELECTIONS
         </AppText>
         <View style={styles.itemsContainer}>
@@ -341,7 +338,7 @@ const QuoteRequestPage = ({navigation, route}) => {
                 end={{x: 1, y: 1}}>
                 <View style={styles.cardHeader}>
                   <View style={styles.serialBadge}>
-                    <AppText weight="SemiBold" style={styles.serialBadgeText}>
+                    <AppText weight="Inter" style={styles.serialBadgeText}>
                       {ind + 1}
                     </AppText>
                   </View>
@@ -370,7 +367,7 @@ const QuoteRequestPage = ({navigation, route}) => {
                       <AppText weight="Inter" style={styles.itemLabel}>
                         COLOR
                       </AppText>
-                      <AppText weight="SemiBold" style={styles.itemValue}>
+                      <AppText weight="Inter" style={styles.itemValue}>
                         {item.color}
                       </AppText>
                     </View>
@@ -378,7 +375,7 @@ const QuoteRequestPage = ({navigation, route}) => {
                       <AppText weight="Inter" style={styles.itemLabel}>
                         HEIGHT
                       </AppText>
-                      <AppText weight="SemiBold" style={styles.itemValue}>
+                      <AppText weight="Inter" style={styles.itemValue}>
                         {item.height} ft
                       </AppText>
                     </View>
@@ -386,7 +383,7 @@ const QuoteRequestPage = ({navigation, route}) => {
                       <AppText weight="Inter" style={styles.itemLabel}>
                         WIDTH
                       </AppText>
-                      <AppText weight="SemiBold" style={styles.itemValue}>
+                      <AppText weight="Inter" style={styles.itemValue}>
                         {item.width} ft
                       </AppText>
                     </View>
@@ -397,7 +394,7 @@ const QuoteRequestPage = ({navigation, route}) => {
                       <AppText weight="Inter" style={styles.itemLabel}>
                         LOCATION
                       </AppText>
-                      <AppText weight="SemiBold" style={styles.itemValue}>
+                      <AppText weight="Inter" style={styles.itemValue}>
                         {item.installationLocation}
                       </AppText>
                     </View>
@@ -405,7 +402,7 @@ const QuoteRequestPage = ({navigation, route}) => {
                       <AppText weight="Inter" style={styles.itemLabel}>
                         QUANTITY
                       </AppText>
-                      <AppText weight="SemiBold" style={styles.itemValue}>
+                      <AppText weight="Inter" style={styles.itemValue}>
                         {item.quantity}
                       </AppText>
                     </View>
@@ -423,7 +420,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
                 {item.remarks && (
                   <View style={styles.remarksContainer}>
-                    <AppText weight="SemiBold" style={styles.remarksLabel}>
+                    <AppText weight="Inter" style={styles.remarksLabel}>
                       REMARKS
                     </AppText>
                     <AppText weight="Inter" style={styles.remarksValue}>
@@ -725,15 +722,15 @@ const QuoteRequestPage = ({navigation, route}) => {
               <Icon name="check-circle" size={60} color="#000" />
             </View>
 
-            <AppText weight="SemiBold" style={styles.successTitle}>
+            <AppText weight="Inter" style={styles.successTitle}>
               THANK YOU!
             </AppText>
 
             <View style={styles.successMessageContainer}>
-              <AppText weight="SemiBold" style={styles.successText}>
+              <AppText weight="Inter" style={styles.successText}>
                 Your quote request has been
               </AppText>
-              <AppText weight="SemiBold" style={styles.successText}>
+              <AppText weight="Inter" style={styles.successText}>
                 successfully submitted
               </AppText>
             </View>
@@ -759,7 +756,7 @@ const QuoteRequestPage = ({navigation, route}) => {
             <TouchableOpacity
               style={styles.successActionButton}
               onPress={handleCloseSuccess}>
-              <AppText weight="SemiBold" style={styles.successActionText}>
+              <AppText weight="Inter" style={styles.successActionText}>
                 BACK TO HOME
               </AppText>
             </TouchableOpacity>
@@ -769,23 +766,32 @@ const QuoteRequestPage = ({navigation, route}) => {
     );
   };
 
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.mainContainer}>
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}>
-        {renderSelectedItems()}
-        {!isSubmitted ? renderForm() : null}
-      </ScrollView>
-      {isSubmitted && renderSuccessMessage()}
-      <EditQuoteModal
-        visible={isEditModalVisible}
-        onClose={() => setIsEditModalVisible(false)}
-        quote={currentQuote}
-        onUpdate={handleUpdateQuote}
-        isLoading={isUpdating}
-      />
+    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+      <View style={styles.mainContainer}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+          {renderSelectedItems()}
+          {!isSubmitted ? renderForm() : null}
+        </ScrollView>
+        {isSubmitted && renderSuccessMessage()}
+        {currentQuote && (
+          <EditQuoteModal
+            visible={isEditModalVisible}
+            onClose={() => {
+              setIsEditModalVisible(false);
+              setCurrentQuote(null); 
+            }}
+            quote={currentQuote}
+            onUpdate={handleUpdateQuote}
+            isLoading={isUpdating}
+            key={currentQuote?._id} 
+          />
+        )}
+      </View>
     </View>
   );
 };
@@ -795,8 +801,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-  container: {
-    paddingTop: 15,
+  container: { 
     flex: 1,
   },
   scrollContent: {
@@ -804,33 +809,22 @@ const styles = StyleSheet.create({
   },
   sectionContainer: {
     paddingHorizontal: 20,
-  },
-  Headercontainer: {
-    position: 'relative',
-    height: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-
+  },  
   backButton: {
-    position: 'absolute',
-    left: 10,
-    top: '50%',
+    position: 'absolute', 
+    top: '30%',
     transform: [{translateY: -12}],
     padding: 5,
   },
 
   logoContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 20,
+    alignItems: 'center', 
   },
 
   logo: {
     width: 100,
-    height: 100,
-    resizeMode: 'contain',
+    height: 50, 
   },
   sectionTopHeader: {
     fontSize: 18,
@@ -975,8 +969,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   dropdownInputRow: {
-    flexDirection: 'col',
-    // justifyContent: 'space-between',
+    flexDirection: 'col', 
     marginBottom: 15,
   },
   inputContainer: {
@@ -1016,8 +1009,7 @@ const styles = StyleSheet.create({
     }),
   },
   buttonGradient: {
-    paddingVertical: 12,
-    // paddingHorizontal: 25,
+    paddingVertical: 12, 
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -1076,8 +1068,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   successText: {
-    fontSize: 16,
-    // fontWeight: '500',
+    fontSize: 16, 
     color: '#000',
     textAlign: 'center',
     lineHeight: 24,
@@ -1125,8 +1116,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   serialBadgeText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: '#fff', 
     fontSize: 12,
   },
 
@@ -1136,8 +1126,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.05)',
-    // marginTop: 20,
+    borderColor: 'rgba(0,0,0,0.05)', 
     borderRadius: 12,
     overflow: 'hidden',
     ...Platform.select({
@@ -1170,16 +1159,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.1)',
   },
   summaryLabel: {
-    fontSize: 12,
-    // fontWeight: '600',
+    fontSize: 12, 
     color: '#666',
     letterSpacing: 0.5,
     textTransform: 'uppercase',
     marginBottom: 5,
   },
   summaryValue: {
-    fontSize: 20,
-    // fontWeight: '700',
+    fontSize: 20, 
     color: '#000',
   },
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import {
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../components/AppText'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width, height} = Dimensions.get('window');
 
@@ -139,6 +140,16 @@ const UserTypeSelection = () => {
     });
   };
 
+    const checkToken = async ()=>{
+      const buyerToken =  await AsyncStorage.getItem('buyerToken'); 
+      if (buyerToken){
+        navigation.navigate('BuyerMain');
+      }
+    }
+    useEffect(()=>{
+      checkToken()
+    }, [])
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.overlay}>
@@ -152,7 +163,7 @@ const UserTypeSelection = () => {
             style={styles.logo}
           />
 
-          <AppText weight="SemiBold"
+          <AppText weight="Inter"
             style={styles.subtitle}>
             {/* style={{fontFamily: 'Poppins-Bold', fontSize: 18, color: 'black'}}> */}
             Your Premium Window to Better Deals
@@ -176,7 +187,7 @@ const UserTypeSelection = () => {
                 color="#FFF"
                 style={styles.buttonIcon}
               />
-              <AppText weight="SemiBold" style={styles.buttonText}>I'm a Buyer</AppText>
+              <AppText weight="Inter" style={styles.buttonText}>I'm a Buyer</AppText>
               <AppText weight="Inter" style={styles.buttonSubtext}>
                 Browse premium UPVC products
               </AppText>
@@ -198,7 +209,7 @@ const UserTypeSelection = () => {
                 color="#FFF"
                 style={styles.buttonIcon}
               /> 
-              <AppText weight="SemiBold" style={styles.buttonText}>I'm a Seller</AppText>
+              <AppText weight="Inter" style={styles.buttonText}>I'm a Seller</AppText>
               <AppText weight="Inter" style={styles.buttonSubtext}>
                 Connect with real buyers
               </AppText>
@@ -288,7 +299,7 @@ const styles = StyleSheet.create({
   footerText: {
     color: '#888',
     fontSize: 14,
-    fontWeight: '500',
+    // fontWeight: '500',
   },
 });
 

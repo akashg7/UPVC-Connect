@@ -8,6 +8,8 @@ import {
   FlatList,
   Platform,
   Image,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -16,25 +18,31 @@ import TopTabBar from './TopTabBar';
 import AppText from '../../../components/AppText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 const {width, height} = Dimensions.get('window');
 
 const MarketInsights = ({navigation}) => {
   const [buyerId, setBuyerId] = useState(null);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
         const token = await AsyncStorage.getItem('buyerToken');
         if (token) {
           setBuyerId(token);
-        } 
+        }
         const categoryresponse = await axios.get(
-          'http://192.168.1.27:9000/api/categories',
-        ); 
+          'https://upvc-backend.onrender.com/api/categories',
+        );
         setCategories(categoryresponse?.data);
+        setLoading(false)
       } catch (err) {
+        setError(err.message)
         console.error('Error fetching categories:', err);
       }
     };
@@ -50,10 +58,17 @@ const MarketInsights = ({navigation}) => {
       data: category,
     })),
   ];
- 
-  const handleCategorySelect = (category) => {
-    navigation.navigate('QuoteRequestPage', { 
-      selectedCategory: category 
+
+  const handleCategorySelect = async (category) => {
+    const token = await AsyncStorage.getItem('buyerToken');
+    
+    if (!token) {
+      Alert.alert('Login Required', 'Please login to Select a Category');
+      // setShowQuoteForm(false);
+      return;
+    }
+    navigation.navigate('QuoteRequestPage', {
+      selectedCategory: category,
     });
   };
 
@@ -61,10 +76,10 @@ const MarketInsights = ({navigation}) => {
     if (item.type === 'header') {
       return (
         <View style={styles.header}>
-          <AppText weight="Bold" style={styles.headerText}>
+          <AppText weight="Inter" style={styles.headerText}>
             SELECT YOUR PREFERRED CATEGORY
           </AppText>
-          <AppText weight="SemiBold" style={styles.subHeaderText}>
+          <AppText weight="Inter" style={styles.subHeaderText}>
             We've categorized uPVC windows into 3 tiers to match your style &
             requirements. Please select one category to explore the premium
             brands we offer.
@@ -77,20 +92,21 @@ const MarketInsights = ({navigation}) => {
       return (
         <View style={styles.categoryCard}>
           <LinearGradient
-            colors={['#f8f8f8', '#ffffff']}
+            colors={['#ffffff', '#ffffff']}
+            // colors={['#f8f8f8', '#ffffff']}
             style={styles.cardGradient}
             start={{x: 0, y: 0}}
             end={{x: 1, y: 1}}>
             <View style={styles.cardHeader}>
               <View style={styles.titleContainer}>
-                <AppText weight="SemiBold" style={styles.categoryTitle}>
+                <AppText weight="Inter" style={styles.categoryTitle}>
                   {category.name}
                 </AppText>
               </View>
               <TouchableOpacity
                 style={styles.selectButton}
                 onPress={() => handleCategorySelect(category)}>
-                <AppText weight="SemiBold" style={styles.selectButtonText}>
+                <AppText weight="Inter" style={styles.selectButtonText}>
                   SELECT
                 </AppText>
                 <Icon
@@ -105,13 +121,14 @@ const MarketInsights = ({navigation}) => {
               {category.description}
             </AppText>
             <View style={styles.videoContainer}>
-             <Video
-                source={{uri: `http://192.168.1.27:9000${category.videoUrl}`}}
+              <Video
+                source={{uri: `https://upvc-backend.onrender.com${category.videoUrl}`}}
                 style={styles.video}
                 resizeMode="cover"
-                paused={true}
-                repeat={false}
                 controls={true}
+                repeat
+                muted
+                paused={false}
               />
               <LinearGradient
                 colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0)']}
@@ -119,7 +136,7 @@ const MarketInsights = ({navigation}) => {
                 start={{x: 0.5, y: 1}}
                 end={{x: 0.5, y: 0}}
               />
-            </View> 
+            </View>
           </LinearGradient>
         </View>
       );
@@ -127,60 +144,86 @@ const MarketInsights = ({navigation}) => {
     return null;
   };
 
+  const insets = useSafeAreaInsets();
+
+    if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="black" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <AppText style={styles.errorText}>Error loading window options: {error}</AppText>
+      </View>
+    );
+  }
+
   return (
-    <View style={styles.mainContainer}>
-      <Image source={require('../../../assets/logo.png')} style={styles.logo} />
-      <TopTabBar />
-      <FlatList
-        data={sections}
-        renderItem={renderSection}
-        keyExtractor={(item, index) => item.type + index}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.container}
-        style={styles.flatList}
-      />
+    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+      <View style={styles.mainContainer}>
+        <Image
+          source={require('../../../assets/logo.png')}
+          style={styles.logo}
+        />
+        <TopTabBar />
+        <FlatList
+          data={sections}
+          renderItem={renderSection}
+          keyExtractor={(item, index) => item.type + index}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.container}
+          style={styles.flatList}
+        />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   mainContainer: {
-    flex: 1, 
+    flex: 1,
     backgroundColor: 'white',
   },
   container: {
-    padding: 20,
+    // padding: 20,
   },
   logo: {
-    marginTop: 15,
+    // marginTop: 15,
     alignSelf: 'center',
     width: 100,
-    height: 100,
-    resizeMode: 'contain',
+    height: 50,
+    // resizeMode: 'contain',
   },
   flatList: {
     backgroundColor: 'transparent',
   },
   header: {
-    marginBottom: 30,
+    // marginBottom: 0,
     padding: 25,
+    // paddingHorizontal:30,
     flexDirection: 'column',
-    backgroundColor: '#fff',
-    borderRadius: 16,
+    // backgroundColor: '#fff',
+    // borderRadius: 16,
+    // borderBottomWidth: 1,
+    // borderBottomColor: "#990",
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 6},
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
+        // shadowColor: '#000',
+        // shadowOffset: {width: 0, height: 6},
+        // shadowOpacity: 0.1,
+        // shadowRadius: 12,
       },
       android: {
-        elevation: 8,
+        // elevation: 8,
       },
     }),
   },
   headerText: {
-    fontSize: 22,
+    fontSize: 18,
     // fontWeight: '800',
     color: '#000',
     marginBottom: 12,
@@ -189,43 +232,45 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   subHeaderText: {
-    fontSize: 15,
+    fontSize: 12,
     color: '#666',
     lineHeight: 22,
     textAlign: 'center',
     letterSpacing: 0.3,
   },
   categoryCard: {
-    borderRadius: 20,
-    marginBottom: 25,
-    overflow: 'hidden',
+    // width:395,
+    // bordeRadius: 20,
+    // marginBottom: 25,
+    // overflow: 'hidden',
     ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 6},
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-      },
-      android: {
-        elevation: 8,
-      },
+      // ios: {
+      //   shadowColor: '#000',
+      //   shadowOffset: {width: 0, height: 6},
+      //   shadowOpacity: 0.1,
+      //   shadowRadius: 12,
+      // },
+      // android: {
+      //   elevation: 8,
+      // },
     }),
   },
   cardGradient: {
-    padding: 25,
+    padding: 15,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 15,
+    paddingHorizontal:5,
   },
   titleContainer: {
     flex: 1,
     marginRight: 15,
   },
   categoryTitle: {
-    fontSize: 20,
+    fontSize: 16,
     // fontWeight: '700',
     color: '#000',
     letterSpacing: 0.5,
@@ -237,10 +282,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   categoryDescription: {
-    fontSize: 15,
+    fontSize: 13,
     color: '#555',
     lineHeight: 22,
     marginBottom: 20,
+    paddingHorizontal:5,
   },
   divider: {
     height: 1,
@@ -271,7 +317,7 @@ const styles = StyleSheet.create({
   selectButtonText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: '700',
+    // fontWeight: '700',
     letterSpacing: 0.5,
   },
   selectIcon: {
@@ -308,7 +354,7 @@ const styles = StyleSheet.create({
         elevation: 6,
       },
     }),
-    aspectRatio: 9 / 16,
+    aspectRatio: 8 / 16,
     borderRadius: 10,
     overflow: 'hidden',
   },

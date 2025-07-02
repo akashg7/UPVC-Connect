@@ -5,6 +5,7 @@ import TopTabBar from '../../Dashboard/TopTabBar';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import AppText from '../../../../components/AppText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const {width, height} = Dimensions.get('window');
 
@@ -20,62 +21,68 @@ const TheProcess = () => {
     'Matching fabricators will connect, meet you, and gather measurements', 
     'Compare quotes and place your order!',
   ];
+  const insets = useSafeAreaInsets();
   return (
-    <View style={styles.container}>
-      <View style={styles.Headercontainer}>
-        {/* Back Button */}
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={30} color="#000" />
-        </TouchableOpacity>
+    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+      <View style={styles.container}>
+        <View style={styles.Headercontainer}>
+          {/* Back Button */}
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}>
+            <Icon name="arrow-back" size={30} color="#000" />
+          </TouchableOpacity>
 
-        {/* Centered Logo */}
-        <View style={styles.logoContainer}>
-          <Image
-            source={require('../../../../assets/logo.png')}
-            style={styles.logo}
-          />
+          {/* Centered Logo */}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require('../../../../assets/logo.png')}
+              style={styles.logo}
+            />
+          </View>
         </View>
+        <TopTabBar/>
+              <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <AppText weight='Bold' style={styles.headerTitle}>The Process</AppText>
+          {/* source={require('../../../../assets/dummy.mp4')} */}
+          {/* Add a dummy video here in reels format means it should look like reels */}
+
+            <View style={styles.videoContainer}>
+            <Video
+              source={require('../../../../assets/dummy.mp4')}
+              style={styles.video}
+              resizeMode="cover"
+              repeat
+              muted
+              paused={false}
+              controls={false}
+            />
+          </View>
+        </View>
+
+        {/* Table Container */}
+
+              <View style={styles.container2}>
+        {steps.map((step, index) => (
+          <View key={index} style={styles.bulletItem}>
+            <AppText weight='Inter' style={styles.bulletPoint}>{'\u2022'}</AppText>
+            <AppText weight='Inter' style={styles.bulletText}>{step}</AppText>
+          </View>
+        ))}
       </View>
-       <TopTabBar/>
-             <ScrollView contentContainerStyle={styles.scrollContent}>
-      <View style={styles.header}>
-        <AppText weight='Bold' style={styles.headerTitle}>The Process</AppText>
-        {/* source={require('../../../../assets/dummy.mp4')} */}
-        {/* Add a dummy video here in reels format means it should look like reels */}
+         <View style={styles.buyNowContainer}>
+              <TouchableOpacity
+                style={styles.buyNowButton}
+                onPress={() => navigation.navigate('BuyNowScreen')}
+              >
+                <AppText weight="Inter" style={styles.buyNowText}>BUY NOW</AppText>
+              </TouchableOpacity>
+            </View>
+        </ScrollView>
+        
 
-          <View style={styles.videoContainer}>
-          <Video
-            source={require('../../../../assets/dummy.mp4')}
-            style={styles.video}
-            resizeMode="cover"
-            repeat
-            muted
-            paused={false}
-            controls={false}
-          />
-        </View>
       </View>
-
-      {/* Table Container */}
-
-            <View style={styles.container2}>
-      {steps.map((step, index) => (
-        <View key={index} style={styles.bulletItem}>
-          <AppText weight='Inter' style={styles.bulletPoint}>{'\u2022'}</AppText>
-          <AppText weight='Inter' style={styles.bulletText}>{step}</AppText>
-        </View>
-      ))}
-    </View>
-      </ScrollView>
-      <TouchableOpacity 
-        style={styles.buyNowButton}
-        onPress={() => navigation.navigate('BuyNowScreen')}
-      >
-        <AppText weight='SemiBold' style={styles.buyNowText}>BUY NOW</AppText>
-      </TouchableOpacity>
-
     </View>
   );
 };
@@ -83,16 +90,16 @@ const TheProcess = () => {
 // Styles
 const styles = StyleSheet.create({ 
   container: {
-    paddingTop: 15,
+    // paddingTop: 15,
     flex: 1,
     backgroundColor: '#FFFFFF', 
   },
   logo: {
-    marginTop:15,
-    alignSelf:"center",
+    // marginTop:15,
+    // alignSelf:"center",
     width: 100, 
-    height: 100,  
-    resizeMode: 'contain', 
+    height: 50,  
+    // resizeMode: 'contain', 
   },
   scrollContent: {
     paddingBottom: 20,
@@ -195,7 +202,7 @@ video: {
 
 Headercontainer: {
   position: 'relative', // allow absolute positioning inside
-  height: 80, // adjust as needed
+  // height: 80, // adjust as needed
   justifyContent: 'center',
   alignItems: 'center',
   marginBottom:10,
@@ -204,47 +211,46 @@ Headercontainer: {
 backButton: {
   position: 'absolute',
   left: 10,
-  top: '50%',
+  top: '30%',
   transform: [{ translateY: -12 }], // vertically center the icon
   padding: 5, 
 },
 
 logoContainer: {
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingTop:20,
+  // justifyContent: 'center',
+  // alignItems: 'center',
+  // paddingTop:20,
 },
 
 logo: {
   width: 100,
-  height: 100,
-  resizeMode: 'contain',
+  height: 50,
+  // resizeMode: 'contain',
 },
-buyNowButton: {
-  backgroundColor: '#000000',
-  paddingVertical: 16,
-  paddingHorizontal: 32,
-  borderRadius: 30,
-  alignItems: 'center',
-  justifyContent: 'center',
-  marginTop: 20,
-  marginBottom: 30,
-  marginHorizontal: 20,
-  shadowColor: '#000',
-  shadowOffset: {
-    width: 0,
-    height: 2,
+  buyNowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 25,
   },
-  shadowOpacity: 0.25,
-  shadowRadius: 3.84,
-  elevation: 5,
-},
-buyNowText: {
-  color: '#FFFFFF',
-  fontSize: 18,
-  // fontWeight: 'bold',
-  letterSpacing: 1,
-},
+  buyNowButton: {
+    width: '70%',
+    backgroundColor: '#000000',
+    paddingVertical: 14,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  buyNowText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    letterSpacing: 1,
+  },
 });
 
 export default TheProcess;

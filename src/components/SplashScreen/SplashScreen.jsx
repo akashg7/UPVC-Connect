@@ -2,16 +2,32 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import AppText from '../AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
-const SplashScreen = ({ navigation }) => {
+const SplashScreen = () => {
+
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      navigation.replace('UserTypeSelection');
-    }, 2000);
 
-    return () => clearTimeout(timer);
-  }, [navigation]);
+  const getToken = async () => {
+    const sellerToken = await AsyncStorage.getItem('sellerToken');
+    const buyerToken = await AsyncStorage.getItem('buyerToken');
+ 
+    if (sellerToken){
+      navigation.navigate("SellerMain")
+    }
+    else if (buyerToken){
+      navigation.navigate('BuyerMain')
+    }
+    else{
+      navigation.replace('UserTypeSelection');
+    }
+  }
+
+  useEffect(()=> {
+    getToken()
+  }, []) 
 
   return (
     <View style={{ paddingTop: insets.top, flex: 1 }}>
@@ -20,7 +36,7 @@ const SplashScreen = ({ navigation }) => {
           source={require('../../assets/logo.png')}  
           style={styles.logo}
         />
-        <AppText weight='SemiBold' style={styles.tagline}>Your Window to Better Deals</AppText>
+        <AppText weight='Inter' style={styles.tagline}>Your Window to Better Deals</AppText>
         <ActivityIndicator size="large" color="#000000" style={styles.loader} />
       </View>
     </View>
@@ -30,7 +46,7 @@ const SplashScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // Black background#FFFFFF
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -38,13 +54,11 @@ const styles = StyleSheet.create({
   logo: {
     width: 350,
     height: 350,
-    resizeMode: 'contain',
-    marginBottom: 30,
+    resizeMode: 'contain', 
   },
   tagline: {
     fontSize: 20,
-    color: '#000000',
-    // fontWeight: '600',
+    color: '#000000', 
     textAlign: 'center',
     marginBottom: 20,
   },

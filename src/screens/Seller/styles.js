@@ -9,7 +9,12 @@ export const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    // fontWeight: 'bold',
+    color: 'black',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  subTitle1: {
+    fontSize: 16,
     color: 'black',
     marginBottom: 10,
     textAlign: 'center',
@@ -23,23 +28,23 @@ export const styles = StyleSheet.create({
   otpContainer: {
     marginBottom: 20,
     justifyContent: 'center',
-    paddingHorizontal: 20, // Adjust this to control overall width
+    paddingHorizontal: 20,
   },
   pinCodeContainer: {
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 5,
     height: 50,
-    width: 45, // Reduced width
+    width: 45,
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: 5, // Reduced spacing between boxes
+    marginHorizontal: 5, 
   },
   pinCodeText: {
     fontSize: 20,
     color: 'black',
     textAlign: 'center',
-    includeFontPadding: false, // Ensures text is properly centered
+    includeFontPadding: false,
   },
   focusStick: {
     backgroundColor: 'black',
@@ -69,7 +74,7 @@ export const styles = StyleSheet.create({
     marginTop: 20,
   },
   disabledButton: {
-    backgroundColor: 'gray', // or any color you prefer for disabled state
+    backgroundColor: 'gray',
     opacity: 0.6,
   },
   loaderContainer: {

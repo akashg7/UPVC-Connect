@@ -1,7 +1,303 @@
-import React, { useState } from 'react';
+// import React, { useState } from 'react';
+// import {
+//   View, 
+//   TouchableOpacity,
+//   StyleSheet,
+//   ScrollView,
+//   Image,
+//   Linking,
+//   Share,
+//   Alert,
+//   Animated,
+// } from 'react-native';
+// import Icon from 'react-native-vector-icons/MaterialIcons'; 
+// import LinearGradient from 'react-native-linear-gradient';
+// import AppText from '../../components/AppText';
+// import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// const ContactBuyer = ({ route, navigation }) => {
+//   console.log("rooute params: " , route.params)
+//   const insets = useSafeAreaInsets();
+
+//   const buyerDetails = {
+//     personal: {
+//       fullName: 'Rajesh Kumar',
+//       contactNumber: '+91 9876543210',
+//       whatsappNumber: '+91 9876543210',
+//       email: 'rajesh.kumar@example.com',
+//     },
+//     project: {
+//       name: 'Premium Towers',
+//       address: '123 Business District, Mumbai',
+//       pinCode: '400001',
+//       stage: 'New Construction',
+//       timeline: 'Within 4 weeks',
+//       totalSqFt: '1500 sq ft',
+//       category: 'ELITE CREST',
+//     },
+//   };
+
+//   const handleShare = async () => {
+//     try {
+//       const shareContent = {
+//         message: `Buyer Details:
+//         Name: ${buyerDetails.personal.fullName}
+//         Contact: ${buyerDetails.personal.contactNumber}
+//         Project: ${buyerDetails.project.name}
+//         Address: ${buyerDetails.project.address}, ${buyerDetails.project.pinCode}
+//         Timeline: ${buyerDetails.project.timeline}`,
+//       };
+//       await Share.share(shareContent);
+//     } catch (error) {
+//       Alert.alert('Error', 'Failed to share details');
+//     }
+//   };
+
+//   const handlePrint = () => {
+//     Alert.alert('Print', 'Print functionality would connect to a printer in production');
+//   };
+
+//   const handleDownload = () => {
+//     Alert.alert('Download', 'Details would be downloaded as PDF in production');
+//   };
+
+//   const openMap = () => {
+//     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(buyerDetails.project.address)}`);
+//   };
+
+//   // Static data for selected items
+//   const selectedItems = [
+//     {
+//       id: 1,
+//       design: 'Sliding Window',
+//       color: 'White',
+//       size: '5ft x 4ft',
+//       where: 'Living Room',
+//       qty: 2,
+//       total: '40 sq ft',
+//       remarks: 'Frosted glass'
+//     },
+//     {
+//       id: 2,
+//       design: 'Casement Window',
+//       color: 'Wooden Finish',
+//       size: '3ft x 5ft',
+//       where: 'Bedroom',
+//       qty: 3,
+//       total: '45 sq ft',
+//       remarks: 'Double glazing'
+//     }, 
+//   ];
+
+//   const scaleAnim = useState(new Animated.Value(1))[0];
+  
+//   return (
+//     <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+//       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+//         {/* Logo Header */}
+//         <View style={styles.logoContainer}>
+//           <Image
+//             source={require('../../assets/logo.png')}
+//             style={styles.logo}
+//             resizeMode="contain"
+//           />
+//         </View>
+  
+//         {/* Header */}
+//         <View style={styles.header}>
+//           <AppText weight='Inter' style={styles.headline}>LEAD UNLOCKED</AppText>
+//           <AppText weight='Inter'style={styles.subheader}>Full buyer details now available</AppText>
+//             <AppText weight='Inter'style={styles.viewTitle} onPress={() => navigation.navigate("SellerMain", { screen: "SellerAccount" })}>View in History</AppText>
+//         </View>
+
+//                 <View style={styles.itemsContainer}>
+//                   {selectedItems.map((item) => (
+//                     <View key={item.id} style={styles.itemCard}>
+//                       <LinearGradient
+//                         colors={['#f5f5f5', '#ffffff']}
+//                         style={styles.cardGradient}
+//                         start={{ x: 0, y: 0 }}
+//                         end={{ x: 1, y: 1 }}
+//                       > 
+//                       <Animated.View style={[styles.serialBadge, { transform: [{ scale: scaleAnim }] }]}>
+//                         <AppText weight='Inter'style={styles.serialBadgeText}>{item.id}</AppText>
+//                       </Animated.View> 
+//                         <View style={styles.itemGrid}>
+//                           <View style={styles.itemColumn}>
+//                             <View style={styles.itemField}>
+//                               <AppText weight='Inter'style={styles.itemLabel}>COLOR</AppText>
+//                               <AppText weight='Inter'style={styles.itemValue}>{item.color}</AppText>
+//                             </View>
+//                             <View style={styles.itemField}>
+//                               <AppText weight='Inter'style={styles.itemLabel}>SIZE</AppText>
+//                               <AppText weight='Inter'style={styles.itemValue}>{item.size}</AppText>
+//                             </View>
+//                           </View>
+                          
+//                           <View style={styles.itemColumn}>
+//                             <View style={styles.itemField}>
+//                               <AppText weight='Inter'style={styles.itemLabel}>LOCATION</AppText>
+//                               <AppText weight='Inter'style={styles.itemValue}>{item.where}</AppText>
+//                             </View>
+//                             <View style={styles.itemField}>
+//                               <AppText weight='Inter'style={styles.itemLabel}>QUANTITY</AppText>
+//                               <AppText weight='Inter'style={styles.itemValue}>{item.qty}</AppText>
+//                             </View>
+//                           </View>
+//                         </View>
+                        
+//                         <View style={styles.totalContainer}>
+//                           <AppText weight='Inter'style={styles.totalLabel}>TOTAL</AppText>
+//                           <AppText weight='Inter'style={styles.totalValue}>{item.total}</AppText>
+//                         </View>
+                        
+//                         {item.remarks && (
+//                           <View style={styles.remarksContainer}>
+//                             <AppText weight='Inter'style={styles.remarksLabel}>REMARKS</AppText>
+//                             <AppText weight='Inter'style={styles.remarksValue}>{item.remarks}</AppText>
+//                           </View>
+//                         )}
+//                       </LinearGradient>
+//                     </View>
+//                   ))}
+//                   <View style={styles.summaryCard}>
+//                     <View style={styles.summaryItem}>
+//                       <Icon name="straighten" size={20} color="#000" style={styles.summaryIcon} />
+//                       <AppText weight='Inter'style={styles.summaryLabel}>TOTAL SQ FT</AppText>
+//                       <AppText weight='Inter'style={styles.summaryValue}>106</AppText>
+//                     </View>
+        
+//                     <View style={styles.summaryItem}>
+//                       <Icon name="format-list-numbered" size={20} color="#000" style={styles.summaryIcon} />
+//                       <AppText weight='Inter'style={styles.summaryLabel}>TOTAL QUANTITY</AppText>
+//                       <AppText weight='Inter'style={styles.summaryValue}>6</AppText>
+//                     </View>
+//                   </View>
+//                 </View>
+
+//         {/* Buyer Details Card */}
+//         <View style={styles.card}>
+//           {/* Personal Details Section */}
+//           <View style={styles.cardHeader}>
+//             <AppText weight='Inter'style={styles.sectionTitle}>PERSONAL DETAILS</AppText>
+//           </View>
+          
+//           <View style={styles.detailRow}>
+//             <Icon name="person" size={20} color="#000" style={styles.icon} />
+//             <View>
+//               <AppText weight='Inter'style={styles.detailLabel}>Full Name</AppText>
+//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.personal.fullName}</AppText>
+//             </View>
+//           </View>
+
+//           <View style={styles.detailRow}>
+//             <Icon name="phone" size={20} color="#000" style={styles.icon} />
+//             <View>
+//               <AppText weight='Inter'style={styles.detailLabel}>Contact Number</AppText>
+//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.personal.contactNumber}</AppText>
+//             </View>
+//           </View>
+
+//           <View style={styles.detailRow}>
+//             <Icon name="chat" size={20} color="#000" style={styles.icon} />
+//             <View>
+//               <AppText weight='Inter'style={styles.detailLabel}>WhatsApp Number</AppText>
+//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.personal.whatsappNumber}</AppText>
+//             </View>
+//           </View>
+
+//           <View style={styles.detailRow}>
+//             <Icon name="email" size={20} color="#000" style={styles.icon} />
+//             <View>
+//               <AppText weight='Inter'style={styles.detailLabel}>Email Address</AppText>
+//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.personal.email}</AppText>
+//             </View>
+//           </View>
+
+//           {/* Divider */}
+//           <View style={styles.divider} />
+
+//           {/* Project Details Section */}
+//           <AppText weight='Inter'style={styles.sectionTitle}>PROJECT DETAILS</AppText>
+          
+//           <View style={styles.detailRow}>
+//             <Icon name="business" size={20} color="#000" style={styles.icon} />
+//             <View>
+//               <AppText weight='Inter'style={styles.detailLabel}>Project Name</AppText>
+//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.name}</AppText>
+//             </View>
+//           </View>
+
+//           <View style={styles.detailRow}>
+//             <Icon name="location-on" size={20} color="#000" style={styles.icon} />
+//             <View>
+//               <AppText weight='Inter'style={styles.detailLabel}>Project Address</AppText>
+//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.address}</AppText>
+//             </View>
+//           </View>
+
+//           <View style={styles.detailRow}>
+//             <Icon name="map" size={20} color="#000" style={styles.icon} />
+//             <View>
+//               <AppText weight='Inter'style={styles.detailLabel}>Pin Code</AppText>
+//               <View style={styles.inlineContainer}>
+//                 <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.pinCode}</AppText>
+//                 <TouchableOpacity onPress={openMap} style={styles.mapLink}>
+//                   <AppText weight='Inter'style={styles.linkText}>View on Map</AppText>
+//                   <Icon name="open-in-new" size={16} color="#000" />
+//                 </TouchableOpacity>
+//               </View>
+//             </View>
+//           </View>
+
+//           <View style={styles.detailRow}>
+//             <Icon name="schedule" size={20} color="#000" style={styles.icon} />
+//             <View>
+//               <AppText weight='Inter'style={styles.detailLabel}>Project Stage</AppText>
+//               <View style={styles.inlineContainer}>
+//                 <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.stage}</AppText>
+//                 <AppText weight='Inter'style={styles.timeline}>{buyerDetails.project.timeline}</AppText>
+//               </View>
+//             </View>
+//           </View>
+
+//           <View style={styles.detailRow}>
+//             <Icon name="straighten" size={20} color="#000" style={styles.icon} />
+//             <View>
+//               <AppText weight='Inter'style={styles.detailLabel}>Total Sq. Feet</AppText>
+//               <View style={styles.inlineContainer}>
+//                 <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.totalSqFt}</AppText>
+//                 <AppText weight='Inter'style={styles.category}>{buyerDetails.project.category}</AppText>
+//               </View>
+//             </View>
+//           </View>
+//         </View>
+
+//         {/* Action Buttons */}
+//         <View style={styles.actionRow}>
+//           <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
+//             <Icon name="share" size={24} color="#000" />
+//             <AppText weight='Inter'style={styles.actionText}>Share</AppText>
+//           </TouchableOpacity>
+
+//           <TouchableOpacity style={styles.actionButton} onPress={handlePrint}>
+//             <Icon name="print" size={24} color="#000" />
+//             <AppText weight='Inter'style={styles.actionText}>Print</AppText>
+//           </TouchableOpacity>
+
+//           <TouchableOpacity style={styles.actionButton} onPress={handleDownload}>
+//             <Icon name="cloud-download" size={24} color="#000" />
+//             <AppText weight='Inter'style={styles.actionText}>Download</AppText>
+//           </TouchableOpacity>
+//         </View> 
+//       </ScrollView>
+//     </View>
+//   );
+// };
+
+import React, { useState, useEffect } from 'react';
 import {
-  View,
-  Text,
+  View, 
   TouchableOpacity,
   StyleSheet,
   ScrollView,
@@ -11,37 +307,53 @@ import {
   Alert,
   Animated,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import LottieView from 'lottie-react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import LinearGradient from 'react-native-linear-gradient';
+import AppText from '../../components/AppText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ContactBuyer = ({ route, navigation }) => {
+  const insets = useSafeAreaInsets();
+  const { lead } = route.params;
+  console.log("Lead : " , lead)
+  
+  const scaleAnim = useState(new Animated.Value(1))[0];
+
+  // Extract buyer details from the lead data
   const buyerDetails = {
     personal: {
-      fullName: 'Rajesh Kumar',
-      contactNumber: '+91 9876543210',
-      whatsappNumber: '+91 9876543210',
-      email: 'rajesh.kumar@example.com',
+      fullName: lead.rawData.contactInfo.name,
+      contactNumber: lead.rawData.contactInfo.contactNumber,
+      whatsappNumber: lead.rawData.contactInfo.whatsappNumber,
+      email: lead.rawData.contactInfo.email,
     },
     project: {
-      name: 'Premium Towers',
-      address: '123 Business District, Mumbai',
-      pinCode: '400001',
-      stage: 'New Construction',
-      timeline: 'Within 4 weeks',
-      totalSqFt: '1500 sq ft',
-      category: 'ELITE CREST',
+      name: lead.rawData.projectInfo.name,
+      address: lead.rawData.projectInfo.address,
+      pinCode: lead.rawData.projectInfo.pincode,
+      stage: lead.rawData.projectInfo.stage,
+      timeline: lead.rawData.projectInfo.timeline,
+      totalSqFt: `${lead.rawData.totalSqft} sq ft`,
+      category: lead.rawData.category?.name || 'Window',
+      googleMapLink: lead.rawData.projectInfo.googleMapLink,
     },
   };
 
-  const handleCall = () => {
-    Linking.openURL(`tel:${buyerDetails.personal.contactNumber}`);
-  };
+  // Format quotes as selected items
+  const selectedItems = lead.rawData.quotes.map((quote, index) => ({
+    id: index + 1,
+    design: quote.product.title,
+    color: quote.color,
+    size: `${quote.width}ft x ${quote.height}ft`,
+    where: quote.installationLocation.replace(/_/g, ' '),
+    qty: quote.quantity,
+    total: `${quote.sqft} sq ft`,
+    remarks: quote.remark || 'No remarks',
+  }));
 
-  const handleWhatsApp = () => {
-    const message = `Hi ${buyerDetails.personal.fullName}, I saw your request for ${buyerDetails.project.name} on UPVC Connect. Here's my quote:`;
-    Linking.openURL(`whatsapp://send?phone=${buyerDetails.personal.whatsappNumber}&text=${encodeURIComponent(message)}`);
-  };
+  // Calculate totals
+  const totalSqFt = lead.rawData.totalSqft;
+  const totalQuantity = lead.rawData.totalQuantity;
 
   const handleShare = async () => {
     try {
@@ -68,298 +380,230 @@ const ContactBuyer = ({ route, navigation }) => {
   };
 
   const openMap = () => {
-    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(buyerDetails.project.address)}`);
+    const mapUrl = buyerDetails.project.googleMapLink || 
+                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(buyerDetails.project.address)}`;
+    Linking.openURL(mapUrl);
   };
 
-  // Static data for selected items
-const selectedItems = [
-  {
-    id: 1,
-    design: 'Sliding Window',
-    color: 'White',
-    size: '5ft x 4ft',
-    where: 'Living Room',
-    qty: 2,
-    total: '40 sq ft',
-    remarks: 'Frosted glass'
-  },
-  {
-    id: 2,
-    design: 'Casement Window',
-    color: 'Wooden Finish',
-    size: '3ft x 5ft',
-    where: 'Bedroom',
-    qty: 3,
-    total: '45 sq ft',
-    remarks: 'Double glazing'
-  },
-  {
-    id: 3,
-    design: 'French Door',
-    color: 'Black',
-    size: '7ft x 3ft',
-    where: 'Balcony',
-    qty: 1,
-    total: '21 sq ft',
-    remarks: 'With mosquito net'
-  },
-];
-  const scaleAnim = useState(new Animated.Value(1))[0];
-  const [editingItemId, setEditingItemId] = useState(null);
-    const handleEditItem = (itemId) => {
-      setEditingItemId(itemId); 
-      Alert.alert('Edit Item', 'Editing functionality would be implemented here');
-    };
-
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-      {/* Logo Header */}
-      <View style={styles.logoContainer}>
-        <Image
-          source={require('../../assets/logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
- 
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headline}>LEAD UNLOCKED</Text>
-        <Text style={styles.subheader}>Full buyer details now available</Text>
-          <Text style={styles.viewTitle} onPress={() => navigation.navigate("SellerMain", { screen: "SellerAccount" })}>View in History</Text>
+    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+        {/* Logo Header */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
+  
+        {/* Header */}
+        <View style={styles.header}>
+          <AppText weight='Inter' style={styles.headline}>LEAD UNLOCKED</AppText>
+          <AppText weight='Inter' style={styles.subheader}>Full buyer details now available</AppText>
+          <AppText weight='Inter' style={styles.viewTitle} onPress={() => navigation.navigate("SellerMain", { screen: "SellerAccount" })}>
+            View in History
+          </AppText>
+        </View>
 
-          {/* <Text style={styles.viewTitle} onPress={()=>navigation.navigate("SellerAccountPage")}>View in History</Text> */}
-      </View>
-
-              <View style={styles.itemsContainer}>
-                {selectedItems.map((item) => (
-                  <View key={item.id} style={styles.itemCard}>
-                    <LinearGradient
-                      colors={['#f5f5f5', '#ffffff']}
-                      style={styles.cardGradient}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                    >
-                    {/* <Text style={styles.serialNo}>{item.id}</Text> */}
-                    <Animated.View style={[styles.serialBadge, { transform: [{ scale: scaleAnim }] }]}>
-                      <Text style={styles.serialBadgeText}>{item.id}</Text>
-                    </Animated.View>
-                      {/* <View style={styles.cardHeader}>
-                        <Text style={styles.cardTitle}>{item.design}</Text>
-                        <TouchableOpacity
-                          style={styles.editButton}
-                          onPress={() => handleEditItem(item.id)}
-                        >
-                          <Icon name="edit" size={18} color="#000" />
-                        </TouchableOpacity>
-                      </View> */}
-                      
-                      <View style={styles.itemGrid}>
-                        <View style={styles.itemColumn}>
-                          <View style={styles.itemField}>
-                            <Text style={styles.itemLabel}>COLOR</Text>
-                            <Text style={styles.itemValue}>{item.color}</Text>
-                          </View>
-                          <View style={styles.itemField}>
-                            <Text style={styles.itemLabel}>SIZE</Text>
-                            <Text style={styles.itemValue}>{item.size}</Text>
-                          </View>
-                        </View>
-                        
-                        <View style={styles.itemColumn}>
-                          <View style={styles.itemField}>
-                            <Text style={styles.itemLabel}>LOCATION</Text>
-                            <Text style={styles.itemValue}>{item.where}</Text>
-                          </View>
-                          <View style={styles.itemField}>
-                            <Text style={styles.itemLabel}>QUANTITY</Text>
-                            <Text style={styles.itemValue}>{item.qty}</Text>
-                          </View>
-                        </View>
-                      </View>
-                      
-                      <View style={styles.totalContainer}>
-                        <Text style={styles.totalLabel}>TOTAL</Text>
-                        <Text style={styles.totalValue}>{item.total}</Text>
-                      </View>
-                      
-                      {item.remarks && (
-                        <View style={styles.remarksContainer}>
-                          <Text style={styles.remarksLabel}>REMARKS</Text>
-                          <Text style={styles.remarksValue}>{item.remarks}</Text>
-                        </View>
-                      )}
-                    </LinearGradient>
+        {/* Selected Items */}
+        <View style={styles.itemsContainer}>
+          {selectedItems.map((item) => (
+            <View key={item.id} style={styles.itemCard}>
+              <LinearGradient
+                colors={['#f5f5f5', '#ffffff']}
+                style={styles.cardGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              > 
+                <Animated.View style={[styles.serialBadge, { transform: [{ scale: scaleAnim }] }]}>
+                  <AppText weight='Inter' style={styles.serialBadgeText}>{item.id}</AppText>
+                </Animated.View> 
+                <View style={styles.itemGrid}>
+                  <View style={styles.itemColumn}>
+                    <View style={styles.itemField}>
+                      <AppText weight='Inter' style={styles.itemLabel}>COLOR</AppText>
+                      <AppText weight='Inter' style={styles.itemValue}>{item.color}</AppText>
+                    </View>
+                    <View style={styles.itemField}>
+                      <AppText weight='Inter' style={styles.itemLabel}>SIZE</AppText>
+                      <AppText weight='Inter' style={styles.itemValue}>{item.size}</AppText>
+                    </View>
                   </View>
-                ))}
-                <View style={styles.summaryCard}>
-                  <View style={styles.summaryItem}>
-                    <Icon name="straighten" size={20} color="#000" style={styles.summaryIcon} />
-                    <Text style={styles.summaryLabel}>TOTAL SQ FT</Text>
-                    <Text style={styles.summaryValue}>106</Text>
-                  </View>
-      
-                  <View style={styles.summaryItem}>
-                    <Icon name="format-list-numbered" size={20} color="#000" style={styles.summaryIcon} />
-                    <Text style={styles.summaryLabel}>TOTAL QUANTITY</Text>
-                    <Text style={styles.summaryValue}>6</Text>
+                  
+                  <View style={styles.itemColumn}>
+                    <View style={styles.itemField}>
+                      <AppText weight='Inter' style={styles.itemLabel}>LOCATION</AppText>
+                      <AppText weight='Inter' style={styles.itemValue}>{item.where}</AppText>
+                    </View>
+                    <View style={styles.itemField}>
+                      <AppText weight='Inter' style={styles.itemLabel}>QUANTITY</AppText>
+                      <AppText weight='Inter' style={styles.itemValue}>{item.qty}</AppText>
+                    </View>
                   </View>
                 </View>
+                
+                <View style={styles.totalContainer}>
+                  <AppText weight='Inter' style={styles.totalLabel}>TOTAL</AppText>
+                  <AppText weight='Inter' style={styles.totalValue}>{item.qty} x {item.total}</AppText>
+                </View>
+                
+                {item.remarks && (
+                  <View style={styles.remarksContainer}>
+                    <AppText weight='Inter' style={styles.remarksLabel}>REMARKS</AppText>
+                    <AppText weight='Inter' style={styles.remarksValue}>{item.remarks}</AppText>
+                  </View>
+                )}
+              </LinearGradient>
+            </View>
+          ))}
+          
+          <View style={styles.summaryCard}>
+            <View style={styles.summaryItem}>
+              <Icon name="straighten" size={20} color="#000" style={styles.summaryIcon} />
+              <AppText weight='Inter' style={styles.summaryLabel}>TOTAL SQ FT</AppText>
+              <AppText weight='Inter' style={styles.summaryValue}>{totalSqFt}</AppText>
+            </View>
+    
+            <View style={styles.summaryItem}>
+              <Icon name="format-list-numbered" size={20} color="#000" style={styles.summaryIcon} />
+              <AppText weight='Inter' style={styles.summaryLabel}>TOTAL QUANTITY</AppText>
+              <AppText weight='Inter' style={styles.summaryValue}>{totalQuantity}</AppText>
+            </View>
+          </View>
+        </View>
+
+        {/* Buyer Details Card */}
+        <View style={styles.card}>
+          {/* Personal Details Section */}
+          <View style={styles.cardHeader}>
+            <AppText weight='Inter' style={styles.sectionTitle}>PERSONAL DETAILS</AppText>
+          </View>
+          
+          <View style={styles.detailRow}>
+            <Icon name="person" size={20} color="#000" style={styles.icon} />
+            <View>
+              <AppText weight='Inter' style={styles.detailLabel}>Full Name</AppText>
+              <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.fullName}</AppText>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Icon name="phone" size={20} color="#000" style={styles.icon} />
+            <View>
+              <AppText weight='Inter' style={styles.detailLabel}>Contact Number</AppText>
+              <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.contactNumber}</AppText>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Icon name="chat" size={20} color="#000" style={styles.icon} />
+            <View>
+              <AppText weight='Inter' style={styles.detailLabel}>WhatsApp Number</AppText>
+              <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.whatsappNumber}</AppText>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Icon name="email" size={20} color="#000" style={styles.icon} />
+            <View>
+              <AppText weight='Inter' style={styles.detailLabel}>Email Address</AppText>
+              <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.email}</AppText>
+            </View>
+          </View>
+
+          {/* Divider */}
+          <View style={styles.divider} />
+
+          {/* Project Details Section */}
+          <AppText weight='Inter' style={styles.sectionTitle}>PROJECT DETAILS</AppText>
+          
+          <View style={styles.detailRow}>
+            <Icon name="business" size={20} color="#000" style={styles.icon} />
+            <View>
+              <AppText weight='Inter' style={styles.detailLabel}>Project Name</AppText>
+              <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.name}</AppText>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Icon name="location-on" size={20} color="#000" style={styles.icon} />
+            <View>
+              <AppText weight='Inter' style={styles.detailLabel}>Project Address</AppText>
+              <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.address}</AppText>
+            </View>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Icon name="map" size={20} color="#000" style={styles.icon} />
+            <View>
+              <AppText weight='Inter' style={styles.detailLabel}>Pin Code</AppText>
+              <View style={styles.inlineContainer}>
+                <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.pinCode}</AppText>
+                <TouchableOpacity onPress={openMap} style={styles.mapLink}>
+                  <AppText weight='Inter' style={styles.linkText}>View on Map</AppText>
+                  <Icon name="open-in-new" size={16} color="#000" />
+                </TouchableOpacity>
               </View>
-
-      {/* Buyer Details Card */}
-      <View style={styles.card}>
-        {/* Personal Details Section */}
-        <View style={styles.cardHeader}>
-          <Text style={styles.sectionTitle}>PERSONAL DETAILS</Text>
-        </View>
-        
-        <View style={styles.detailRow}>
-          <Icon name="person" size={20} color="#000" style={styles.icon} />
-          <View>
-            <Text style={styles.detailLabel}>Full Name</Text>
-            <Text style={styles.detailValue}>{buyerDetails.personal.fullName}</Text>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.detailRow}>
-          <Icon name="phone" size={20} color="#000" style={styles.icon} />
-          <View>
-            <Text style={styles.detailLabel}>Contact Number</Text>
-            <Text style={styles.detailValue}>{buyerDetails.personal.contactNumber}</Text>
+          <View style={styles.detailRow}>
+            <Icon name="schedule" size={20} color="#000" style={styles.icon} />
+            <View>
+              <AppText weight='Inter' style={styles.detailLabel}>Project Stage</AppText>
+              <View style={styles.inlineContainer}>
+                <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.stage}</AppText>
+                <AppText weight='Inter' style={styles.timeline}>{buyerDetails.project.timeline}</AppText>
+              </View>
+            </View>
           </View>
-        </View>
 
-        <View style={styles.detailRow}>
-          <Icon name="chat" size={20} color="#000" style={styles.icon} />
-          <View>
-            <Text style={styles.detailLabel}>WhatsApp Number</Text>
-            <Text style={styles.detailValue}>{buyerDetails.personal.whatsappNumber}</Text>
-          </View>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Icon name="email" size={20} color="#000" style={styles.icon} />
-          <View>
-            <Text style={styles.detailLabel}>Email Address</Text>
-            <Text style={styles.detailValue}>{buyerDetails.personal.email}</Text>
-          </View>
-        </View>
-
-        {/* Divider */}
-        <View style={styles.divider} />
-
-        {/* Project Details Section */}
-        <Text style={styles.sectionTitle}>PROJECT DETAILS</Text>
-        
-        <View style={styles.detailRow}>
-          <Icon name="business" size={20} color="#000" style={styles.icon} />
-          <View>
-            <Text style={styles.detailLabel}>Project Name</Text>
-            <Text style={styles.detailValue}>{buyerDetails.project.name}</Text>
-          </View>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Icon name="location-on" size={20} color="#000" style={styles.icon} />
-          <View>
-            <Text style={styles.detailLabel}>Project Address</Text>
-            <Text style={styles.detailValue}>{buyerDetails.project.address}</Text>
-          </View>
-        </View>
-
-        <View style={styles.detailRow}>
-          <Icon name="map" size={20} color="#000" style={styles.icon} />
-          <View>
-            <Text style={styles.detailLabel}>Pin Code</Text>
-            <View style={styles.inlineContainer}>
-              <Text style={styles.detailValue}>{buyerDetails.project.pinCode}</Text>
-              <TouchableOpacity onPress={openMap} style={styles.mapLink}>
-                <Text style={styles.linkText}>View on Map</Text>
-                <Icon name="open-in-new" size={16} color="#000" />
-              </TouchableOpacity>
+          <View style={styles.detailRow}>
+            <Icon name="straighten" size={20} color="#000" style={styles.icon} />
+            <View>
+              <AppText weight='Inter' style={styles.detailLabel}>Total Sq. Feet</AppText>
+              <View style={styles.inlineContainer}>
+                <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.totalSqFt}</AppText>
+                <AppText weight='Inter' style={styles.category}>{buyerDetails.project.category}</AppText>
+              </View>
             </View>
           </View>
         </View>
 
-        <View style={styles.detailRow}>
-          <Icon name="schedule" size={20} color="#000" style={styles.icon} />
-          <View>
-            <Text style={styles.detailLabel}>Project Stage</Text>
-            <View style={styles.inlineContainer}>
-              <Text style={styles.detailValue}>{buyerDetails.project.stage}</Text>
-              <Text style={styles.timeline}>{buyerDetails.project.timeline}</Text>
-            </View>
-          </View>
-        </View>
+        {/* Action Buttons */}
+        <View style={styles.actionRow}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
+            <Icon name="share" size={24} color="#000" />
+            <AppText weight='Inter' style={styles.actionText}>Share</AppText>
+          </TouchableOpacity>
 
-        <View style={styles.detailRow}>
-          <Icon name="straighten" size={20} color="#000" style={styles.icon} />
-          <View>
-            <Text style={styles.detailLabel}>Total Sq. Feet</Text>
-            <View style={styles.inlineContainer}>
-              <Text style={styles.detailValue}>{buyerDetails.project.totalSqFt}</Text>
-              <Text style={styles.category}>{buyerDetails.project.category}</Text>
-            </View>
-          </View>
-        </View>
-      </View>
+          <TouchableOpacity style={styles.actionButton} onPress={handlePrint}>
+            <Icon name="print" size={24} color="#000" />
+            <AppText weight='Inter' style={styles.actionText}>Print</AppText>
+          </TouchableOpacity>
 
-      {/* Action Buttons */}
-      <View style={styles.actionRow}>
-        <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
-          <Icon name="share" size={24} color="#000" />
-          <Text style={styles.actionText}>Share</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton} onPress={handlePrint}>
-          <Icon name="print" size={24} color="#000" />
-          <Text style={styles.actionText}>Print</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton} onPress={handleDownload}>
-          <Icon name="cloud-download" size={24} color="#000" />
-          <Text style={styles.actionText}>Download</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Contact Buttons */}
-      {/* <TouchableOpacity 
-        style={[styles.contactButton, styles.callButton]}
-        onPress={handleCall}
-      >
-        <Icon name="call" size={24} color="#fff" />
-        <Text style={styles.contactButtonText}>Call Buyer</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity 
-        style={[styles.contactButton, styles.whatsappButton]}
-        onPress={handleWhatsApp}
-      >
-        <Icon name="chat" size={24} color="#fff" />
-        <Text style={styles.contactButtonText}>WhatsApp Buyer</Text>
-      </TouchableOpacity> */}
- 
-    </ScrollView>
+          <TouchableOpacity style={styles.actionButton} onPress={handleDownload}>
+            <Icon name="cloud-download" size={24} color="#000" />
+            <AppText weight='Inter' style={styles.actionText}>Download</AppText>
+          </TouchableOpacity>
+        </View> 
+      </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingTop: 40, 
-
-  },
-  scrollContent: {
-    paddingBottom: 50,
-  },
+    backgroundColor: '#fff', 
+  }, 
   logoContainer: {
     alignItems: 'center',
   },
   logo: {
-    width: 160,
-    height: 90,
+    width: 150,
+    height: 50,
   },
   animation: {
     width: 150,
@@ -373,16 +617,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   headline: {
-    fontSize: 24,
-    fontWeight: '900',
+    fontSize: 18,
+    // fontWeight: '900',
     color: '#000',
     letterSpacing: 1,
     marginBottom: 5,
   },
   subheader: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    fontWeight: '500',
+    // fontWeight: '500',
   },
   cardHeader:{
     flexDirection:'row',
@@ -391,7 +635,7 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    // fontWeight: '700',
     color: '#000',
     letterSpacing: 0.5,
   },
@@ -410,8 +654,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   itemLabel: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 10,
+    // fontWeight: '600',
     color: '#666',
     marginBottom: 2,
     letterSpacing: 0.5,
@@ -419,7 +663,7 @@ const styles = StyleSheet.create({
   },
   itemValue: {
     fontSize: 14,
-    fontWeight: '500',
+    // fontWeight: '500',
     color: '#000',
   },
   totalContainer: {
@@ -433,13 +677,13 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: 14,
-    fontWeight: '700',
+    // fontWeight: '700',
     color: '#000',
     textTransform: 'uppercase',
   },
   totalValue: {
     fontSize: 16,
-    fontWeight: '800',
+    // fontWeight: '800',
     color: '#000',
   },
   remarksContainer: {
@@ -450,7 +694,7 @@ const styles = StyleSheet.create({
   },
   remarksLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    // fontWeight: '600',
     color: '#666',
     marginBottom: 2,
     letterSpacing: 0.5,
@@ -458,7 +702,7 @@ const styles = StyleSheet.create({
   },
   remarksValue: {
     fontSize: 13,
-    fontWeight: '500',
+    // fontWeight: '500',
     color: '#000',
     fontStyle: 'italic',
   },
@@ -503,15 +747,15 @@ summaryDivider: {
 },
 summaryLabel: {
   fontSize: 12,
-  fontWeight: '600',
+  // fontWeight: '600',
   color: '#666',
   letterSpacing: 0.5,
   textTransform: 'uppercase',
   marginBottom: 5,
 },
 summaryValue: {
-  fontSize: 20,
-  fontWeight: '700',
+  fontSize: 18,
+  // fontWeight: '700',
   color: '#000',
 },
   card: {
@@ -530,7 +774,7 @@ summaryValue: {
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    // fontWeight: '800',
     color: '#000',
     marginBottom: 20,
     letterSpacing: 1,
@@ -559,14 +803,14 @@ summaryValue: {
   },
   detailLabel: {
     fontSize: 12,
-    fontWeight: '700',
+    // fontWeight: '700',
     color: '#666',
     marginBottom: 3,
     letterSpacing: 0.5,
   },
   detailValue: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 14,
+    // fontWeight: '600',
     color: '#000',
   },
   divider: {
@@ -585,14 +829,14 @@ summaryValue: {
   },
   linkText: {
     fontSize: 14,
-    fontWeight: '600',
+    // fontWeight: '600',
     color: '#000',
     marginRight: 5,
     textDecorationLine: 'underline',
   },
   timeline: {
     fontSize: 14,
-    fontWeight: '600',
+    // fontWeight: '600',
     color: '#000',
     marginLeft: 15,
     backgroundColor: '#f5f5f5',
@@ -602,7 +846,7 @@ summaryValue: {
   },
   category: {
     fontSize: 14,
-    fontWeight: '700',
+    // fontWeight: '700',
     color: '#000',
     marginLeft: 15,
     backgroundColor: '#f0f0f0',
@@ -622,7 +866,7 @@ summaryValue: {
   },
   actionText: {
     fontSize: 14,
-    fontWeight: '600',
+    // fontWeight: '600',
     color: '#000',
     marginTop: 5,
   },
@@ -643,7 +887,7 @@ summaryValue: {
   },
   contactButtonText: {
     fontSize: 16,
-    fontWeight: '700',
+    // fontWeight: '700',
     color: '#fff',
     marginLeft: 10,
     letterSpacing: 0.5,
@@ -698,7 +942,7 @@ serialBadge: {
 },
 serialBadgeText: {
   color: '#fff',
-  fontWeight: 'bold',
+  // fontWeight: 'bold',
   fontSize: 12,
 },
 });

@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity, Image } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../../components/AppText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -37,6 +38,13 @@ const notifications = [
     icon: 'update',
   },
   {
+    id: 6,
+    title: 'Seller Interest',
+    message: 'Seller Emily Johnson has shown interest in your window repair lead.',
+    time: '3 days ago',
+    icon: 'person',
+  },
+  {
     id: 5,
     title: 'Seller Interest',
     message: 'Seller Emily Johnson has shown interest in your window repair lead.',
@@ -46,9 +54,11 @@ const notifications = [
 ];
 
 const Notifications = ({navigate}) => {
-    const navigation = useNavigation();
-
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   return (
+        <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+    
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
@@ -89,6 +99,7 @@ const Notifications = ({navigate}) => {
         )}
       </ScrollView>
     </View>
+    </View>
   );
 };
 
@@ -99,11 +110,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF', 
   },
   logo: {
-    marginTop:15,
-    alignSelf:"center",
+    // marginTop:15,
+    // alignSelf:"center",
     width: 100, 
-    height: 100,  
-    resizeMode: 'contain', 
+    height: 50,  
+    // resizeMode: 'contain', 
   },
   scrollContent: {
     paddingBottom: 20,
