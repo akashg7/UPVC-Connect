@@ -19,6 +19,7 @@ import AppText from '../../../components/AppText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import PremiumLoginModal from '../../../components/PremiumLoginModal';
 
 const {width, height} = Dimensions.get('window');
 
@@ -27,6 +28,7 @@ const MarketInsights = ({navigation}) => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,7 +39,7 @@ const MarketInsights = ({navigation}) => {
           setBuyerId(token);
         }
         const categoryresponse = await axios.get(
-          'https://upvc-backend.onrender.com/api/categories',
+          'http://192.168.1.40:9000/api/categories',
         );
         setCategories(categoryresponse?.data);
         setLoading(false)
@@ -63,7 +65,8 @@ const MarketInsights = ({navigation}) => {
     const token = await AsyncStorage.getItem('buyerToken');
     
     if (!token) {
-      Alert.alert('Login Required', 'Please login to Select a Category');
+      setShowLoginModal(true)
+      // Alert.alert('Login Required', 'Please login to Select a Category');
       // setShowQuoteForm(false);
       return;
     }
@@ -122,7 +125,7 @@ const MarketInsights = ({navigation}) => {
             </AppText>
             <View style={styles.videoContainer}>
               <Video
-                source={{uri: `https://upvc-backend.onrender.com${category.videoUrl}`}}
+                source={{uri: `http://192.168.1.40:9000${category.videoUrl}`}}
                 style={styles.video}
                 resizeMode="cover"
                 controls={true}
@@ -179,6 +182,11 @@ const MarketInsights = ({navigation}) => {
           style={styles.flatList}
         />
       </View>
+      <PremiumLoginModal
+        visible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        navigation={navigation}
+      />
     </View>
   );
 };

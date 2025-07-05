@@ -31,8 +31,8 @@ const WhiteVsColor = () => {
     const fetchData = async () => {
       try {
         const [videoResponse, differenceResponse] = await Promise.all([
-          axios.get("https://upvc-backend.onrender.com/api/color/video"),
-          axios.get("https://upvc-backend.onrender.com/api/color/comparisons"),
+          axios.get("http://192.168.1.40:9000/api/color/video"),
+          axios.get("http://192.168.1.40:9000/api/color/comparisons"),
         ]);
 
         if (videoResponse.data.length > 0) {
@@ -102,7 +102,7 @@ const WhiteVsColor = () => {
               <AppText weight="Inter" style={styles.headerTitle}>WHITE VS COLOR</AppText>
               <View style={styles.videoContainer}>
                 <Video
-                  source={{ uri: `https://upvc-backend.onrender.com${video.src}` }}
+                  source={{ uri: `http://192.168.1.40:9000${video.src}` }}
                   style={styles.video}
                   resizeMode="cover"
                   repeat
@@ -112,6 +112,24 @@ const WhiteVsColor = () => {
                 />
               </View>
             </View>
+             {video?.sponsorLogo && (
+              <View style={styles.premiumSponsorContainer}>
+                <View style={styles.premiumSponsorContent}>
+                  <View style={styles.sponsorDivider} />
+                  <Image
+                    source={{ uri: `http://192.168.1.40:9000/${video.sponsorLogo}` }}
+                    style={styles.premiumSponsorLogo}
+                    resizeMode="contain"
+                  />
+                  {video.sponsorText && (
+                    <AppText weight="Inter" style={styles.premiumSponsorText}>
+                      {video.sponsorText.toUpperCase()}
+                    </AppText>
+                  )}
+                  <View style={styles.sponsorDivider} />
+                </View>
+              </View>
+            )}
 
             <View style={styles.tableContainer}>
               <View style={styles.tableHeader}>
@@ -246,6 +264,32 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     letterSpacing: 1,
+  },
+    premiumSponsorContainer: {
+    width: '100%',
+    paddingVertical: 20,
+    backgroundColor: '#fff',
+  },
+  premiumSponsorContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  premiumSponsorText: {
+    fontSize: 10,
+    color: '#999',
+    letterSpacing: 1,
+    marginHorizontal: 12,
+    fontWeight: '500',
+  },
+  premiumSponsorLogo: {
+    width: 100,
+    height: 40,
+  },
+  sponsorDivider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#eee',
   },
 });
 

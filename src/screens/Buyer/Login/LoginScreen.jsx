@@ -28,7 +28,7 @@ const LoginScreen = ({navigation}) => {
 
     try {
       const response = await axios.post(
-        'https://upvc-backend.onrender.com/api/auth/login',
+        'http://192.168.1.40:9000/api/auth/login',
         {
           name: userName,
           mobileNumber,

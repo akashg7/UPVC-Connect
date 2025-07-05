@@ -15,6 +15,7 @@ import {useNavigation} from '@react-navigation/native';
 import AppText from '../../../../components/AppText';
 import axios from 'axios';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
 
 const {width, height} = Dimensions.get('window');
 
@@ -31,19 +32,12 @@ const Price = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-
-        // Fetch video data
-        const videoResponse = await axios.get(
-          'https://upvc-backend.onrender.com/api/pricing/video',
-        );
+        const videoResponse = await axios.get('http://192.168.1.40:9000/api/pricing/video');
         if (videoResponse.data && videoResponse.data.length > 0) {
           setVideoData(videoResponse.data[0]);
         }
 
-        // Fetch heading data
-        const headingResponse = await axios.get(
-          'https://upvc-backend.onrender.com/api/pricing/heading',
-        );
+        const headingResponse = await axios.get('http://192.168.1.40:9000/api/pricing/heading');
         if (headingResponse.data) {
           setHeadingData(headingResponse.data);
         }
@@ -69,13 +63,10 @@ const Price = () => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <AppText style={styles.errorText}>
-          Error loading content: {error}
-        </AppText>
+        <AppText style={styles.errorText}>Error loading content: {error}</AppText>
       </View>
     );
   }
-
 
   return (
     <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
@@ -107,7 +98,7 @@ const Price = () => {
             <View style={styles.videoContainer}>
               {videoData?.video ? (
                 <Video
-                  source={{uri: `https://upvc-backend.onrender.com/${videoData.video}`}}
+                  source={{uri: `http://192.168.1.40:9000/${videoData.video}`}}
                   style={styles.video}
                   resizeMode="cover"
                   repeat
@@ -127,87 +118,104 @@ const Price = () => {
                 />
               )}
             </View>
+            {videoData?.sponsorLogo && (
+              <View style={styles.premiumSponsorContainer}>
+                <View style={styles.premiumSponsorContent}>
+                  <View style={styles.sponsorDivider} />
+                  <Image
+                    source={{ uri: `http://192.168.1.40:9000/${videoData.sponsorLogo}` }}
+                    style={styles.premiumSponsorLogo}
+                    resizeMode="contain"
+                  />
+                  {videoData.sponsorText && (
+                    <AppText weight="Inter" style={styles.premiumSponsorText}>
+                      {videoData.sponsorText.toUpperCase()}
+                    </AppText>
+                  )}
+                  <View style={styles.sponsorDivider} />
+                </View>
+              </View>
+            )}
           </View>
           <AppText weight="Inter" style={styles.headerSubtitle2}>
-            {
-              'When you are investing in uPVC windows & doors the price can vary based on several important factors- heres what goes into it'
-            }
+            {'When you are investing in uPVC windows & doors the price can vary based on several important factors- heres what goes into it'}
           </AppText>
 
-          {/* Card Section */}
-{/* Card Section */}
-<View style={styles.cardsContainer}>
-  {headingData.map((item, index) => (
-    <View key={item._id} style={styles.card}>
-      {/* Card Image with Overlay */}
-      {item.image && (
-        <View style={styles.cardImageContainer}>
-          <Image
-            source={{uri: `https://upvc-backend.onrender.com/${item.image}`}}
-            style={styles.cardImage}
-            resizeMode="cover"
-          />
-          <View style={styles.imageOverlay} />
-        </View>
-      )}
-
-      {/* Card Content */}
-      <View style={styles.cardContent}>
-        {/* Card Header with Type */}
-        {item.type && (
-          <View style={styles.cardHeader}>
-            <AppText weight="SemiBold" style={styles.cardTypeText}>
-              {item.type.toUpperCase()}
-            </AppText>
+          {/* Premium Content Blocks with Images */}
+          <View style={styles.premiumContainer}>
+            {headingData.map((item, index) => (
+              <View key={item._id} style={styles.premiumBlock}>
+                {/* Background Image with Overlay */}
+                {item.image && (
+                  <Image
+                    source={{uri: `http://192.168.1.40:9000/${item.image}`}}
+                    style={styles.blockBackgroundImage}
+                    blurRadius={2}
+                  />
+                )}
+                <LinearGradient
+                  colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0.5)']}
+                  style={styles.imageOverlay}
+                />
+                
+                <View style={styles.glassCard}>
+                  <View style={styles.premiumHeader}>
+                    <View style={styles.premiumBadge}>
+                      <AppText weight="Bold" style={styles.premiumBadgeText}>
+                        {item.type?.toUpperCase() || 'PREMIUM'}
+                      </AppText>
+                    </View>
+                    <View style={styles.premiumNumber}>
+                      <AppText weight="Bold" style={styles.premiumNumberText}>
+                        {index + 1}
+                      </AppText>
+                    </View>
+                  </View>
+                  
+                  <View style={styles.premiumContent}>
+                  </View>
+                  
+                  <View style={styles.premiumFooter}>
+                    <AppText weight="Medium" style={styles.premiumText}>
+                      {item.data}
+                    </AppText>
+                    {/* <TouchableOpacity style={styles.premiumButton}>
+                      <AppText weight="SemiBold" style={styles.premiumButtonText}>
+                        EXPLORE
+                      </AppText>
+                      <Icon name="arrow-forward" size={18} color="#fff" />
+                    </TouchableOpacity> */}
+                  </View>
+                </View>
+                
+                {/* Floating decorative elements */}
+                <View style={[styles.floatingCircle, {right: 20, top: 20}]} />
+                <View style={[styles.floatingCircle, {left: 30, bottom: 30}]} />
+              </View>
+            ))}
           </View>
-        )}
 
-        {/* Card Data */}
-        {item.data && (
-          <View style={styles.cardBody}>
-            <AppText weight="Inter" style={styles.cardDataText}>
-              {item.data}
-            </AppText>
+          <View style={styles.buyNowContainer}>
+            <TouchableOpacity
+                style={styles.buyNowButton}
+                onPress={() => navigation.navigate('BuyNowScreen')}
+              >
+                <AppText weight="Inter" style={styles.buyNowText}>BUY NOW</AppText>
+              </TouchableOpacity>
           </View>
-        )}
-
-        {/* Learn More Button */}
-        {/* <TouchableOpacity 
-          style={styles.learnMoreButton}
-          onPress={() => navigation.navigate('LearnMoreScreen', { item })}
-        >
-          <AppText weight="SemiBold" style={styles.learnMoreText}>
-            LEARN MORE
-          </AppText>
-          <Icon name="arrow-forward" size={18} color="#000" />
-        </TouchableOpacity> */}
-      </View>
-    </View>
-  ))}
-</View>
-       <View style={styles.buyNowContainer}>
-        <TouchableOpacity
-          style={styles.buyNowButton}
-          onPress={() => navigation.navigate('BuyNowScreen')}
-        >
-          <AppText weight="Inter" style={styles.buyNowText}>BUY NOW</AppText>
-        </TouchableOpacity>
-      </View>
         </ScrollView>
       </View>
     </View>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
-  container: {
-    // paddingTop: 15,
+  container: { 
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 40,
   },
   header: {
     padding: 20,
@@ -217,17 +225,22 @@ const styles = StyleSheet.create({
     fontSize: width * 0.06,
     color: '#000000',
     letterSpacing: 2,
+    marginBottom: 5,
   },
   headerSubtitle: {
     textAlign: 'center',
     color: 'black',
     marginTop: 5,
+    fontSize: 14,
+    opacity: 0.8,
   },
   headerSubtitle2: {
     fontSize: 16,
     color: '#000000',
-    paddingHorizontal: 20,
-    marginBottom: 10,
+    paddingHorizontal: 25,
+    marginBottom: 20,
+    textAlign: 'center',
+    lineHeight: 22,
   },
   videoContainer: {
     width: '100%',
@@ -235,34 +248,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     marginTop: 15,
+    marginBottom: 10,
   },
   video: {
     width: '100%',
     height: '100%',
   },
-  container2: {
-    padding: 20,
-  },
-  bulletItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  bulletPoint: {
-    fontSize: width * 0.05,
-    color: '#000000',
-    marginRight: 10,
-    lineHeight: 22,
-  },
-  bulletText: {
-    flex: 1,
-    fontSize: width * 0.04,
-    color: '#4A4A4A',
-    lineHeight: 22,
-  },
   Headercontainer: {
-    position: 'relative',
-    // height: 80,
+    position: 'relative', 
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
@@ -276,38 +269,11 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
-    // paddingTop: 20,
+    alignItems: 'center', 
   },
   logo: {
     width: 100,
-    height: 50,
-    // resizeMode: 'contain',
-  },
-  buyNowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 25,
-    // marginBottom: 30,
-  },
-  buyNowButton: {
-    width: '70%',
-    backgroundColor: '#000000',
-    paddingVertical: 14,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  buyNowText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    letterSpacing: 1, 
+    height: 50, 
   },
   loaderContainer: {
     flex: 1,
@@ -325,72 +291,167 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
-cardsContainer: {
-  paddingHorizontal: 20,
-  paddingBottom: 10,
-},
-card: {
-  backgroundColor: '#FFFFFF',
-  borderRadius: 16,
-  marginBottom: 25,
-  shadowColor: '#000',
-  shadowOffset: { width: 0, height: 4 },
-  shadowOpacity: 0.1,
-  shadowRadius: 12,
-  elevation: 5,
-  overflow: 'hidden',
-  borderWidth: 1,
-  borderColor: '#F0F0F0',
-},
-cardImageContainer: {
-  position: 'relative',
-  height: 200,
-},
-cardImage: {
-  width: '100%',
-  height: '100%',
-},
-imageOverlay: {
-  ...StyleSheet.absoluteFillObject,
-  backgroundColor: 'rgba(0,0,0,0.05)',
-},
-cardContent: {
-  // padding: 20,
-},
-cardHeader: {
-  marginBottom: 12,
-},
-cardTypeText: {
-  paddingTop:10,
-  fontSize: 16,
-  color: '#000',
-  letterSpacing: 1,
-  textAlign: 'center',
-},
-cardBody: {
-  marginBottom: 10,
-},
-cardDataText: {
-  fontSize: 14,
-  color: '#333',
-  lineHeight: 22,
-  textAlign: 'center',
-},
-learnMoreButton: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-  paddingVertical: 12,
-  borderTopWidth: 1,
-  borderTopColor: '#F0F0F0',
-  marginTop: 10,
-},
-learnMoreText: {
-  color: '#000',
-  fontSize: 14,
-  letterSpacing: 0.5,
-  marginRight: 8,
-},
+  premiumSponsorContainer: {
+    width: '100%',
+    paddingVertical: 20,
+    backgroundColor: '#fff',
+  },
+  premiumSponsorContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  premiumSponsorText: {
+    fontSize: 10,
+    color: '#999',
+    letterSpacing: 1,
+    marginHorizontal: 12,
+    fontWeight: '500',
+  },
+  premiumSponsorLogo: {
+    width: 100,
+    height: 40,
+  },
+  sponsorDivider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#eee',
+  },
+  
+  // Premium Content Styles with Images
+  premiumContainer: {
+    paddingHorizontal: 20,
+    marginBottom: 20, 
+  },
+  premiumBlock: {
+    marginBottom: 25,
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+    height: 480, // Fixed height for consistency
+    position: 'relative',
+  },
+  blockBackgroundImage: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  imageOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  glassCard: {
+    padding: 25,
+    borderRadius: 24,
+    backgroundColor: 'rgba(254, 254, 254, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+    height: '100%',
+    justifyContent: 'space-between',
+  },
+  premiumHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  premiumBadge: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  premiumBadgeText: {
+    fontSize: 12,
+    color: '#fff',
+    letterSpacing: 1,
+  },
+  premiumNumber: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  premiumNumberText: {
+    fontSize: 16,
+    color: '#fff',
+  },
+  premiumContent: {
+    marginBottom: 20,
+    flex: 1,
+    justifyContent: 'center',
+  },
+  premiumText: {
+    fontSize: 16,
+    color: '#fff',
+    lineHeight: 24,
+    letterSpacing: 0.3,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: {width: 1, height: 1},
+    textShadowRadius: 3,
+  },
+  premiumFooter: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+    paddingTop: 20,
+  },
+  premiumButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  premiumButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    marginRight: 10,
+    letterSpacing: 1,
+  },
+  floatingCircle: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    zIndex: -1,
+  },
+  buyNowContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 25,
+  },
+  buyNowButton: {
+    width: '70%',
+    backgroundColor: '#000000',
+    paddingVertical: 14,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  buyNowText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    letterSpacing: 1,
+  },
+  cartIcon: {
+    marginLeft: 5,
+  },
 });
 
 export default Price;

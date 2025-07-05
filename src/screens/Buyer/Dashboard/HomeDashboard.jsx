@@ -20,7 +20,7 @@ const HomeDashboard = ({navigation}) => {
     setActiveTab(null);
   }, []);
 
-  const tabs = ['PRICES', 'BUY NOW', 'WHITE vs COLORS', 'PROCESS'];
+  const tabs = ['PRICES', 'BUY NOW', 'WHITE vs COLORS', 'INSIGHTS'];
 
   const renderTabContent = () => {
     switch (activeTab) {

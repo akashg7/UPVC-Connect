@@ -18,9 +18,11 @@ import AppText from '../../../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PremiumLoginModal from '../../../components/PremiumLoginModal';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
-const BASE_URL = 'https://upvc-backend.onrender.com';
+const BASE_URL = 'http://192.168.1.40:9000';
 
 const LeadsHistory = () => {
   const [leadsData, setLeadsData] = useState([]);
@@ -29,18 +31,21 @@ const LeadsHistory = () => {
   const [activeSellerIndices, setActiveSellerIndices] = useState({});
   const [activeVideo, setActiveVideo] = useState(null);
   const [cardLoading, setCardLoading] = useState({});
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   const flatListRefs = useRef({});
   const scrollX = useRef(new Animated.Value(0)).current;
   const insets = useSafeAreaInsets();
   const videoRefs = useRef({});
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchLeads = async () => {
       try {
         const token = await AsyncStorage.getItem('buyerToken');
         if (!token) {
-          Alert.alert('Error', 'Please login to view leads');
+          setShowLoginModal(true)
+          // Alert.alert('Error', 'Please login to view leads');
           return;
         }
 
@@ -380,6 +385,11 @@ const LeadsHistory = () => {
           </View>
         )}
       </View>
+      <PremiumLoginModal
+        visible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        navigation={navigation}
+      />
     </View>
   );
 };

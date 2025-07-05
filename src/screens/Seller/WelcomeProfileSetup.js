@@ -128,7 +128,7 @@
 //         });
 //       }
 //       console.log("formDataToSend : " , formDataToSend)
-//       const response = await axios.post('https://upvc-backend.onrender.com/api/sellers/register', formDataToSend, {
+//       const response = await axios.post('http://192.168.1.40:9000/api/sellers/register', formDataToSend, {
 //         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },
@@ -508,7 +508,7 @@ const WelcomeProfileSetup = ({ navigation }) => {
 
       console.log('Submitting form data:', formDataToSend);
 
-      const response = await axios.post('https://upvc-backend.onrender.com/api/sellers/register', formDataToSend, {
+      const response = await axios.post('http://192.168.1.40:9000/api/sellers/register', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

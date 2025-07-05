@@ -43,7 +43,7 @@ const OTPVerification = ({ route, navigation }) => {
     setLoading(true);
     
     try {
-      const response = await axios.post('https://upvc-backend.onrender.com/api/auth/verify-otp', {
+      const response = await axios.post('http://192.168.1.40:9000/api/auth/verify-otp', {
         mobileNumber,
         otp: submittedOtp
       }, {
@@ -86,7 +86,7 @@ const OTPVerification = ({ route, navigation }) => {
     
     try {
       setLoading(true);
-      const response = await axios.post('https://upvc-backend.onrender.com/api/auth/login', {
+      const response = await axios.post('http://192.168.1.40:9000/api/auth/login', {
         name: userName,
         mobileNumber,
       }, {

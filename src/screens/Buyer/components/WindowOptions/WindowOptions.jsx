@@ -16,14 +16,14 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
-import DropDownPicker from 'react-native-dropdown-picker';
-import {State} from 'react-native-gesture-handler';
+import DropDownPicker from 'react-native-dropdown-picker'; 
 import {useNavigation} from '@react-navigation/native';
 import TopTabBar from '../../Dashboard/TopTabBar';
 import AppText from '../../../../components/AppText';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import PremiumLoginModal from '../../../../components/PremiumLoginModal';
 const {width, height} = Dimensions.get('window');
 
 const WindowOptions = () => {
@@ -41,6 +41,8 @@ const WindowOptions = () => {
   const [windowDesigns, setWindowDesigns] = useState([]);
   const [buyerId, setBuyerId] = useState(null);
   const navigation = useNavigation();
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  
   const [quoteData, setQuoteData] = useState({
     color: '',
     location: '',
@@ -87,7 +89,7 @@ const WindowOptions = () => {
   //         setBuyerId(token); 
   //       }
  
-  //       const response = await axios.get('https://upvc-backend.onrender.com/api/options');
+  //       const response = await axios.get('http://192.168.1.40:9000/api/options');
   //       const formattedData = response.data.map(item => ({
   //         id: item._id,
   //         name: item.title.toUpperCase(),
@@ -101,7 +103,7 @@ const WindowOptions = () => {
   //       }));
   //       setWindowDesigns(formattedData);
 
-  //       const responseQuotes = await axios.get('https://upvc-backend.onrender.com/api/quotes/buyer', {
+  //       const responseQuotes = await axios.get('http://192.168.1.40:9000/api/quotes/buyer', {
   //         headers: {
   //           'Authorization': `Bearer ${token}`,
   //           'Content-Type': 'application/json'
@@ -129,7 +131,7 @@ const WindowOptions = () => {
         if (token) { 
           setBuyerId(token);
           // Only fetch quotes if logged in
-          const responseQuotes = await axios.get('https://upvc-backend.onrender.com/api/quotes/buyer', {
+          const responseQuotes = await axios.get('http://192.168.1.40:9000/api/quotes/buyer', {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
@@ -138,7 +140,7 @@ const WindowOptions = () => {
           setQuoteCount(responseQuotes?.data?.count);
         }
 
-        const response = await axios.get('https://upvc-backend.onrender.com/api/options');
+        const response = await axios.get('http://192.168.1.40:9000/api/options');
         const formattedData = response.data.map(item => ({
           id: item._id,
           name: item.title.toUpperCase(),
@@ -229,7 +231,8 @@ const handleAddQuote = async () => {
     const token = await AsyncStorage.getItem('buyerToken');
     
     if (!token) {
-      Alert.alert('Login Required', 'Please login to generate a quote');
+      setShowLoginModal(true)
+      // Alert.alert('Login Required', 'Please login to generate a quote');
       setShowQuoteForm(false);
       return;
     }
@@ -279,7 +282,7 @@ const handleAddQuote = async () => {
 
 const submitQuote = async (quoteData, token) => {
   try {
-    const response = await axios.post('https://upvc-backend.onrender.com/api/quotes', quoteData, {
+    const response = await axios.post('http://192.168.1.40:9000/api/quotes', quoteData, {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'
@@ -361,35 +364,7 @@ const submitQuote = async (quoteData, token) => {
           <AppText weight="Inter" style={styles.screenTitle}>
             CHOOSE DESIGN FOR QUOTE
           </AppText>
-          
-          {/* {quoteCount > 0 && (
-            <View style={styles.topQuote}>
-              <TouchableOpacity
-                style={styles.floatingButton}
-                onPress={() =>
-                  navigation.navigate('QuoteRequestPage', {quotes: addedQuotes})
-                }>
-                <View style={styles.badge}>
-                  <AppText weight="Inter" style={styles.badgeText}>
-                    {quoteCount}
-                  </AppText>
-                </View>
-                <AppText weight="Inter" style={styles.floatingButtonText}>
-                  View
-                </AppText>
-              </TouchableOpacity>
-
-              <View style={styles.categoryButton}>
-                <TouchableOpacity
-                  style={styles.submitButton2}
-                  onPress={handleRequestQuote}>
-                  <AppText weight="Inter" style={styles.submitButtonText}>
-                    Select Categories
-                  </AppText>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )} */}
+           
           {isLoggedIn && quoteCount > 0 && (
   <View style={styles.topQuote}>
     <TouchableOpacity
@@ -504,18 +479,13 @@ const submitQuote = async (quoteData, token) => {
                       renderFeatureItem(feature, index)
                     )}
                   </View>
-                  {/* <TouchableOpacity
-                    style={styles.quoteButton}
-                    onPress={() => setShowQuoteForm(true)}>
-                    <AppText weight="Inter" style={styles.quoteButtonText}>
-                      REQUEST FOR QUOTE
-                    </AppText>
-                  </TouchableOpacity> */}
+                   
                   <TouchableOpacity
                     style={styles.quoteButton}
                     onPress={() => {
                       if (!isLoggedIn) {
-                        Alert.alert('Login Required', 'Please login to generate a quote');
+                        setShowLoginModal(true)
+                        // Alert.alert('Login Required', 'Please login to generate a quote');
                         return;
                       }
                       setShowQuoteForm(true);
@@ -669,6 +639,11 @@ const submitQuote = async (quoteData, token) => {
           </KeyboardAvoidingView>
         </Modal>
       </View>
+      <PremiumLoginModal
+        visible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        navigation={navigation}
+      />
     </View>
   );
 };
@@ -678,14 +653,7 @@ const styles = StyleSheet.create({
     // flex: 1,
     backgroundColor: 'white',
     paddingBottom: 25,
-  },
-  Headercontainer: {
-    // position: 'relative',
-    // height: 80,
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    // marginBottom: 10,
-  },
+  }, 
   backButton: { 
     position: 'absolute',
     left: 10,
@@ -700,8 +668,7 @@ const styles = StyleSheet.create({
 
   logoContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
-    // paddingTop: 20,
+    alignItems: 'center', 
   },
   errorContainer: {
     justifyContent: 'center',
@@ -715,8 +682,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 100,
-    height: 50,
-    // resizeMode: 'contain',
+    height: 50, 
   }, 
   scrollContainer: {
     padding: 20,
@@ -861,9 +827,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     color: 'black',
-    paddingBottom:10,
-    // marginVertical: 25,
-    // marginTop: 50,
+    paddingBottom:10, 
     textAlign: 'center',
   },
   inputContainer1: {
@@ -912,8 +876,7 @@ const styles = StyleSheet.create({
   },
   formActions: {
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    // marginTop: 15,
+    justifyContent: 'space-between', 
   },
   actionButtons: {
     flexDirection: 'row',
@@ -1021,167 +984,3 @@ const styles = StyleSheet.create({
 });
 
 export default WindowOptions;
- 
-    // },
-    // {
-    //   id: 3,
-    //   name: 'CASEMENT WINDOWS',
-    //   count: 4,
-    //   designs: [
-    //     {
-    //       id: 1,
-    //       title: 'Single Casement Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 2,
-    //       title: 'Double Casement Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 3,
-    //       title: 'French Casement Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 4,
-    //       title: 'Push-out Casement Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 4,
-    //   name: 'CASEMENT DOORS',
-    //   count: 3,
-    //   designs: [
-    //     {
-    //       id: 1,
-    //       title: 'Single Casement Door',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 2,
-    //       title: 'Double Casement Door',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 3,
-    //       title: 'French Casement Door',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 5,
-    //   name: 'FIXED WINDOWS',
-    //   count: 1,
-    //   designs: [
-    //     {
-    //       id: 1,
-    //       title: 'Standard Fixed Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 6,
-    //   name: 'BATHROOM VENTILATORS',
-    //   count: 4,
-    //   designs: [
-    //     {
-    //       id: 1,
-    //       title: 'Small Ventilator',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 2,
-    //       title: 'Medium Ventilator',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 3,
-    //       title: 'Large Ventilator',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 4,
-    //       title: 'Decorative Ventilator',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 7,
-    //   name: 'COMBINATION WINDOWS',
-    //   count: 4,
-    //   designs: [
-    //     {
-    //       id: 1,
-    //       title: 'Slider + Fixed Combo',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 2,
-    //       title: 'Casement + Fixed Combo',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 3,
-    //       title: 'Bay Window Combo',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 4,
-    //       title: 'Bow Window Combo',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //   ],
-    // },
-    // {
-    //   id: 8,
-    //   name: 'SPECIAL ARCHITECTURAL WINDOWS',
-    //   count: 8,
-    //   designs: [
-    //     {
-    //       id: 1,
-    //       title: 'Arch Top Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 2,
-    //       title: 'Circle Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 3,
-    //       title: 'Hexagon Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 4,
-    //       title: 'Octagon Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 5,
-    //       title: 'Triangle Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 6,
-    //       title: 'Gothic Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 7,
-    //       title: 'Elliptical Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //     {
-    //       id: 8,
-    //       title: 'Custom Shape Window',
-    //       video: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    //     },
-    //   ],
-    // },

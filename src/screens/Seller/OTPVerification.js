@@ -31,7 +31,7 @@ const SellerOTPVerification = ({ route, navigation }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'https://upvc-backend.onrender.com/api/sellers/verify-otp',
+        'http://192.168.1.40:9000/api/sellers/verify-otp',
         {
           phoneNumber: mobileNumber,
           otp: submittedOtp
@@ -81,7 +81,7 @@ const SellerOTPVerification = ({ route, navigation }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'https://upvc-backend.onrender.com/api/sellers/send-otp',
+        'http://192.168.1.40:9000/api/sellers/send-otp',
         { phoneNumber: mobileNumber }
       );
 

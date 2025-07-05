@@ -21,6 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import DropDownPicker from 'react-native-dropdown-picker';
 import EditQuoteModal from './EditQuoteModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import PremiumLoginModal from '../../../components/PremiumLoginModal';
 
 const {width, height} = Dimensions.get('window');
 
@@ -28,51 +29,53 @@ const QuoteRequestPage = ({navigation, route}) => {
   const [quotes, setQuotes] = useState([]);
   const [user, setUser] = useState(null);
   const {selectedCategory} = route.params;
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
+  const fetchData = async () => {
+    if (selectedCategory === undefined){
+      Alert.alert('Please Select Category to generate Lead!');
+    }
+    try {
+      const token = await AsyncStorage.getItem('buyerToken');
+      if (!token) {
+        setShowLoginModal(true)
+        // Alert.alert('Please Login');
+        return;
+      }
+
+      const responseQuotes = await axios.get(
+        'http://192.168.1.40:9000/api/quotes/buyer',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      const userRes = await axios.get(
+        'http://192.168.1.40:9000/api/buyer',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      ); 
+      setQuotes(responseQuotes?.data);
+      setUser(userRes?.data?.user);
+      console.log("user : " , user)
+      setFormData(prev => ({
+        ...prev,
+        totalSqft: responseQuotes?.data?.totalSqft,
+        contact: userRes?.data?.user?.mobileNumber,
+      }));
+    } catch (err) {
+      console.error('Error fetching data:', err);
+    }
+  };
+  
   useEffect(() => {
-    const fetchData = async () => {
-      if (selectedCategory === undefined){
-        Alert.alert('Please Select Category to generate Lead!');
-      }
-      try {
-        const token = await AsyncStorage.getItem('buyerToken');
-        if (!token) {
-          Alert.alert('Please Login');
-          return;
-        }
-
-        const responseQuotes = await axios.get(
-          'https://upvc-backend.onrender.com/api/quotes/buyer',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          },
-        );
-
-        const userRes = await axios.get(
-          'https://upvc-backend.onrender.com/api/buyer',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-          },
-        ); 
-        setQuotes(responseQuotes?.data);
-        setUser(userRes?.data?.user);
-        console.log("user : " , user)
-        setFormData(prev => ({
-          ...prev,
-          totalSqft: responseQuotes?.data?.totalSqft,
-          contact: userRes?.data?.user?.mobileNumber,
-        }));
-      } catch (err) {
-        console.error('Error fetching data:', err);
-      }
-    };
-
     fetchData();
   }, []);
 
@@ -188,7 +191,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       // console.log('Submitting lead data:', leadData);
 
       const response = await axios.post(
-        'https://upvc-backend.onrender.com/api/seller/lead',
+        'http://192.168.1.40:9000/api/seller/lead',
         leadData,
         {
           headers: {
@@ -236,7 +239,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       const token = await AsyncStorage.getItem('buyerToken');
       
       const response = await axios.put(
-        `https://upvc-backend.onrender.com/api/quotes/${updatedQuote._id}`,
+        `http://192.168.1.40:9000/api/quotes/${updatedQuote._id}`,
         updatedQuote,
         {
           headers: {
@@ -249,7 +252,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       if (response.status === 200) { 
         setIsEditModalVisible(false);
         const updatedQuotes = await axios.get(
-          'https://upvc-backend.onrender.com/api/quotes/buyer',
+          'http://192.168.1.40:9000/api/quotes/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -257,6 +260,7 @@ const QuoteRequestPage = ({navigation, route}) => {
           }
         );
         setQuotes(updatedQuotes?.data); 
+        fetchData()
         Alert.alert('Success', 'Quote updated successfully');
       }
     } catch (error) {
@@ -270,7 +274,7 @@ const QuoteRequestPage = ({navigation, route}) => {
   const handleDeleteItem = async quoteId => {
     try {
       const token = await AsyncStorage.getItem('buyerToken');
-      await axios.delete(`https://upvc-backend.onrender.com/api/quotes/${quoteId}`, {
+      await axios.delete(`http://192.168.1.40:9000/api/quotes/${quoteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -278,7 +282,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
       // Refresh quotes after deletion
       const response = await axios.get(
-        'https://upvc-backend.onrender.com/api/quotes/buyer',
+        'http://192.168.1.40:9000/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -792,6 +796,11 @@ const QuoteRequestPage = ({navigation, route}) => {
           />
         )}
       </View>
+      <PremiumLoginModal
+        visible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        navigation={navigation}
+      />
     </View>
   );
 };

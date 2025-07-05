@@ -235,7 +235,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
-const BASE_URL = 'https://upvc-backend.onrender.com/api/advertisments';
+const BASE_URL = 'http://192.168.1.40:9000/api/advertisments';
 
 const MarketInsights = () => {
 
@@ -265,7 +265,7 @@ const MarketInsights = () => {
           },
         });
 
-        const sellerResponse = await axios.get('https://upvc-backend.onrender.com/api/sellers', {
+        const sellerResponse = await axios.get('http://192.168.1.40:9000/api/sellers', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -478,6 +478,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   postTitle: {
+    textAlign:"center",
     fontSize: 18, 
     color: 'black',
     flex: 1,
@@ -504,12 +505,14 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: 10,
     lineHeight: 20,
+    textAlign:"center",
   },
   postFooter: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 15,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    paddingHorizontal:10
   },
   actionButton: {
     flexDirection: 'row',

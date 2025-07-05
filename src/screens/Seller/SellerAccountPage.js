@@ -483,7 +483,7 @@ const SellerAccountPage = ({ navigation }) => {
           return;
         }
 
-        const response = await axios.get('https://upvc-backend.onrender.com/api/sellers', {
+        const response = await axios.get('http://192.168.1.40:9000/api/sellers', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -575,7 +575,7 @@ const SellerAccountPage = ({ navigation }) => {
       };
 
       const response = await axios.put(
-        'https://upvc-backend.onrender.com/api/sellers',
+        'http://192.168.1.40:9000/api/sellers',
         updateData,
         {
           headers: {

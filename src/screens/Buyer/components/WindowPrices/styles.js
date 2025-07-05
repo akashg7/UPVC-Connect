@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
     // fontWeight: '600',
   },
   descriptionText: {
-    fontSize: 14,
+    fontSize: 13,
     color: '#333333',
     lineHeight: 22,
     textAlign: 'center',
@@ -150,5 +150,31 @@ thumbnailImage: {
   width: 100,
   height: '100%',
   backgroundColor: 'black',
+}, 
+premiumSponsorContainer: {
+  width: '100%',
+  paddingVertical: 20,
+  backgroundColor: '#fff',
+},
+premiumSponsorContent: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+},
+premiumSponsorText: {
+  fontSize: 10,
+  color: '#999',
+  letterSpacing: 1,
+  marginHorizontal: 12,
+  fontWeight: '500',
+},
+premiumSponsorLogo: {
+  width: 100,
+  height: 40,
+},
+sponsorDivider: {
+  flex: 1,
+  height: 1,
+  backgroundColor: '#eee',
 },
 });

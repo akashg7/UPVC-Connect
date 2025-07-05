@@ -19,6 +19,7 @@ import Toast from 'react-native-toast-message';
 import {CommonActions, useNavigation} from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
+import PremiumLoginModal from '../../../components/PremiumLoginModal';
 
 const {width, height} = Dimensions.get('window');
 
@@ -37,21 +38,24 @@ const UserAccount = () => {
   const [userData , setUserData] = useState(null);
   const [error , setError] = useState(false);
   const [token , setToken] = useState(null);
-  console.log("userData : " , userData)
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  // console.log("userData : " , userData)
 
   useEffect(() => {
     const fetchData = async () => {
       const token = await AsyncStorage.getItem('buyerToken');
       setToken(token)
       if (!token) {
-            Alert.alert('Login Required', 'Please login to Select a Category');
+        setShowLoginModal(true)
+            // Alert.alert('Login Required', 'Please login to Select a Category');
             // setShowQuoteForm(false);
             return;
           }
       try {
         setLoading(true);
         // Fetch video data
-        const userResponse = await axios.get('https://upvc-backend.onrender.com/api/buyer', {
+        const userResponse = await axios.get('http://192.168.1.40:9000/api/buyer', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -80,7 +84,7 @@ const UserAccount = () => {
       setLoading(true);
       
       const response = await axios.patch(
-        `https://upvc-backend.onrender.com/api/buyer/update`,
+        `http://192.168.1.40:9000/api/buyer/update`,
         { name, mobileNumber: phone },
         {
           headers: {
@@ -119,7 +123,7 @@ const UserAccount = () => {
       const token = await AsyncStorage.getItem('buyerToken');
       setLoading(true);
 
-      await axios.post('https://upvc-backend.onrender.com/api/feedback', {
+      await axios.post('http://192.168.1.40:9000/api/feedback', {
         name: userData?.name,
         phone: userData?.mobileNumber,
         text: feedback,
@@ -455,6 +459,11 @@ const UserAccount = () => {
             </TouchableOpacity>
 
         </ScrollView>
+        <PremiumLoginModal
+        visible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        navigation={navigation}
+      />
     </View>
       </KeyboardAvoidingView>
   );

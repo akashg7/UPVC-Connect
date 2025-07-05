@@ -194,7 +194,7 @@ const SellerHome = () => {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return;
 
-      const response = await axios.get('https://upvc-backend.onrender.com/api/sellers', {
+      const response = await axios.get('http://192.168.1.40:9000/api/sellers', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -202,7 +202,7 @@ const SellerHome = () => {
       console.log("response data : " , response.data)
       if (response.data.success && response.data.seller.businessProfileVideo) {
         setHasVideo(true);
-        setVideoUri(`https://upvc-backend.onrender.com${response.data.seller.businessProfileVideo}`);
+        setVideoUri(`http://192.168.1.40:9000${response.data.seller.businessProfileVideo}`);
       }
     } catch (error) {
       console.error('Error checking existing video:', error);
@@ -263,7 +263,7 @@ const SellerHome = () => {
       });
 
       const response = await axios.post(
-        'https://upvc-backend.onrender.com/api/sellers/business-video',
+        'http://192.168.1.40:9000/api/sellers/business-video',
         formData,
         {
           headers: {
@@ -275,7 +275,7 @@ const SellerHome = () => {
       console.log("response.data : " , response.data)
       if (response.data.success) {
         setHasVideo(true);
-        setVideoUri(`https://upvc-backend.onrender.com${response.data.videoUrl}`);
+        setVideoUri(`http://192.168.1.40:9000${response.data.videoUrl}`);
         Alert.alert('Success', 'Video uploaded successfully!');
       } else {
         throw new Error(response.data.message || 'Failed to upload video');

@@ -1,255 +1,430 @@
-import React from 'react';
-import {View, Text, StyleSheet, Dimensions, ScrollView, Image, TouchableOpacity} from 'react-native';
-import Video from 'react-native-video'; 
-import TopTabBar from '../../Dashboard/TopTabBar';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useNavigation } from '@react-navigation/native';
-import AppText from '../../../../components/AppText';
+import React, { useState, useEffect } from 'react';
+import { 
+  View,  
+  StyleSheet, 
+  Image, 
+  FlatList, 
+  TouchableOpacity, 
+  Dimensions, 
+  ActivityIndicator, 
+  Alert,
+  RefreshControl
+} from 'react-native';
+import Video from 'react-native-video';
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppText from '../../../../components/AppText';
+import TopTabBar from '../../Dashboard/TopTabBar';
+import { useNavigation } from '@react-navigation/native';
+import PremiumLoginModal from '../../../../components/PremiumLoginModal';
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+const BASE_URL = 'http://192.168.1.40:9000/api/buyer/advertisments';
 
 const TheProcess = () => {
-  const navigation = useNavigation();  
-  const steps = [
-    'Select your design, dimensions, and quantity',
-    'Submit your details',
-    'Your RFQ a (Requirment for quote) will be shared with machine curated window manufacturers (maximum 6 only)',
-    'The moment they generate interest, you will be notified ',
-    'You can get to see there business profile', 
-    'Sit back, relax & enjoy',
-    'Matching fabricators will connect, meet you, and gather measurements', 
-    'Compare quotes and place your order!',
-  ];
   const insets = useSafeAreaInsets();
-  return (
-    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
-      <View style={styles.container}>
-        <View style={styles.Headercontainer}>
-          {/* Back Button */}
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}>
-            <Icon name="arrow-back" size={30} color="#000" />
-          </TouchableOpacity>
+  const navigation = useNavigation();
 
-          {/* Centered Logo */}
-          <View style={styles.logoContainer}>
-            <Image
-              source={require('../../../../assets/logo.png')}
-              style={styles.logo}
-            />
-          </View>
-        </View>
-        <TopTabBar/>
-              <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <AppText weight='Bold' style={styles.headerTitle}>The Process</AppText>
-          {/* source={require('../../../../assets/dummy.mp4')} */}
-          {/* Add a dummy video here in reels format means it should look like reels */}
+  const [activeTab, setActiveTab] = useState('featured');
+  const [ads, setAds] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [paused, setPaused] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-            <View style={styles.videoContainer}>
-            <Video
-              source={require('../../../../assets/dummy.mp4')}
-              style={styles.video}
-              resizeMode="cover"
-              repeat
-              muted
-              paused={false}
-              controls={false}
-            />
-          </View>
-        </View>
+  const fetchData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('buyerToken'); 
+      if (!token) {
+        setShowLoginModal(true)
+        // Alert.alert('Please Login');
+        // navigation.goBack();
+        return;
+      } 
+      
+      let url = BASE_URL;
+      if (activeTab !== 'featured') {
+        url = `${BASE_URL}/${activeTab}`;
+      }
+      
+      const [adsResponse, userResponse] = await Promise.all([
+        axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+        axios.get('http://192.168.1.40:9000/api/buyer', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+      ]);
+      
+      setUserId(userResponse.data.user._id);
+      setAds(adsResponse.data.ads);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to fetch advertisements');
+      console.error('Error fetching ads:', error);
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  };
 
-        {/* Table Container */}
+  useEffect(() => {
+    fetchData();
+  }, [activeTab]);
 
-              <View style={styles.container2}>
-        {steps.map((step, index) => (
-          <View key={index} style={styles.bulletItem}>
-            <AppText weight='Inter' style={styles.bulletPoint}>{'\u2022'}</AppText>
-            <AppText weight='Inter' style={styles.bulletText}>{step}</AppText>
-          </View>
-        ))}
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    fetchData();
+  };
+  
+  const toggleLike = async (adId) => {
+    try {
+      const token = await AsyncStorage.getItem('buyerToken');
+      const response = await axios.post(
+        `${BASE_URL}/${adId}/like`,
+        { userId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      
+      setAds(ads.map(ad => 
+        ad._id === adId 
+          ? { 
+              ...ad, 
+              likes: response.data.likes, 
+              likedBy: response.data.isLiked 
+                ? [...ad.likedBy, userId] 
+                : ad.likedBy.filter(id => id !== userId) 
+            } 
+          : ad
+      ));
+    } catch (error) {
+      Alert.alert('Error', 'Failed to like the post');
+      console.error('Error toggling like:', error);
+    }
+  };
+
+  const renderItem = ({ item }) => (
+    <View style={styles.postContainer}>
+      <View style={styles.postHeader}>
+        <AppText weight='Inter' style={styles.postTitle}>{item.title}</AppText>
       </View>
-         <View style={styles.buyNowContainer}>
-              <TouchableOpacity
-                style={styles.buyNowButton}
-                onPress={() => navigation.navigate('BuyNowScreen')}
-              >
-                <AppText weight="Inter" style={styles.buyNowText}>BUY NOW</AppText>
-              </TouchableOpacity>
+      
+      {item.type === 'video' ? (
+        <TouchableOpacity 
+          activeOpacity={0.9}
+          onPress={() => setPaused(!paused)}
+          style={styles.videoContainer}
+        >
+          <Video
+            source={{ uri: `http://192.168.1.40:9000/uploads/${item.mediaUrl}` }}
+            style={styles.video}
+            resizeMode="cover"
+            paused={paused}
+            repeat={true}
+            controls={false}
+          />
+          {paused && (
+            <View style={styles.playButtonOverlay}>
+              <Icon name="play-circle-filled" size={50} color="rgba(255,255,255,0.7)" />
             </View>
-        </ScrollView>
-        
-
+          )}
+        </TouchableOpacity>
+      ) : (
+        <Image 
+          source={{ uri: `http://192.168.1.40:9000/uploads/${item.mediaUrl}` }} 
+          style={styles.image} 
+          resizeMode="cover" 
+        />
+      )}
+       
+      <AppText weight='Inter' style={styles.postDescription}>{item.description}</AppText>
+      
+      <View style={styles.postFooter}>
+        <TouchableOpacity 
+          style={styles.actionButton}
+          onPress={() => toggleLike(item._id)}
+        >
+          <Icon
+            name={item.likedBy?.includes(userId) ? "favorite" : "favorite-border"} 
+            size={24} 
+            color={item.likedBy?.includes(userId) ? "red" : "black"} 
+          />
+          <AppText weight='Inter' style={styles.actionText}>{item.likes}</AppText>
+        </TouchableOpacity>
+         
+        <TouchableOpacity style={styles.actionButton}>
+          <Icon name="share" size={22} color="black" />
+          <AppText weight='Inter' style={styles.actionText}>Share</AppText>
+        </TouchableOpacity>
       </View>
+    </View>
+  );
+  
+  const renderEmptyComponent = () => (
+    <View style={styles.emptyContainer}>
+      <Icon name="error-outline" size={50} color="#888" style={styles.emptyIcon} />
+      <AppText weight='Inter' style={styles.emptyText}>No advertisements found</AppText>
+      <TouchableOpacity 
+        style={styles.refreshButton}
+        onPress={onRefresh}
+      >
+        <Icon name="refresh" size={20} color="white" />
+        <AppText weight='Inter' style={styles.refreshText}>Try Again</AppText>
+      </TouchableOpacity>
+    </View>
+  );
+
+  if (isLoading && !isRefreshing) {
+    return (
+      <View style={styles.loadingScreen}>
+        <ActivityIndicator size="large" color="black" />
+        <AppText weight='Inter' style={styles.loadingText}>Loading advertisements...</AppText>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <View style={[styles.header, { paddingTop: insets.top }]}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}
+        >
+          <Icon name="arrow-back" size={30} color="#000" />
+        </TouchableOpacity>
+
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../../../../assets/logo.png')}
+            style={styles.logo}
+          />
+        </View>
+      </View>
+      
+      <TopTabBar />
+      
+      <View style={styles.tabs}>
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'featured' && styles.activeTab]}
+          onPress={() => setActiveTab('featured')}
+        >
+          <AppText weight='SemiBold' style={[styles.tabText, activeTab === 'featured' && styles.activeTabText]}>
+            FEATURED
+          </AppText>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'latest' && styles.activeTab]}
+          onPress={() => setActiveTab('latest')}
+        >
+          <AppText weight='SemiBold' style={[styles.tabText, activeTab === 'latest' && styles.activeTabText]}>
+            LATEST
+          </AppText>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.tab, activeTab === 'trending' && styles.activeTab]}
+          onPress={() => setActiveTab('trending')}
+        >
+          <AppText weight='SemiBold' style={[styles.tabText, activeTab === 'trending' && styles.activeTabText]}>
+            TRENDING
+          </AppText>
+        </TouchableOpacity>
+      </View>
+       
+      <FlatList
+        data={ads}
+        renderItem={renderItem}
+        keyExtractor={item => item._id}
+        contentContainerStyle={ads.length === 0 ? styles.emptyListContent : styles.listContent}
+        ListEmptyComponent={renderEmptyComponent}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            colors={['#000000']}
+            tintColor={'#000000'}
+          />
+        }
+      />
+       <PremiumLoginModal
+        visible={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        navigation={navigation}
+      />
     </View>
   );
 };
 
-// Styles
-const styles = StyleSheet.create({ 
+const styles = StyleSheet.create({
   container: {
-    // paddingTop: 15,
     flex: 1,
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: 'white',
   },
-  logo: {
-    // marginTop:15,
-    // alignSelf:"center",
-    width: 100, 
-    height: 50,  
-    // resizeMode: 'contain', 
+  loadingScreen: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
-  scrollContent: {
-    paddingBottom: 20,
+  loadingText: {
+    marginTop: 15,
+    fontSize: 16,
+    color: '#555',
   },
   header: {
-    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingBottom: 10,
+    backgroundColor: 'white',
+    zIndex: 1,
+  },
+  backButton: {
+    marginRight: 10,
+  },
+  logoContainer: {
+    flex: 1,
     alignItems: 'center',
   },
-  headerTitle: {
-    fontSize: width * 0.06,
-    // fontWeight: 'bold',
-    color: '#000000',
+  logo: {
+    width: 100,
+    height: 50,
+    resizeMode: 'contain',
+  },
+  tabs: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    backgroundColor: 'white',
+  },
+  tab: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 15,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: 'black',
+  },
+  tabText: {
+    fontSize: 12,
+    color: '#888',
     letterSpacing: 2,
   },
-  headerSubtitle: {
-    fontSize: width * 0.04,
-    color: '#A0A0A0',
-    marginTop: 5,
+  activeTabText: {
+    color: 'black',
   },
-  tableContainer: {
-    margin: 15,
-    borderRadius: 10,
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    backgroundColor: '#FFFFFF',
+  listContent: {
+    paddingBottom: 20,
   },
-  tableHeader: {
+  emptyListContent: {
+    flex: 1,
+  },
+  postContainer: {
+    marginTop: 20,
+    paddingHorizontal: 15,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  postHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 15,
-  },
-  container2:{
-    padding:20,
-  },
-  tableHeaderText: {
-    fontSize: width * 0.045,
-    // fontWeight: 'bold',
-    color: '#000000',
-    flex: 1,
-  },
-  tableRow: {
-    flexDirection: 'row',
-  },
-  cell: {
-    flex: 1,
-    padding: 15,
-  },
-  category: {
-    textAlign: 'center',
-    fontSize: width * 0.04,
-    // fontWeight: '600',
-    color: '#000000',
-    marginBottom: 5,
-  },
-  description: {
-    fontSize: width * 0.035,
-    color: '#A0A0A0',
-    lineHeight: 20,
-  },
-  footer: {
-    padding: 20,
     alignItems: 'center',
+    marginBottom: 10,
   },
-  footerText: {
-    fontSize: width * 0.035,
-    color: '#000000',
-    textAlign: 'center',
+  postTitle: {
+    textAlign: "center",
+    fontSize: 18,
+    color: 'black',
+    flex: 1,
   },
   videoContainer: {
-  width: '100%',
-  aspectRatio: 15 / 16, // Vertical (Reels/TikTok style)
-  borderRadius: 10,
-  overflow: 'hidden',
-  marginTop: 15,
-},
-
-video: {
-  width: '100%',
-  height: '100%',
-}, 
-  bulletItem: {
+    width: '100%',
+    aspectRatio: 6/9,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: 'white',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  video: {
+    width: '100%',
+    height: '100%',
+  },
+  playButtonOverlay: {
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  image: {
+    width: '100%',
+    aspectRatio: 16/9,
+    borderRadius: 8,
+    backgroundColor: 'white',
+  },
+  postDescription: {
+    fontSize: 14,
+    color: '#333',
+    marginTop: 10,
+    lineHeight: 20,
+    textAlign: "center",
+  },
+  postFooter: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
+    alignItems: 'center',
+    marginTop: 15,
+    justifyContent: 'space-between',
+    paddingHorizontal: 10
   },
-  bulletPoint: {
-    fontSize: width * 0.05,
-    color: '#000000',
-    marginRight: 10,
-    lineHeight: 22,
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  bulletText: {
+  actionText: {
+    fontSize: 14,
+    color: 'black',
+    marginLeft: 5,
+  },
+  emptyContainer: {
     flex: 1,
-    fontSize: width * 0.04,
-    color: '#4A4A4A',
-    lineHeight: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingBottom: 500,
+    paddingTop: 100,
   },
-
-Headercontainer: {
-  position: 'relative', // allow absolute positioning inside
-  // height: 80, // adjust as needed
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom:10,
-},
-
-backButton: {
-  position: 'absolute',
-  left: 10,
-  top: '30%',
-  transform: [{ translateY: -12 }], // vertically center the icon
-  padding: 5, 
-},
-
-logoContainer: {
-  // justifyContent: 'center',
-  // alignItems: 'center',
-  // paddingTop:20,
-},
-
-logo: {
-  width: 100,
-  height: 50,
-  // resizeMode: 'contain',
-},
-  buyNowContainer: {
+  emptyIcon: {
+    marginBottom: 15,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#888',
+    marginBottom: 20,
+  },
+  refreshButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 25,
+    backgroundColor: 'black',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
   },
-  buyNowButton: {
-    width: '70%',
-    backgroundColor: '#000000',
-    paddingVertical: 14,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  buyNowText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    letterSpacing: 1,
+  refreshText: {
+    color: 'white',
+    marginLeft: 8,
+    fontSize: 14,
   },
 });
 

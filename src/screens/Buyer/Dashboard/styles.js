@@ -4,7 +4,7 @@ const {width, height} = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
   container: { 
-    backgroundColor: 'white', 
+    backgroundColor: 'white',
   }, 
   header: {
     flexDirection: 'row',
@@ -13,10 +13,9 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom:20, 
   },
-    logo: { 
+  logo: { 
     width: 100, 
-    height: 50,  
-    // resizeMode: 'contain', 
+    height: 50,   
   },
   headerTitle: {
     fontSize: 18,

@@ -9,7 +9,7 @@ const TopTabBar = () => {
     { label: 'PRICES', screen: 'PricesScreen' },
     { label: 'BUY NOW', screen: 'BuyNowScreen' },
     { label: 'WHITE vs COLORS', screen: 'WhiteVsColorsScreen' },
-    { label: 'PROCESS', screen: 'ProcessScreen' },
+    { label: 'INSIGHTS', screen: 'ProcessScreen' },
   ];
 
   return (
