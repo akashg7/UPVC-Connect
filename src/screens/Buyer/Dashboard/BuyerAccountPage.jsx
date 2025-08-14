@@ -17,14 +17,13 @@ import AppText from '../../../components/AppText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
 import {CommonActions, useNavigation} from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import axios from 'axios';
 import PremiumLoginModal from '../../../components/PremiumLoginModal';
 
 const {width, height} = Dimensions.get('window');
 
 const UserAccount = () => {
-
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
 
@@ -34,38 +33,41 @@ const UserAccount = () => {
   const [rating, setRating] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [hoverRating, setHoverRating] = useState(0);
-  const [loading , setLoading] = useState(false);
-  const [userData , setUserData] = useState(null);
-  const [error , setError] = useState(false);
-  const [token , setToken] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [error, setError] = useState(false);
+  const [token, setToken] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  
+
   // console.log("userData : " , userData)
 
   useEffect(() => {
     const fetchData = async () => {
       const token = await AsyncStorage.getItem('buyerToken');
-      setToken(token)
+      setToken(token);
       if (!token) {
-        setShowLoginModal(true)
-            // Alert.alert('Login Required', 'Please login to Select a Category');
-            // setShowQuoteForm(false);
-            return;
-          }
+        setShowLoginModal(true);
+        // Alert.alert('Login Required', 'Please login to Select a Category');
+        // setShowQuoteForm(false);
+        return;
+      }
       try {
         setLoading(true);
         // Fetch video data
-        const userResponse = await axios.get('http://192.168.1.40:9000/api/buyer', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        })
+        const userResponse = await axios.get(
+          'http://192.168.1.52:9000/api/buyer',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        );
         // console.log("userResponse : " , userResponse.data.user)
         if (userResponse.data) {
           setUserData(userResponse.data?.user);
-          setName(userResponse.data?.user?.name)
-          setPhone(userResponse.data?.user?.mobileNumber)
+          setName(userResponse.data?.user?.name);
+          setPhone(userResponse.data?.user?.mobileNumber);
         }
       } catch (err) {
         setError(err.message);
@@ -82,21 +84,21 @@ const UserAccount = () => {
     try {
       const token = await AsyncStorage.getItem('buyerToken');
       setLoading(true);
-      
+
       const response = await axios.patch(
-        `http://192.168.1.40:9000/api/buyer/update`,
-        { name, mobileNumber: phone },
+        `http://192.168.1.52:9000/api/buyer/update`,
+        {name, mobileNumber: phone},
         {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
       );
 
       setUserData(response?.data);
       setEditing(false);
-      
+
       Toast.show({
         type: 'success',
         position: 'top',
@@ -116,24 +118,28 @@ const UserAccount = () => {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const handleSubmitFeedback = async () => {
     try {
       const token = await AsyncStorage.getItem('buyerToken');
       setLoading(true);
 
-      await axios.post('http://192.168.1.40:9000/api/feedback', {
-        name: userData?.name,
-        phone: userData?.mobileNumber,
-        text: feedback,
-        stars: rating
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      await axios.post(
+        'http://192.168.1.52:9000/api/feedback',
+        {
+          name: userData?.name,
+          phone: userData?.mobileNumber,
+          text: feedback,
+          stars: rating,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      );
 
       Toast.show({
         type: 'success',
@@ -158,7 +164,7 @@ const UserAccount = () => {
       setLoading(false);
     }
   };
- 
+
   const handleSendMessage = () => {
     // Navigate to contact screen or open message interface
     // navigation.navigate('Contact');
@@ -174,10 +180,10 @@ const UserAccount = () => {
 
   const handleLogout = async () => {
     if (!token) {
-    // If user not logged in, go to LoginScreen
-    navigation.navigate("LoginScreen");
-    return
-  }
+      // If user not logged in, go to LoginScreen
+      navigation.navigate('LoginScreen');
+      return;
+    }
     try {
       await AsyncStorage.clear();
 
@@ -206,7 +212,7 @@ const UserAccount = () => {
       });
     }
   };
- 
+
   if (loading) {
     return (
       <View style={styles.loaderContainer}>
@@ -218,132 +224,136 @@ const UserAccount = () => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <AppText style={styles.errorText}>Error loading window options: {error}</AppText>
+        <AppText style={styles.errorText}>
+          Error loading window options: {error}
+        </AppText>
       </View>
     );
   }
 
-
   return (
     <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}>
-    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}>
+      <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {/* User Profile Section */}
           <Image
             source={require('../../../assets/logo.png')}
             style={styles.logo}
           />
-         { token ? 
-(<>
-          <View style={styles.profileCard}>
-            <View style={styles.profileHeader}>
-              <AppText weight="Inter" style={styles.sectionTitle}>
-                PROFILE INFORMATION
-              </AppText> 
-              <TouchableOpacity onPress={editing ? handleUpdateProfile : () => setEditing(!editing)}>
-                <Icon
-                  name={editing ? 'check' : 'edit'}
-                  size={24}
-                  color="#000"
-                />
-              </TouchableOpacity>
-            </View>
+          {token ? (
+            <>
+              <View style={styles.profileCard}>
+                <View style={styles.profileHeader}>
+                  <AppText weight="Inter" style={styles.sectionTitle}>
+                    PROFILE INFORMATION
+                  </AppText>
+                  <TouchableOpacity
+                    onPress={
+                      editing ? handleUpdateProfile : () => setEditing(!editing)
+                    }>
+                    <Icon
+                      name={editing ? 'check' : 'edit'}
+                      size={24}
+                      color="#000"
+                    />
+                  </TouchableOpacity>
+                </View>
 
-            <View style={styles.inputContainer}>
-              <AppText weight="Inter" style={styles.inputLabel}>
-                Full Name
-              </AppText>
-              <TextInput
-                style={styles.inputField}
-                value={name}
-                onChangeText={setName}
-                editable={editing}
-                placeholder="Enter your name"
-                placeholderTextColor="#999"
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <AppText weight="Inter" style={styles.inputLabel}>
-                Phone Number
-              </AppText>
-              <TextInput
-                style={styles.inputField}
-                value={phone}
-                onChangeText={setPhone}
-                editable={editing}
-                keyboardType="phone-pad"
-                placeholder="Enter phone number"
-                placeholderTextColor="#999"
-              />
-            </View>
-          </View>
-{/* Feedback Section */}
-          <View style={styles.sectionCard}>
-            <AppText weight="Inter" style={styles.sectionTitle}>
-              FEEDBACK
-            </AppText>
-
-            <AppText weight="Inter" style={styles.feedbackQuestion}>
-              On a scale of 1 - 5 how would you rate us?
-            </AppText>
-
-            <View style={styles.ratingContainer}>
-              {[1, 2, 3, 4, 5].map(star => (
-                <TouchableOpacity
-                  key={star}
-                  onPress={() => setRating(star)}
-                  onPressIn={() => setHoverRating(star)}
-                  onPressOut={() => setHoverRating(0)}>
-                  <Icon
-                    name={
-                      star <= (hoverRating || rating) ? 'star' : 'star-border'
-                    }
-                    size={36}
-                    color="#FFD700"
-                    style={styles.starIcon}
+                <View style={styles.inputContainer}>
+                  <AppText weight="Inter" style={styles.inputLabel}>
+                    Full Name
+                  </AppText>
+                  <TextInput
+                    style={styles.inputField}
+                    value={name}
+                    onChangeText={setName}
+                    editable={editing}
+                    placeholder="Enter your name"
+                    placeholderTextColor="#999"
                   />
+                </View>
+
+                <View style={styles.inputContainer}>
+                  <AppText weight="Inter" style={styles.inputLabel}>
+                    Phone Number
+                  </AppText>
+                  <TextInput
+                    style={styles.inputField}
+                    value={phone}
+                    onChangeText={setPhone}
+                    editable={editing}
+                    keyboardType="phone-pad"
+                    placeholder="Enter phone number"
+                    placeholderTextColor="#999"
+                  />
+                </View>
+              </View>
+              {/* Feedback Section */}
+              <View style={styles.sectionCard}>
+                <AppText weight="Inter" style={styles.sectionTitle}>
+                  FEEDBACK
+                </AppText>
+
+                <AppText weight="Inter" style={styles.feedbackQuestion}>
+                  On a scale of 1 - 5 how would you rate us?
+                </AppText>
+
+                <View style={styles.ratingContainer}>
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <TouchableOpacity
+                      key={star}
+                      onPress={() => setRating(star)}
+                      onPressIn={() => setHoverRating(star)}
+                      onPressOut={() => setHoverRating(0)}>
+                      <Icon
+                        name={
+                          star <= (hoverRating || rating)
+                            ? 'star'
+                            : 'star-border'
+                        }
+                        size={36}
+                        color="#FFD700"
+                        style={styles.starIcon}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+
+                <AppText weight="Inter" style={styles.feedbackPrompt}>
+                  PLEASE SHARE YOUR INPUTS IF YOU THINK WE NEED TO DO SOMETHING
+                  BETTER
+                </AppText>
+
+                <TextInput
+                  style={styles.feedbackInput}
+                  multiline
+                  numberOfLines={5}
+                  maxLength={500}
+                  placeholder="Your valuable feedback here..."
+                  placeholderTextColor="#999"
+                  value={feedback}
+                  onChangeText={setFeedback}
+                />
+
+                <AppText weight="Inter" style={styles.charCount}>
+                  {feedback.length}/500 characters
+                </AppText>
+
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={handleSubmitFeedback}
+                  disabled={rating === 0}>
+                  <AppText weight="Inter" style={styles.submitButtonText}>
+                    SUBMIT FEEDBACK
+                  </AppText>
                 </TouchableOpacity>
-              ))}
-            </View>
-
-            <AppText weight="Inter" style={styles.feedbackPrompt}>
-              PLEASE SHARE YOUR INPUTS IF YOU THINK WE NEED TO DO SOMETHING
-              BETTER
-            </AppText>
-
-            <TextInput
-              style={styles.feedbackInput}
-              multiline
-              numberOfLines={5}
-              maxLength={500}
-              placeholder="Your valuable feedback here..."
-              placeholderTextColor="#999"
-              value={feedback}
-              onChangeText={setFeedback}
-            />
-
-            <AppText weight="Inter" style={styles.charCount}>
-              {feedback.length}/500 characters
-            </AppText>
-
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={handleSubmitFeedback}
-              disabled={rating === 0}>
-              <AppText weight="Inter" style={styles.submitButtonText}>
-                SUBMIT FEEDBACK
-              </AppText>
-            </TouchableOpacity>
-          </View>
-</>
-
-          )
-          : <></>
-}
-          
+              </View>
+            </>
+          ) : (
+            <></>
+          )}
 
           {/* Additional Sections */}
           <View style={styles.sectionCard}>
@@ -451,21 +461,20 @@ const UserAccount = () => {
             </AppText>
             <Icon name="exit-to-app" size={24} color="#000" />
           </TouchableOpacity> */}
-            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-              <AppText weight="Inter" style={styles.logoutButtonText}>
-                {!token ? 'LOGIN' : 'LOGOUT'} 
-              </AppText>
-              <Icon name="exit-to-app" size={24} color="#000" />
-            </TouchableOpacity>
-
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <AppText weight="Inter" style={styles.logoutButtonText}>
+              {!token ? 'LOGIN' : 'LOGOUT'}
+            </AppText>
+            <Icon name="exit-to-app" size={24} color="#000" />
+          </TouchableOpacity>
         </ScrollView>
         <PremiumLoginModal
-        visible={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        navigation={navigation}
-      />
-    </View>
-      </KeyboardAvoidingView>
+          visible={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          navigation={navigation}
+        />
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -12,12 +12,12 @@ import {
 import Video from 'react-native-video';
 import TopTabBar from '../../Dashboard/TopTabBar';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import AppText from '../../../../components/AppText';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import axios from 'axios';
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const WhiteVsColor = () => {
   const navigation = useNavigation();
@@ -31,8 +31,8 @@ const WhiteVsColor = () => {
     const fetchData = async () => {
       try {
         const [videoResponse, differenceResponse] = await Promise.all([
-          axios.get("http://192.168.1.40:9000/api/color/video"),
-          axios.get("http://192.168.1.40:9000/api/color/comparisons"),
+          axios.get('http://192.168.1.52:9000/api/color/video'),
+          axios.get('http://192.168.1.52:9000/api/color/comparisons'),
         ]);
 
         if (videoResponse.data.length > 0) {
@@ -40,8 +40,8 @@ const WhiteVsColor = () => {
         }
         setDifference(differenceResponse.data);
       } catch (err) {
-        console.error("Error fetching White vs Color Data:", err);
-        setError("Failed to load data. Please try again later.");
+        console.error('Error fetching White vs Color Data:', err);
+        setError('Failed to load data. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -49,19 +49,25 @@ const WhiteVsColor = () => {
     fetchData();
   }, []);
 
-  const renderRow = (type) => {
+  const renderRow = type => {
     const item = difference.find(d => d.type === type);
     if (!item) return null;
 
     return (
       <View>
-        <AppText weight="Inter" style={styles.category}>{type}</AppText>
+        <AppText weight="Inter" style={styles.category}>
+          {type}
+        </AppText>
         <View style={styles.tableRow}>
           <View style={styles.cell}>
-            <AppText weight="Inter" style={styles.description}>{item.white}</AppText>
+            <AppText weight="Inter" style={styles.description}>
+              {item.white}
+            </AppText>
           </View>
           <View style={styles.cell}>
-            <AppText weight="Inter" style={styles.description}>{item.lam}</AppText>
+            <AppText weight="Inter" style={styles.description}>
+              {item.lam}
+            </AppText>
           </View>
         </View>
       </View>
@@ -69,13 +75,12 @@ const WhiteVsColor = () => {
   };
 
   return (
-    <View style={{ paddingTop: insets.top, flex: 1, backgroundColor: 'white' }}>
+    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
       <View style={styles.container}>
         <View style={styles.Headercontainer}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
+            onPress={() => navigation.goBack()}>
             <Icon name="arrow-back" size={30} color="#000" />
           </TouchableOpacity>
 
@@ -89,20 +94,25 @@ const WhiteVsColor = () => {
         <TopTabBar />
 
         {loading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <ActivityIndicator size="large" color="#000" />
           </View>
         ) : error ? (
-          <View style={{ padding: 20 }}>
-            <Text style={{ color: 'red' }}>{error}</Text>
+          <View style={{padding: 20}}>
+            <Text style={{color: 'red'}}>{error}</Text>
           </View>
         ) : (
           <ScrollView contentContainerStyle={styles.scrollContent}>
             <View style={styles.header}>
-              <AppText weight="Inter" style={styles.headerTitle}>WHITE VS COLOR</AppText>
+              <AppText weight="Inter" style={styles.headerTitle}>
+                WHITE VS COLOR
+              </AppText>
               <View style={styles.videoContainer}>
                 <Video
-                  source={{ uri: `http://192.168.1.40:9000${video.src}` }}
+                  source={{
+                    uri: `http://192.168.1.52:9000${video.src}`,
+                  }}
                   style={styles.video}
                   resizeMode="cover"
                   repeat
@@ -112,12 +122,14 @@ const WhiteVsColor = () => {
                 />
               </View>
             </View>
-             {video?.sponsorLogo && (
+            {video?.sponsorLogo && (
               <View style={styles.premiumSponsorContainer}>
                 <View style={styles.premiumSponsorContent}>
                   <View style={styles.sponsorDivider} />
                   <Image
-                    source={{ uri: `http://192.168.1.40:9000/${video.sponsorLogo}` }}
+                    source={{
+                      uri: `http://192.168.1.52:9000/${video.sponsorLogo}`,
+                    }}
                     style={styles.premiumSponsorLogo}
                     resizeMode="contain"
                   />
@@ -133,27 +145,36 @@ const WhiteVsColor = () => {
 
             <View style={styles.tableContainer}>
               <View style={styles.tableHeader}>
-                <AppText weight="Inter" style={[styles.tableHeaderText, { textAlign: 'left' }]}>WHITE</AppText>
-                <AppText weight="Inter" style={[styles.tableHeaderText, { textAlign: 'right' }]}>LAMINATED</AppText>
+                <AppText
+                  weight="Inter"
+                  style={[styles.tableHeaderText, {textAlign: 'left'}]}>
+                  WHITE
+                </AppText>
+                <AppText
+                  weight="Inter"
+                  style={[styles.tableHeaderText, {textAlign: 'right'}]}>
+                  LAMINATED
+                </AppText>
               </View>
 
               {[
-                "APPEARANCE",
-                "COST",
-                "UV RESISTANCE & FADING",
-                "MAINTENANCE",
-                "HEAT RESISTANCE",
-                "SCRATCH VISIBILITY",
-                "AVAILABILITY"
+                'APPEARANCE',
+                'COST',
+                'UV RESISTANCE & FADING',
+                'MAINTENANCE',
+                'HEAT RESISTANCE',
+                'SCRATCH VISIBILITY',
+                'AVAILABILITY',
               ].map(type => renderRow(type))}
             </View>
 
             <View style={styles.buyNowContainer}>
               <TouchableOpacity
                 style={styles.buyNowButton}
-                onPress={() => navigation.navigate('BuyNowScreen')}
-              >
-                <AppText weight="Inter" style={styles.buyNowText}>BUY NOW</AppText>
+                onPress={() => navigation.navigate('BuyNowScreen')}>
+                <AppText weight="Inter" style={styles.buyNowText}>
+                  BUY NOW
+                </AppText>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -173,7 +194,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 10,
     top: '30%',
-    transform: [{ translateY: -12 }],
+    transform: [{translateY: -12}],
     padding: 5,
   },
   logoContainer: {
@@ -256,7 +277,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
@@ -265,7 +286,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 1,
   },
-    premiumSponsorContainer: {
+  premiumSponsorContainer: {
     width: '100%',
     paddingVertical: 20,
     backgroundColor: '#fff',

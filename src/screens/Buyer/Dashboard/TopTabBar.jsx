@@ -14,7 +14,6 @@ const TopTabBar = () => {
 
   return (
     // <View
-      
     //   // showsHorizontalScrollIndicator={false}
     //   // contentContainerStyle={styles.tabScrollContainer}
     //   style={styles.tabScrollContainer}

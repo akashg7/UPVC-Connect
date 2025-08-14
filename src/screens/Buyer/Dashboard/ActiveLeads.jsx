@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,19 +10,19 @@ import {
   Animated,
   ActivityIndicator,
   Linking,
-  Alert
+  Alert,
 } from 'react-native';
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../../components/AppText';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PremiumLoginModal from '../../../components/PremiumLoginModal';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 
-const { width } = Dimensions.get('window');
-const BASE_URL = 'http://192.168.1.40:9000';
+const {width} = Dimensions.get('window');
+const BASE_URL = 'http://192.168.1.52:9000';
 
 const LeadsHistory = () => {
   const [leadsData, setLeadsData] = useState([]);
@@ -44,7 +44,7 @@ const LeadsHistory = () => {
       try {
         const token = await AsyncStorage.getItem('buyerToken');
         if (!token) {
-          setShowLoginModal(true)
+          setShowLoginModal(true);
           // Alert.alert('Error', 'Please login to view leads');
           return;
         }
@@ -84,10 +84,10 @@ const LeadsHistory = () => {
     const isExpanding = expandedLead !== leadId;
 
     if (isExpanding) {
-      setCardLoading(prev => ({ ...prev, [leadId]: true }));
+      setCardLoading(prev => ({...prev, [leadId]: true}));
       setExpandedLead(leadId);
       setTimeout(() => {
-        setCardLoading(prev => ({ ...prev, [leadId]: false }));
+        setCardLoading(prev => ({...prev, [leadId]: false}));
       }, 600); // Simulate loading delay
     } else {
       setExpandedLead(null);
@@ -95,7 +95,7 @@ const LeadsHistory = () => {
     }
 
     if (!activeSellerIndices[leadId]) {
-      setActiveSellerIndices(prev => ({ ...prev, [leadId]: 0 }));
+      setActiveSellerIndices(prev => ({...prev, [leadId]: 0}));
     }
   };
 
@@ -103,7 +103,7 @@ const LeadsHistory = () => {
     videoRefs.current[videoId] = ref;
   };
 
-  const handleVideoPress = (videoId) => {
+  const handleVideoPress = videoId => {
     if (activeVideo === videoId) {
       // Pause if already active
       setActiveVideo(null);
@@ -116,15 +116,15 @@ const LeadsHistory = () => {
     }
   };
 
-  const handleCall = (phoneNumber) => {
+  const handleCall = phoneNumber => {
     Linking.openURL(`tel:${phoneNumber}`);
   };
 
-  const handleWhatsApp = (whatsappNumber) => {
+  const handleWhatsApp = whatsappNumber => {
     Linking.openURL(`whatsapp://send?phone=${whatsappNumber}`);
   };
 
-  const renderSellerItem = ({ item, leadId }) => {
+  const renderSellerItem = ({item, leadId}) => {
     const videoId = `${leadId}-${item.id}`;
     const isVideoActive = activeVideo === videoId;
 
@@ -136,50 +136,64 @@ const LeadsHistory = () => {
           </AppText>
         </View>
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.videoContainer}
           onPress={() => handleVideoPress(videoId)}
-          activeOpacity={0.9}
-        >
+          activeOpacity={0.9}>
           <Video
             ref={ref => handleVideoRef(ref, videoId)}
-            source={{ uri: item.video }}
+            source={{uri: item.video}}
             style={styles.video}
             resizeMode="cover"
-            paused={!isVideoActive} 
-            onError={(e) => console.error('Video error:', e.error)}
+            paused={!isVideoActive}
+            onError={e => console.error('Video error:', e.error)}
           />
           {!isVideoActive && (
             <View style={styles.videoPlaceholder}>
-              <Icon name="play-circle-filled" size={50} color="rgba(255,255,255,0.8)" />
+              <Icon
+                name="play-circle-filled"
+                size={50}
+                color="rgba(255,255,255,0.8)"
+              />
             </View>
           )}
         </TouchableOpacity>
         <View style={styles.sellerDetails}>
           <DetailRow icon="person" text={item.name} />
-          
-          <TouchableOpacity 
-            style={styles.detailRow} 
-            onPress={() => handleCall(item.contactNo)}
-          >
-            <Icon name="phone" size={18} color="#555" style={styles.detailIcon} />
+
+          <TouchableOpacity
+            style={styles.detailRow}
+            onPress={() => handleCall(item.contactNo)}>
+            <Icon
+              name="phone"
+              size={18}
+              color="#555"
+              style={styles.detailIcon}
+            />
             <AppText weight="Inter" style={styles.detailText}>
               {item.contactNo}
             </AppText>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.detailRow} 
-            onPress={() => handleWhatsApp(item.whatsapp)}
-          >
-            <Icon name="chat" size={18} color="#555" style={styles.detailIcon} />
+
+          <TouchableOpacity
+            style={styles.detailRow}
+            onPress={() => handleWhatsApp(item.whatsapp)}>
+            <Icon
+              name="chat"
+              size={18}
+              color="#555"
+              style={styles.detailIcon}
+            />
             <AppText weight="Inter" style={styles.detailText}>
               {item.whatsapp}
             </AppText>
           </TouchableOpacity>
-          
+
           <DetailRow icon="location-on" text={item.address} />
-          <DetailRow icon="business" text={`${item.yearsInBusiness} years in business`} />
+          <DetailRow
+            icon="business"
+            text={`${item.yearsInBusiness} years in business`}
+          />
           <DetailRow icon="build" text={`Capacity: ${item.manuCap}`} />
           <DetailRow icon="people" text={`Team: ${item.teamSize}`} />
 
@@ -210,18 +224,17 @@ const LeadsHistory = () => {
               Visiting Card
             </AppText>
             <Image
-              source={{ uri: item.visitingCard }}
+              source={{uri: item.visitingCard}}
               style={styles.visitingCard}
               resizeMode="contain"
             />
           </View>
         </View>
       </View>
-    )
-  }
+    );
+  };
 
-
-  const renderLeadCard = ({ item }) => {
+  const renderLeadCard = ({item}) => {
     const currentSellerIndex = activeSellerIndices[item.id] || 0;
     const hasMultipleSellers = item.sellers.length > 1;
 
@@ -261,100 +274,108 @@ const LeadsHistory = () => {
           </View>
         </TouchableOpacity>
 
-          {expandedLead === item.id && (
-            <View style={styles.sellersContainer}>
-              {cardLoading[item.id] ? (
-                <View style={{ paddingVertical: 30, alignItems: 'center' }}>
-                  <ActivityIndicator size="large" color="black" />
-                </View>
-              ) : item.sellers.length === 0 ? (
-                <View style={{ padding: 20, alignItems: 'center' }}>
-                  <Icon name="info" size={40} color="#ccc" />
-                  <AppText weight="Inter" style={{ fontSize: 14, color: '#777', marginTop: 10 }}>
-                    No seller responses yet. Please check back later!
-                  </AppText>
-                </View>
-              ) : (
-                <>
-                  {/* EXISTING FlatList + Dots code goes here */}
-                  <Animated.FlatList
-                    ref={ref => (flatListRefs.current[item.id] = ref)}
-                    data={item.sellers}
-                    renderItem={({ item: seller }) => renderSellerItem({ item: seller, leadId: item.id })}
-                    keyExtractor={seller => seller.id}
-                    horizontal
-                    pagingEnabled
-                    showsHorizontalScrollIndicator={false}
-                    scrollEventThrottle={16}
-                    onScroll={Animated.event(
-                      [{ nativeEvent: { contentOffset: { x: scrollX } }}],
-                      { useNativeDriver: false }
-                    )}
-                    onMomentumScrollEnd={e => {
-                      const newIndex = Math.round(e.nativeEvent.contentOffset.x / (width - 40));
-                      setActiveSellerIndices(prev => ({ ...prev, [item.id]: newIndex }));
-                      setActiveVideo(null);
-                    }}
-                    initialScrollIndex={currentSellerIndex}
-                    getItemLayout={(_, index) => ({
-                      length: width - 40,
-                      offset: (width - 40) * index,
-                      index,
-                    })}
-                  />
-                  {hasMultipleSellers && (
-                    <View style={styles.dotsContainer}>
-                      {item.sellers.map((_, index) => {
-                        const inputRange = [
-                          (index - 1) * (width - 40),
-                          index * (width - 40),
-                          (index + 1) * (width - 40),
-                        ];
-
-                        const scale = scrollX.interpolate({
-                          inputRange,
-                          outputRange: [0.8, 1.2, 0.8],
-                          extrapolate: 'clamp',
-                        });
-
-                        const opacity = scrollX.interpolate({
-                          inputRange,
-                          outputRange: [0.6, 1, 0.6],
-                          extrapolate: 'clamp',
-                        });
-
-                        return (
-                          <Animated.View
-                            key={index}
-                            style={[
-                              styles.dot,
-                              index === currentSellerIndex && styles.activeDot,
-                              { transform: [{ scale }], opacity },
-                            ]}
-                          />
-                        );
-                      })}
-                    </View>
+        {expandedLead === item.id && (
+          <View style={styles.sellersContainer}>
+            {cardLoading[item.id] ? (
+              <View style={{paddingVertical: 30, alignItems: 'center'}}>
+                <ActivityIndicator size="large" color="black" />
+              </View>
+            ) : item.sellers.length === 0 ? (
+              <View style={{padding: 20, alignItems: 'center'}}>
+                <Icon name="info" size={40} color="#ccc" />
+                <AppText
+                  weight="Inter"
+                  style={{fontSize: 14, color: '#777', marginTop: 10}}>
+                  No seller responses yet. Please check back later!
+                </AppText>
+              </View>
+            ) : (
+              <>
+                {/* EXISTING FlatList + Dots code goes here */}
+                <Animated.FlatList
+                  ref={ref => (flatListRefs.current[item.id] = ref)}
+                  data={item.sellers}
+                  renderItem={({item: seller}) =>
+                    renderSellerItem({item: seller, leadId: item.id})
+                  }
+                  keyExtractor={seller => seller.id}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  scrollEventThrottle={16}
+                  onScroll={Animated.event(
+                    [{nativeEvent: {contentOffset: {x: scrollX}}}],
+                    {useNativeDriver: false},
                   )}
-                </>
-              )}
-            </View>
-          )}
+                  onMomentumScrollEnd={e => {
+                    const newIndex = Math.round(
+                      e.nativeEvent.contentOffset.x / (width - 40),
+                    );
+                    setActiveSellerIndices(prev => ({
+                      ...prev,
+                      [item.id]: newIndex,
+                    }));
+                    setActiveVideo(null);
+                  }}
+                  initialScrollIndex={currentSellerIndex}
+                  getItemLayout={(_, index) => ({
+                    length: width - 40,
+                    offset: (width - 40) * index,
+                    index,
+                  })}
+                />
+                {hasMultipleSellers && (
+                  <View style={styles.dotsContainer}>
+                    {item.sellers.map((_, index) => {
+                      const inputRange = [
+                        (index - 1) * (width - 40),
+                        index * (width - 40),
+                        (index + 1) * (width - 40),
+                      ];
 
+                      const scale = scrollX.interpolate({
+                        inputRange,
+                        outputRange: [0.8, 1.2, 0.8],
+                        extrapolate: 'clamp',
+                      });
+
+                      const opacity = scrollX.interpolate({
+                        inputRange,
+                        outputRange: [0.6, 1, 0.6],
+                        extrapolate: 'clamp',
+                      });
+
+                      return (
+                        <Animated.View
+                          key={index}
+                          style={[
+                            styles.dot,
+                            index === currentSellerIndex && styles.activeDot,
+                            {transform: [{scale}], opacity},
+                          ]}
+                        />
+                      );
+                    })}
+                  </View>
+                )}
+              </>
+            )}
+          </View>
+        )}
       </View>
     );
   };
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
         <ActivityIndicator size="large" color="black" />
       </View>
     );
   }
 
   return (
-    <View style={{ paddingTop: insets.top, flex: 1, backgroundColor: 'white' }}>
+    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
       {/* Removed ScrollView wrapper since FlatList is scrollable by itself */}
       <View style={styles.container}>
         <Image
@@ -393,8 +414,8 @@ const LeadsHistory = () => {
     </View>
   );
 };
- 
-const DetailRow = ({ icon, text, onPress }) => (
+
+const DetailRow = ({icon, text, onPress}) => (
   <TouchableOpacity style={styles.detailRow} onPress={onPress}>
     <Icon name={icon} size={18} color="#555" style={styles.detailIcon} />
     <AppText weight="Inter" style={styles.detailText}>
@@ -408,8 +429,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-  logo: { 
-    alignSelf: 'center', 
+  logo: {
+    alignSelf: 'center',
     width: 100,
     height: 50,
     marginVertical: 10,
@@ -424,7 +445,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
@@ -500,7 +521,7 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     width: '100%',
-    height: width*1.3,
+    height: width * 1.3,
     borderRadius: 8,
     marginBottom: 15,
     backgroundColor: '#000',

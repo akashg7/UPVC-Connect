@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -15,9 +15,9 @@ import AppText from '../../components/AppText';
 import Toast from 'react-native-toast-message';
 import axios from 'axios';
 
-const {height} = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = ({ navigation }) => {
   const [mobileNumber, setMobileNumber] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -36,8 +36,8 @@ const LoginScreen = ({navigation}) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://192.168.1.40:9000/api/sellers/send-otp',
-        {phoneNumber: mobileNumber},
+        'http://192.168.1.52:9000/api/sellers/send-otp',
+        { phoneNumber: mobileNumber },
       );
 
       Toast.show({
@@ -79,7 +79,7 @@ const LoginScreen = ({navigation}) => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView
-        contentContainerStyle={[styles.scrollContainer, {minHeight: height}]}
+        contentContainerStyle={[styles.scrollContainer, { minHeight: height }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={styles.contentContainer}>

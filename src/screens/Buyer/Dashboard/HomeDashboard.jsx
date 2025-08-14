@@ -10,9 +10,20 @@ import Price from '../components/Price/Price';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import AppText from '../../../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Toast from 'react-native-toast-message';
 
 const HomeDashboard = ({navigation}) => {
   const [activeTab, setActiveTab] = useState(null);
+  const [location, setLocation] = useState(null);
+const [showLocationPrompt, setShowLocationPrompt] = useState(true);
+const topCities = [
+  'Delhi', 'Mumbai', 'Bangalore', 'Hyderabad', 'Ahmedabad',
+  'Chennai', 'Kolkata', 'Surat', 'Pune', 'Jaipur',
+  'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Bhopal',
+  'Patna', 'Vadodara', 'Ludhiana', 'Agra', 'Nashik',
+  'Faridabad', 'Meerut', 'Rajkot', 'Varanasi', 'Amritsar',
+];
+
   const handleNotification = () => {
     navigation.navigate('Notification');
   };
@@ -44,8 +55,157 @@ const HomeDashboard = ({navigation}) => {
     }
   };
   const insets = useSafeAreaInsets();
+
+//   const LocationPrompt = () => {
+//   return (
+//     <View style={styles.promptContainer}>
+//   <AppText style={styles.promptTitle}>Choose Your Location</AppText>
+
+//   <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+//     {topCities.map((city, index) => (
+//       <TouchableOpacity
+//         key={index}
+//         style={styles.cityButton}
+//         onPress={() => {
+//           setLocation(city);
+//           setShowLocationPrompt(false);
+//         }}>
+//         <AppText style={styles.cityText}>{city}</AppText>
+//       </TouchableOpacity>
+//     ))}
+//   </ScrollView>
+
+//   <TouchableOpacity
+//     style={styles.searchLocationBtn}
+//     onPress={() => navigation.navigate('LocationSelection')}>
+//     <AppText style={styles.searchLocationText}>Search Location</AppText>
+//   </TouchableOpacity>
+// </View>
+
+//   );
+// };
+
+
+const LocationPrompt = () => {
+  const handleSelectLocation = (city) => {
+    setLocation(city);
+    setShowLocationPrompt(false);
+    Toast.show({
+      type: 'success',
+      text1: 'Location Selected',
+      text2: `${city} has been set as your location.`,
+    });
+  };
+
   return (
-    <View style={{ paddingTop: insets.top, flex: 1, backgroundColor:"white" }}>
+    <View style={styles.promptContainer}>
+      <AppText style={styles.promptTitle}>Choose Your Location</AppText>
+
+      <View style={styles.cityWrap}>
+        {topCities.map((city, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.cityButton}
+            onPress={() => handleSelectLocation(city)}
+          >
+            <AppText style={styles.cityText}>{city}</AppText>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <TouchableOpacity
+        style={styles.searchLocationBtn}
+        onPress={() => navigation.navigate('LocationSelection')}>
+        <AppText style={styles.searchLocationText}>Search Location</AppText>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+
+  return (
+    // <View style={{ paddingTop: insets.top, flex: 1, backgroundColor:"white" }}>
+    //   <View style={styles.container}>
+    //     {showLocationPrompt && <LocationPrompt />}
+
+    //     {/* Header */}
+    //     <ScrollView>
+    //       <View style={styles.header}>
+    //         <MaterialIcons
+    //           name="location-on"
+    //           size={24}
+    //           color="black"
+    //           onPress={() => navigation.navigate('LocationSelection')}
+    //         />
+    //         <Image
+    //           source={require('../../../assets/logo.png')}
+    //           style={styles.logo}
+    //         />
+    //         <MaterialIcons
+    //           name="notifications-none"
+    //           size={24}
+    //           color="black"
+    //           onPress={handleNotification}
+    //         />
+    //       </View>
+
+    //       {/* Scrollable Tabs */}
+    //       <ScrollView
+    //         horizontal
+    //         showsHorizontalScrollIndicator={false}
+    //         contentContainerStyle={styles.tabScrollContainer}>
+    //         {tabs.map((tab, index) => (
+    //           <TouchableOpacity
+    //             key={index}
+    //             style={[
+    //               styles.tabButton,
+    //               activeTab === index && styles.activeTab,
+    //             ]}
+    //             // onPress={() => setActiveTab(index)}
+    //             onPress={() => {
+    //               switch (index) {
+    //                 case 0:
+    //                   navigation.navigate('PricesScreen');
+    //                   break;
+    //                 case 1:
+    //                   navigation.navigate('BuyNowScreen');
+    //                   break;
+    //                 case 2:
+    //                   navigation.navigate('WhiteVsColorsScreen');
+    //                   break;
+    //                 case 3:
+    //                   navigation.navigate('ProcessScreen');
+    //                   break;
+    //                 default:
+    //                   break;
+    //               }
+    //             }}
+    //             activeOpacity={0.7}>
+    //             <AppText weight="SemiBold"
+    //               style={[
+    //                 styles.tabText,
+    //                 activeTab === index && styles.activeTabText,
+    //               ]}>
+    //               {tab}
+    //             </AppText>
+    //           </TouchableOpacity>
+    //         ))}
+    //       </ScrollView>
+    //       <ScrollView
+    //         contentContainerStyle={styles.scrollContent}
+    //         showsVerticalScrollIndicator={false}>
+    //         {renderTabContent()}
+    //       </ScrollView>
+    //     </ScrollView>
+    //   </View>
+      
+    // </View>
+    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+    {location === null ? (
+      // Show only the location prompt
+      <LocationPrompt />
+    ) : (
+      // Show the full dashboard only after location is selected
       <View style={styles.container}>
         {/* Header */}
         <ScrollView>
@@ -80,7 +240,6 @@ const HomeDashboard = ({navigation}) => {
                   styles.tabButton,
                   activeTab === index && styles.activeTab,
                 ]}
-                // onPress={() => setActiveTab(index)}
                 onPress={() => {
                   switch (index) {
                     case 0:
@@ -100,7 +259,8 @@ const HomeDashboard = ({navigation}) => {
                   }
                 }}
                 activeOpacity={0.7}>
-                <AppText weight="SemiBold"
+                <AppText
+                  weight="SemiBold"
                   style={[
                     styles.tabText,
                     activeTab === index && styles.activeTabText,
@@ -110,6 +270,8 @@ const HomeDashboard = ({navigation}) => {
               </TouchableOpacity>
             ))}
           </ScrollView>
+
+          {/* Main Content */}
           <ScrollView
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}>
@@ -117,8 +279,8 @@ const HomeDashboard = ({navigation}) => {
           </ScrollView>
         </ScrollView>
       </View>
-    </View>
-
+    )}
+  </View>
   );
 };
 

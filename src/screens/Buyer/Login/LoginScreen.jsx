@@ -28,7 +28,7 @@ const LoginScreen = ({navigation}) => {
 
     try {
       const response = await axios.post(
-        'http://192.168.1.40:9000/api/auth/login',
+        'http://192.168.1.52:9000/api/auth/login',
         {
           name: userName,
           mobileNumber,
@@ -157,7 +157,7 @@ const LoginScreen = ({navigation}) => {
     </KeyboardAvoidingView>
   );
 };
- 
+
 const styles = StyleSheet.create({
   titleContainer: {
     alignItems: 'center',
@@ -178,10 +178,9 @@ const styles = StyleSheet.create({
   container: {
     // flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: 24, 
-    flexDirection:"column",
-    alignItems:"center",
-
+    paddingHorizontal: 24,
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   scrollContainer: {
     flexGrow: 1,
@@ -226,7 +225,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16, 
+    fontSize: 16,
   },
   skipButton: {
     backgroundColor: 'transparent',
@@ -238,7 +237,7 @@ const styles = StyleSheet.create({
   },
   skipButtonText: {
     color: '#000',
-    fontSize: 16, 
+    fontSize: 16,
   },
 });
 

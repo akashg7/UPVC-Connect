@@ -31,20 +31,20 @@ const SellerOTPVerification = ({ route, navigation }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://192.168.1.40:9000/api/sellers/verify-otp',
+        'http://192.168.1.52:9000/api/sellers/verify-otp',
         {
           phoneNumber: mobileNumber,
           otp: submittedOtp
         }
-      );     
+      );
 
       // im doing this becuase once seller is logged in buyer should be logged out
       await AsyncStorage.clear();
-      if(response.data.token){
-        
-        await AsyncStorage.setItem('sellerToken', response.data.token); 
+      if (response.data.token) {
+
+        await AsyncStorage.setItem('sellerToken', response.data.token);
       }
-      console.log("response.data.token otp verification : " , response?.data?.token)
+      console.log("response.data.token otp verification : ", response?.data?.token)
 
       Toast.show({
         type: 'success',
@@ -54,7 +54,7 @@ const SellerOTPVerification = ({ route, navigation }) => {
         visibilityTime: 4000,
         onHide: () => {
           if (response.data.isNewUser) {
-            navigation.replace('WelcomeProfileSetup' , {mobileNumber});
+            navigation.replace('WelcomeProfileSetup', { mobileNumber });
           } else {
             navigation.replace('SellerMain');
           }
@@ -77,11 +77,11 @@ const SellerOTPVerification = ({ route, navigation }) => {
 
   const resendOtp = async () => {
     if (!canResend) return;
-    
+
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://192.168.1.40:9000/api/sellers/send-otp',
+        'http://192.168.1.52:9000/api/sellers/send-otp',
         { phoneNumber: mobileNumber }
       );
 
@@ -118,27 +118,27 @@ const SellerOTPVerification = ({ route, navigation }) => {
     <View style={styles.container}>
       {loading && (
         <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="black" /> 
+          <ActivityIndicator size="large" color="black" />
         </View>
       )}
-      
+
       <View style={loading ? styles.contentBlurred : styles.contentNormal}>
         <AppText weight='Inter' style={styles.title}>Verification code</AppText>
         <AppText weight='Inter' style={styles.subTitle1}>
-          Enter the 4-digit code sent to 
-        </AppText> 
+          Enter the 4-digit code sent to
+        </AppText>
         <AppText weight='Inter' style={styles.subTitle}>
 
           {formattedPhone}
         </AppText>
 
         <OtpInput
-          numberOfDigits={4} 
+          numberOfDigits={4}
           focusColor="black"
           onTextChange={(text) => setOtp(text)}
           onFilled={(text) => {
             setOtp(text);
-            handleVerify(text); 
+            handleVerify(text);
           }}
           theme={{
             containerStyle: styles.otpContainer,
@@ -153,13 +153,13 @@ const SellerOTPVerification = ({ route, navigation }) => {
           disabled={loading}
         />
 
-        <ResendTimer 
-          duration={30} 
+        <ResendTimer
+          duration={30}
           onResend={() => setCanResend(true)}
           style={styles.resendTimer}
         />
 
-        <PrimaryButton 
+        <PrimaryButton
           title="Resend OTP"
           onPress={resendOtp}
           style={[

@@ -72,7 +72,7 @@
 //               We generate qualified leads and share with select fabricators.
 //             </AppText> 
 //           </View>
-          
+
 //           <View style={styles.sectionCard}>
 //             <AppText weight='Inter' style={styles.sectionTitle}>DO THIS RIGHT AWAY!</AppText>
 //             <AppText weight='Inter' style={styles.sectionDescription}>
@@ -140,7 +140,7 @@
 //   );
 // };
 
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -157,9 +157,9 @@ import AppText from '../../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const SellerHome = () => {
   const insets = useSafeAreaInsets();
@@ -194,15 +194,15 @@ const SellerHome = () => {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return;
 
-      const response = await axios.get('http://192.168.1.40:9000/api/sellers', {
+      const response = await axios.get('http://192.168.1.52:9000/api/sellers', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log("response data : " , response.data)
+      console.log("response data : ", response.data)
       if (response.data.success && response.data.seller.businessProfileVideo) {
         setHasVideo(true);
-        setVideoUri(`http://192.168.1.40:9000${response.data.seller.businessProfileVideo}`);
+        setVideoUri(`http://192.168.1.52:9000${response.data.seller.businessProfileVideo}`);
       }
     } catch (error) {
       console.error('Error checking existing video:', error);
@@ -250,11 +250,11 @@ const SellerHome = () => {
       const token = await AsyncStorage.getItem('sellerToken');
       // if (!token) {
       //   throw new Error('Please Login');
-        if (!token) {
-          Alert.alert('Please Login');
-          return;
-        } 
-      console.log("selectedVideo.fileName : " , selectedVideo)
+      if (!token) {
+        Alert.alert('Please Login');
+        return;
+      }
+      console.log("selectedVideo.fileName : ", selectedVideo)
       const formData = new FormData();
       formData.append('businessProfileVideo', {
         uri: selectedVideo.uri,
@@ -263,7 +263,7 @@ const SellerHome = () => {
       });
 
       const response = await axios.post(
-        'http://192.168.1.40:9000/api/sellers/business-video',
+        'http://192.168.1.52:9000/api/sellers/business-video',
         formData,
         {
           headers: {
@@ -272,10 +272,10 @@ const SellerHome = () => {
           },
         }
       );
-      console.log("response.data : " , response.data)
+      console.log("response.data : ", response.data)
       if (response.data.success) {
         setHasVideo(true);
-        setVideoUri(`http://192.168.1.40:9000${response.data.videoUrl}`);
+        setVideoUri(`http://192.168.1.52:9000${response.data.videoUrl}`);
         Alert.alert('Success', 'Video uploaded successfully!');
       } else {
         throw new Error(response.data.message || 'Failed to upload video');
@@ -289,11 +289,11 @@ const SellerHome = () => {
   };
 
   return (
-    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+    <View style={{ paddingTop: insets.top, flex: 1, backgroundColor: 'white' }}>
       <Animated.View
         style={[
           styles.container,
-          {opacity: fadeAnim, transform: [{scale: scaleAnim}]},
+          { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
         ]}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           {/* Header Section */}
@@ -301,9 +301,9 @@ const SellerHome = () => {
           <View style={styles.headerCard}>
             <AppText weight='Inter' style={styles.headerTitle}>
               We generate qualified leads and share with select fabricators.
-            </AppText> 
+            </AppText>
           </View>
-          
+
           <View style={styles.sectionCard}>
             <AppText weight='Inter' style={styles.sectionTitle}>DO THIS RIGHT AWAY!</AppText>
             <AppText weight='Inter' style={styles.sectionDescription}>
@@ -321,7 +321,7 @@ const SellerHome = () => {
                 onPress={handleVideoPress}
                 activeOpacity={0.9}>
                 <Video
-                  source={{uri: videoUri}}
+                  source={{ uri: videoUri }}
                   style={styles.videoPlayer}
                   paused={!isPlaying}
                   resizeMode="cover"
@@ -345,7 +345,7 @@ const SellerHome = () => {
                 onPress={handleUpload}
                 disabled={isUploading}>
                 <Image
-                  source={{uri: videoThumbnail}}
+                  source={{ uri: videoThumbnail }}
                   style={styles.thumbnailImage}
                 />
                 <View style={styles.uploadOverlay}>
@@ -378,30 +378,30 @@ const SellerHome = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff', 
+    backgroundColor: '#fff',
   },
   scrollContainer: {
     paddingBottom: 50,
   },
-  logo: { 
+  logo: {
     alignSelf: 'center',
     width: 100,
     height: 50,
     resizeMode: 'contain',
   },
-  headerCard: { 
+  headerCard: {
     padding: 20,
-    paddingTop: 0, 
+    paddingTop: 0,
     borderRadius: 12,
   },
   headerTitle: {
-    fontSize: 18, 
+    fontSize: 18,
     color: '#000',
-    lineHeight: 28, 
-    textAlign:"center"
+    lineHeight: 28,
+    textAlign: "center"
   },
-  videoContainer: { 
-    borderRadius: 12, 
+  videoContainer: {
+    borderRadius: 12,
     marginBottom: 16,
     backgroundColor: '#000',
     justifyContent: 'center',
@@ -424,7 +424,7 @@ const styles = StyleSheet.create({
   videoLabel: {
     color: '#fff',
     fontSize: 14,
-    marginTop: 10, 
+    marginTop: 10,
   },
   videoBadge: {
     position: 'absolute',
@@ -438,7 +438,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   videoBadgeText: {
-    fontSize: 12, 
+    fontSize: 12,
     color: '#000',
     marginLeft: 4,
   },
@@ -465,7 +465,7 @@ const styles = StyleSheet.create({
   uploadText: {
     color: 'black',
     fontSize: 16,
-    marginTop: 12, 
+    marginTop: 12,
   },
   buttonGroup: {
     flexDirection: 'row',
@@ -479,10 +479,10 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     marginHorizontal: 4,
-  }, 
+  },
   buttonText: {
     color: '#fff',
-    fontSize: 14, 
+    fontSize: 14,
     marginLeft: 8,
     letterSpacing: 0.5,
   },
@@ -492,29 +492,29 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
-    elevation: 3, 
+    elevation: 3,
   },
-  sectionCard2: { 
+  sectionCard2: {
     margin: 16,
     padding: 5,
-    borderRadius: 16, 
-    marginBottom:50,
+    borderRadius: 16,
+    marginBottom: 50,
   },
   sectionTitle: {
-    fontSize: 16, 
+    fontSize: 16,
     color: '#111',
     marginBottom: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-    textAlign:"center"
+    textAlign: "center"
   },
   sectionDescription: {
     fontSize: 14,
     color: '#444',
-    lineHeight: 22, 
+    lineHeight: 22,
   },
   uploadButton: {
     backgroundColor: '#000',

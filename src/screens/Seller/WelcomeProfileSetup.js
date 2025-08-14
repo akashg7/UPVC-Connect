@@ -60,7 +60,7 @@
 //       'companyName', 'address', 'city', 'yearsInBusiness', 'pinCode',
 //       'email', 'gstNumber', 'contactPerson', 'contactNumber', 'brandOfProfileUsed'
 //     ];
-    
+
 //     for (const field of requiredFields) {
 //       if (!formData[field]) {
 //         return `Please fill ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`;
@@ -93,7 +93,7 @@
 
 //     try {
 //       const formDataToSend = new FormData();
-      
+
 //       // Add all text fields
 //       Object.keys(formData).forEach(key => {
 //         if (key !== 'gstCertificate' && key !== 'visitingCard' && key !== 'businessProfileVideo') {
@@ -110,7 +110,7 @@
 //         });
 //       }
 //       console.log("doc verified")
-      
+
 //       if (formData.visitingCard) {
 //         formDataToSend.append('visitingCard', {
 //           uri: formData.visitingCard.uri,
@@ -128,7 +128,7 @@
 //         });
 //       }
 //       console.log("formDataToSend : " , formDataToSend)
-//       const response = await axios.post('http://192.168.1.40:9000/api/sellers/register', formDataToSend, {
+//       const response = await axios.post('http://192.168.1.52:9000/api/sellers/register', formDataToSend, {
 //         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },
@@ -175,13 +175,13 @@
 //             value={formData.companyName} 
 //             onChange={(val) => handleChange('companyName', val)}
 //           />
-          
+
 //           <Input 
 //             label="Address*" 
 //             value={formData.address} 
 //             onChange={(val) => handleChange('address', val)}
 //           />
-          
+
 //           <View style={styles.row}>
 //             <Input 
 //               label="City*" 
@@ -199,7 +199,7 @@
 //               style={{ flex: 1, marginLeft: 10 }}
 //             />
 //           </View>
-          
+
 //           <Input 
 //             label="Years in Business*" 
 //             value={formData.yearsInBusiness} 
@@ -215,26 +215,26 @@
 //             onChange={(val) => handleChange('email', val)}
 //             keyboardType="email-address" 
 //           />
-          
+
 //           <Input 
 //             label="Website" 
 //             value={formData.website} 
 //             onChange={(val) => handleChange('website', val)}
 //             keyboardType="url" 
 //           />
-          
+
 //           <Input 
 //             label="GST Number*" 
 //             value={formData.gstNumber} 
 //             onChange={(val) => handleChange('gstNumber', val)}
 //           />
-          
+
 //           <Input 
 //             label="Contact Person*" 
 //             value={formData.contactPerson} 
 //             onChange={(val) => handleChange('contactPerson', val)}
 //           />
-          
+
 //           <Input 
 //             label="Contact Number*" 
 //             value={formData.contactNumber} 
@@ -426,10 +426,10 @@ const WelcomeProfileSetup = ({ navigation }) => {
 
   const pickDocument = async (field, fileType) => {
     try {
-      const [res] = await pick({ 
-        types: fileType === 'image' ? [types.images] : 
-               fileType === 'video' ? [types.video] : [types.pdf, types.images],
-        allowMultiSelection: false 
+      const [res] = await pick({
+        types: fileType === 'image' ? [types.images] :
+          fileType === 'video' ? [types.video] : [types.pdf, types.images],
+        allowMultiSelection: false
       });
       handleChange(field, res);
     } catch (err) {
@@ -442,7 +442,7 @@ const WelcomeProfileSetup = ({ navigation }) => {
       'companyName', 'address', 'city', 'yearsInBusiness', 'pinCode',
       'email', 'gstNumber', 'contactPerson', 'phoneNumber', 'brandOfProfileUsed'
     ];
-    
+
     for (const field of requiredFields) {
       if (!formData[field]) {
         return `Please fill ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`;
@@ -475,7 +475,7 @@ const WelcomeProfileSetup = ({ navigation }) => {
 
     try {
       const formDataToSend = new FormData();
-      console.log("formData : " , formData)
+      console.log("formData : ", formData)
       // Add all text fields
       Object.keys(formData).forEach(key => {
         if (key !== 'gstCertificate' && key !== 'visitingCard' && key !== 'businessProfileVideo') {
@@ -486,13 +486,13 @@ const WelcomeProfileSetup = ({ navigation }) => {
       // Helper function to append files
       const appendFile = (fieldName, file) => {
         if (file) {
-          const fileType = file.mimeType || 
-                         (fieldName.includes('video') ? 'video/mp4' : 
-                          fieldName.includes('image') ? 'image/jpeg' : 'application/pdf');
-          const fileName = file.name || 
-                          (fieldName.includes('video') ? 'businessProfileVideo.mp4' : 
-                           fieldName.includes('image') ? 'visitingCard.jpg' : 'gstCertificate.pdf');
-          
+          const fileType = file.mimeType ||
+            (fieldName.includes('video') ? 'video/mp4' :
+              fieldName.includes('image') ? 'image/jpeg' : 'application/pdf');
+          const fileName = file.name ||
+            (fieldName.includes('video') ? 'businessProfileVideo.mp4' :
+              fieldName.includes('image') ? 'visitingCard.jpg' : 'gstCertificate.pdf');
+
           formDataToSend.append(fieldName, {
             uri: file.uri,
             type: fileType,
@@ -508,7 +508,7 @@ const WelcomeProfileSetup = ({ navigation }) => {
 
       console.log('Submitting form data:', formDataToSend);
 
-      const response = await axios.post('http://192.168.1.40:9000/api/sellers/register', formDataToSend, {
+      const response = await axios.post('http://192.168.1.52:9000/api/sellers/register', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -519,8 +519,8 @@ const WelcomeProfileSetup = ({ navigation }) => {
 
       if (response.data.success) {
         await AsyncStorage.clear();
-        await AsyncStorage.setItem('sellerToken', response.data.token); 
-        console.log("response.data.token welcome : " , response.data.token)
+        await AsyncStorage.setItem('sellerToken', response.data.token);
+        console.log("response.data.token welcome : ", response.data.token)
         navigation.replace('SellerMain', {
           screen: 'LeadDetails',
           params: { sellerData: response.data.seller }
@@ -542,93 +542,108 @@ const WelcomeProfileSetup = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.logoWrap}>
-          <Image 
-            source={require('../../assets/logo.png')} 
-            style={styles.logo} 
-            resizeMode="contain" 
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
           />
         </View>
 
         <View style={styles.form}>
           {/* Business Info */}
           <AppText weight='Inter' style={styles.header}>BUSINESS INFORMATION</AppText>
-          <Input 
-            label="Company Name*" 
-            value={formData.companyName} 
+          <Input
+            label="Company Name*"
+            value={formData.companyName}
             onChange={(val) => handleChange('companyName', val)}
           />
-          
-          <Input 
-            label="Address*" 
-            value={formData.address} 
+
+          <Input
+            label="Address*"
+            value={formData.address}
             onChange={(val) => handleChange('address', val)}
           />
-          
-            <Input 
-              label="City*" 
-              value={formData.city} 
-              onChange={(val) => handleChange('city', val)}
-              // style={{ flex: 1 }}
-            />
-            <Input 
-              label="PIN Code*" 
-              value={formData.pinCode} 
-              onChange={(val) => handleChange('pinCode', val)}
-              placeholder="6-digit" 
-              keyboardType="number-pad" 
-              maxLength={6} 
-              // style={{ flex: 1, marginLeft: 10 }}
-            />
+
+          <Input
+            label="City*"
+            value={formData.city}
+            onChange={(val) => handleChange('city', val)}
+          // style={{ flex: 1 }}
+          />
+          <Input
+            label="PIN Code*"
+            value={formData.pinCode}
+            onChange={(val) => handleChange('pinCode', val)}
+            placeholder="6-digit"
+            keyboardType="number-pad"
+            maxLength={6}
+          // style={{ flex: 1, marginLeft: 10 }}
+          />
           {/* <View style={styles.row}>
           </View> */}
-          
-          <Input 
-            label="Years in Business*" 
-            value={formData.yearsInBusiness} 
+
+          <Input
+            label="Years in Business*"
+            value={formData.yearsInBusiness}
             onChange={(val) => handleChange('yearsInBusiness', val)}
-            keyboardType="numeric" 
+            keyboardType="numeric"
           />
 
           {/* Contact Info */}
           <AppText weight='Inter' style={styles.header}>CONTACT INFORMATION</AppText>
-          <Input 
-            label="Email*" 
-            value={formData.email} 
+          <Input
+            label="Email*"
+            value={formData.email}
             onChange={(val) => handleChange('email', val)}
-            keyboardType="email-address" 
+            keyboardType="email-address"
           />
-          
-          <Input 
-            label="Website" 
-            value={formData.website} 
+
+          <Input
+            label="Website"
+            value={formData.website}
             onChange={(val) => handleChange('website', val)}
-            keyboardType="url" 
+            keyboardType="url"
           />
-          
-          <Input 
-            label="GST Number*" 
-            value={formData.gstNumber} 
+
+          {/* <Input
+            label="GST Number*"
+            value={formData.gstNumber}
             onChange={(val) => handleChange('gstNumber', val)}
+          /> */}
+
+          <Input
+            label="GST Number*"
+            value={formData.gstNumber}
+            onChangeText={(val) => {
+              // Allow only alphanumeric characters (letters and numbers)
+              const cleanedValue = val.replace(/[^a-zA-Z0-9]/g, '');
+              if (cleanedValue.length <= 15) {
+                handleChange('gstNumber', cleanedValue);
+              }
+            }}
+            keyboardType="default" // Default keyboard to allow letters & numbers
+            maxLength={15}
           />
-          
-          <Input 
-            label="Contact Person*" 
-            value={formData.contactPerson} 
+
+
+          <Input
+            label="Contact Person*"
+            value={formData.contactPerson}
             onChange={(val) => handleChange('contactPerson', val)}
           />
-          
-          <Input 
-            label="Contact Number*" 
-            value={formData.phoneNumber} 
+
+          <Input
+            label="Contact Number*"
+            value={formData.phoneNumber}
             onChange={(val) => handleChange('phoneNumber', val)}
-            keyboardType="phone-pad" 
-            maxLength={10} 
+            keyboardType="phone-pad"
+            maxLength={10}
           />
 
           {/* Document Uploads */}
@@ -679,8 +694,8 @@ const WelcomeProfileSetup = ({ navigation }) => {
             Icon={() => <Icon name="arrow-drop-down" size={24} color="#000" />}
           />
 
-          <TouchableOpacity 
-            style={[styles.submit, loading && styles.submitDisabled]} 
+          <TouchableOpacity
+            style={[styles.submit, loading && styles.submitDisabled]}
             onPress={handleSubmit}
             disabled={loading}
           >
@@ -699,11 +714,11 @@ const WelcomeProfileSetup = ({ navigation }) => {
 const Input = ({ label, value, onChange, ...props }) => (
   <View style={styles.inputGroup}>
     <AppText weight='Inter' style={styles.label}>{label}</AppText>
-    <TextInput 
-      style={styles.input} 
-      value={value} 
+    <TextInput
+      style={styles.input}
+      value={value}
       onChangeText={onChange}
-      {...props} 
+      {...props}
     />
   </View>
 );
@@ -730,33 +745,33 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between' },
   inputGroup: { marginBottom: 16 },
   label: { fontSize: 12, color: '#333', marginBottom: 6 },
-  input: { 
-    borderWidth: 1, 
-    borderColor: '#ddd', 
-    borderRadius: 8, 
-    padding: 14, 
-    fontSize: 14, 
-    color: '#000', 
-    backgroundColor: '#f9f9f9' 
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 14,
+    fontSize: 14,
+    color: '#000',
+    backgroundColor: '#f9f9f9'
   },
   uploadGroup: { marginBottom: 16 },
-  uploadBtn: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    padding: 12, 
-    borderWidth: 1, 
-    borderColor: '#000', 
-    borderRadius: 8 
+  uploadBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 8
   },
   uploadText: { marginLeft: 8, fontSize: 14, color: '#000' },
-  pickerInput: { 
-    fontSize: 14, 
-    padding: 14, 
-    borderWidth: 1, 
-    borderColor: '#ddd', 
-    borderRadius: 8, 
-    color: '#000', 
-    backgroundColor: '#f9f9f9' 
+  pickerInput: {
+    fontSize: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    color: '#000',
+    backgroundColor: '#f9f9f9'
   },
   pickerIcon: { top: 20, right: 12 },
   videoHint: {
@@ -766,24 +781,24 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic'
   },
-  submit: { 
-    backgroundColor: '#000', 
-    padding: 18, 
-    borderRadius: 8, 
-    flexDirection: 'row', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
+  submit: {
+    backgroundColor: '#000',
+    padding: 18,
+    borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 30,
     marginBottom: 20
   },
   submitDisabled: {
     opacity: 0.7
   },
-  submitText: { 
-    color: '#fff', 
-    fontSize: 14,  
-    marginRight: 10, 
-    letterSpacing: 2 
+  submitText: {
+    color: '#fff',
+    fontSize: 14,
+    marginRight: 10,
+    letterSpacing: 2
   },
 });
 

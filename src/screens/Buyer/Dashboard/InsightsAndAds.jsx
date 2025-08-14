@@ -33,18 +33,18 @@ const MarketInsights = ({navigation}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         const token = await AsyncStorage.getItem('buyerToken');
         if (token) {
           setBuyerId(token);
         }
         const categoryresponse = await axios.get(
-          'http://192.168.1.40:9000/api/categories',
+          'http://192.168.1.52:9000/api/categories',
         );
         setCategories(categoryresponse?.data);
-        setLoading(false)
+        setLoading(false);
       } catch (err) {
-        setError(err.message)
+        setError(err.message);
         console.error('Error fetching categories:', err);
       }
     };
@@ -61,11 +61,11 @@ const MarketInsights = ({navigation}) => {
     })),
   ];
 
-  const handleCategorySelect = async (category) => {
+  const handleCategorySelect = async category => {
     const token = await AsyncStorage.getItem('buyerToken');
-    
+
     if (!token) {
-      setShowLoginModal(true)
+      setShowLoginModal(true);
       // Alert.alert('Login Required', 'Please login to Select a Category');
       // setShowQuoteForm(false);
       return;
@@ -125,7 +125,9 @@ const MarketInsights = ({navigation}) => {
             </AppText>
             <View style={styles.videoContainer}>
               <Video
-                source={{uri: `http://192.168.1.40:9000${category.videoUrl}`}}
+                source={{
+                  uri: `http://192.168.1.52:9000${category.videoUrl}`,
+                }}
                 style={styles.video}
                 resizeMode="cover"
                 controls={true}
@@ -149,7 +151,7 @@ const MarketInsights = ({navigation}) => {
 
   const insets = useSafeAreaInsets();
 
-    if (loading) {
+  if (loading) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="black" />
@@ -160,7 +162,9 @@ const MarketInsights = ({navigation}) => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <AppText style={styles.errorText}>Error loading window options: {error}</AppText>
+        <AppText style={styles.errorText}>
+          Error loading window options: {error}
+        </AppText>
       </View>
     );
   }
@@ -271,7 +275,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 15,
-    paddingHorizontal:5,
+    paddingHorizontal: 5,
   },
   titleContainer: {
     flex: 1,
@@ -294,7 +298,7 @@ const styles = StyleSheet.create({
     color: '#555',
     lineHeight: 22,
     marginBottom: 20,
-    paddingHorizontal:5,
+    paddingHorizontal: 5,
   },
   divider: {
     height: 1,

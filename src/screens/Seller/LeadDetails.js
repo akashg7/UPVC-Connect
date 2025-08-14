@@ -46,7 +46,7 @@
 //     const fetchQuota = async () => {
 //       try {
 //         const token = await AsyncStorage.getItem('sellerToken');
-//         const response = await axios.get('http://192.168.1.40:9000/api/seller/quota', {
+//         const response = await axios.get('http://192.168.1.52:9000/api/seller/quota', {
 //           headers: { Authorization: `Bearer ${token}` }
 //         });
 //         setRemainingQuota(response.data.remainingQuota);
@@ -59,7 +59,7 @@
 
 //   const fetchLeads = async () => {
 //     try {
-//       const response = await axios.get('http://192.168.1.40:9000/api/seller/lead');
+//       const response = await axios.get('http://192.168.1.52:9000/api/seller/lead');
 //       if (response.data.success) {
 //         const formattedLeads = response.data.leads.map(lead => ({
 //           id: lead._id,
@@ -109,7 +109,7 @@
 //   const clearFilter = () => {
 //     setSelectedDate(null);
 //   };
- 
+
 //   const renderSlotIndicator = lead => { 
 //     const totalSlots = 6;
 //     const slotsLeft = lead.slotsLeft;
@@ -176,7 +176,7 @@
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token) return;
 //       console.log("token : " , token)
-//       const response = await axios.get('http://192.168.1.40:9000/api/sellers', {
+//       const response = await axios.get('http://192.168.1.52:9000/api/sellers', {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //         },
@@ -190,7 +190,7 @@
 //       console.error('Error checking existing video:', error);
 //     }
 //   };
- 
+
 //   const handleBuyLead = async (lead) => {
 //     const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token) {
@@ -203,10 +203,10 @@
 //     if (!hasVideo) {
 //       setShowPremiumPopup(true);
 //     } else {
-//         const quotaCheck = await axios.get(`http://192.168.1.40:9000/api/seller/lead-quota-check/${lead.id}`, {
+//         const quotaCheck = await axios.get(`http://192.168.1.52:9000/api/seller/lead-quota-check/${lead.id}`, {
 //         headers: { Authorization: `Bearer ${token}` }
 //       });
-      
+
 //       if (remainingQuota > 0 && !quotaCheck.data.alreadyUsed) {
 //         setShowQuotaModal(true);
 //       }else {
@@ -221,7 +221,7 @@
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token || !currentLead) return; 
 //       const response = await axios.post(
-//         'http://192.168.1.40:9000/api/seller/lead/purchase',
+//         'http://192.168.1.52:9000/api/seller/lead/purchase',
 //         {
 //           leadId: currentLead.rawData._id, 
 //           slotsToBuy
@@ -276,7 +276,7 @@
 //           <AppText weight="Inter" style={styles.popupSubtitle}>
 //             You have {remainingQuota} sqft remaining this month
 //           </AppText>
-          
+
 //           <View style={styles.quotaOption}>
 //             <Switch
 //               value={useFreeQuota}
@@ -307,14 +307,14 @@
 //   const renderSlotOption = (num) => {
 //     const basePrice = currentLead.rawData.dynamicSlotPrice * num;
 //     let discount = 0;
-    
+
 //     if (useFreeQuota && num === 1) {
 //       const maxDiscount = Math.min(100 * currentLead.rawData.basePricePerSqft, basePrice);
 //       discount = maxDiscount;
 //     }
-    
+
 //     const actualPrice = basePrice - discount;
-    
+
 //     return (
 //       <TouchableOpacity
 //         key={num}
@@ -361,7 +361,7 @@
 //               customer sees your work and you
 //             </AppText>
 //           </View>
- 
+
 //           <View style={styles.popupButtons}>
 //             <TouchableOpacity
 //               style={[styles.popupButton, styles.primaryButton]}
@@ -619,7 +619,7 @@
 //                   </TouchableOpacity>
 //                 </View>
 //                 <AppText weight='Inter' style={styles.popupSubtitle}>Choose how many slots you want to buy:</AppText>
-                
+
 //                 {[1, 2, 3, 4, 5, 6].map(num => {
 //                   const price = 1042 * num;
 //                   const disabled = num > currentLead?.slotsLeft;
@@ -665,7 +665,7 @@ import Toast from 'react-native-toast-message';
 import AppText from '../../components/AppText';
 import PremiumLoginModal from '../../components/PremiumLoginModal';
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const LeadDetails = ({ navigation }) => {
   const insets = useSafeAreaInsets();
@@ -683,6 +683,7 @@ const LeadDetails = ({ navigation }) => {
   const [useFreeQuota, setUseFreeQuota] = useState(false);
   const [showQuotaModal, setShowQuotaModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [freeSqftToUse, setFreeSqftToUse] = useState(0);
 
   // console.log("remainingQuota : " , remainingQuota)
   // Fetch seller quota when component loads
@@ -690,8 +691,8 @@ const LeadDetails = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return;
-      
-      const response = await axios.get('http://192.168.1.40:9000/api/seller/lead/quota', {
+
+      const response = await axios.get('http://192.168.1.52:9000/api/seller/lead/quota', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRemainingQuota(response.data.remainingQuota);
@@ -713,10 +714,10 @@ const LeadDetails = ({ navigation }) => {
     try {
       // const token = await AsyncStorage.getItem('sellerToken');
       // if (!token) return;
-      
-      const response = await axios.get('http://192.168.1.40:9000/api/seller/lead')
-        // {headers: { Authorization: `Bearer ${token}` }});
-      
+
+      const response = await axios.get('http://192.168.1.52:9000/api/seller/lead')
+      // {headers: { Authorization: `Bearer ${token}` }});
+
       if (response.data.success) {
         const formattedLeads = response.data.leads.map(lead => ({
           id: lead._id,
@@ -728,7 +729,7 @@ const LeadDetails = ({ navigation }) => {
           date: format(new Date(lead.createdAt), 'yyyy-MM-dd'),
           specs: lead.quotes.map(q => q.product?.title).join(', '),
           slotsLeft: lead.availableSlots,
-          slotOccupants: lead?.seller?.map(s => ({ 
+          slotOccupants: lead?.seller?.map(s => ({
             id: s.sellerId?._id,
             name: s.sellerId?.companyName,
             brand: s.sellerId?.brandOfProfileUsed
@@ -768,7 +769,8 @@ const LeadDetails = ({ navigation }) => {
   const clearFilter = () => setSelectedDate(null);
 
   const renderSlotIndicator = lead => {
-    const totalSlots = lead.rawData.maxSlots || 6;
+    // const totalSlots = lead.rawData.maxSlots || 6;
+    const totalSlots = 6;
     const slotsLeft = lead.slotsLeft;
     const slotsTaken = totalSlots - slotsLeft;
     const slotWidth = (width - 160) / totalSlots;
@@ -777,7 +779,7 @@ const LeadDetails = ({ navigation }) => {
       <View style={styles.slotContainer}>
         <View style={styles.slotHeader}>
           <AppText weight="Inter" style={styles.slotText}>
-            {slotsLeft} SLOTS LEFT ({slotsTaken}/{totalSlots})
+            {slotsLeft} SLOTS LEFT ({slotsTaken}/6)
           </AppText>
           {slotsTaken > 0 && (
             <TouchableOpacity
@@ -832,8 +834,8 @@ const LeadDetails = ({ navigation }) => {
     try {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return false;
-      
-      const response = await axios.get('http://192.168.1.40:9000/api/sellers', {
+
+      const response = await axios.get('http://192.168.1.52:9000/api/sellers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data.success && response.data.seller.businessProfileVideo;
@@ -854,7 +856,7 @@ const LeadDetails = ({ navigation }) => {
 
     setCurrentLead(lead);
     setMaxSlots(lead.slotsLeft);
-    
+
     const hasVideo = await checkExistingVideo();
     if (!hasVideo) {
       setShowPremiumPopup(true);
@@ -863,10 +865,10 @@ const LeadDetails = ({ navigation }) => {
 
     try {
       const quotaCheck = await axios.get(
-        `http://192.168.1.40:9000/api/seller/lead/lead-quota-check/${lead.id}`,
-        { headers: { Authorization: `Bearer ${token}` }}
+        `http://192.168.1.52:9000/api/seller/lead/lead-quota-check/${lead.id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("remainingQuota , quotaCheck.data.alreadyUsed : " , remainingQuota , quotaCheck.data.alreadyUsed)
+      console.log("remainingQuota , quotaCheck.data.alreadyUsed : ", remainingQuota, quotaCheck.data.alreadyUsed)
       if (remainingQuota > 0 && !quotaCheck.data.alreadyUsed) {
         setShowQuotaModal(true);
       } else {
@@ -877,23 +879,27 @@ const LeadDetails = ({ navigation }) => {
       setShowSlotModal(true);
     }
   };
- 
-  const handlePurchaseLead = async (slotsToBuy , actualPrice) => {
+
+  const handlePurchaseLead = async (slotsToBuy, actualPrice) => {
     try {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token || !currentLead) return;
 
       const leadSqft = currentLead.rawData.totalSqft;
       const totalSqft = leadSqft * slotsToBuy;
-      
+
       // Calculate free quota to use (max 100 per transaction)
-      const freeSqftToUse = useFreeQuota 
+      const freeSqftToUse = useFreeQuota
         ? Math.min(
-            100, // Max per transaction
-            remainingQuota,
-            totalSqft // Can't exceed purchase size
-          )
+          50, // Max per transaction
+          remainingQuota,
+          totalSqft // Can't exceed purchase size
+        )
         : 0;
+
+      setFreeSqftToUse(freeSqftToUse)
+
+      console.log(freeSqftToUse, "freeSqftToUse", useFreeQuota)
 
       const payload = {
         leadId: currentLead.rawData._id,
@@ -901,10 +907,10 @@ const LeadDetails = ({ navigation }) => {
         useFreeQuota,
         freeSqftToUse // Explicitly send the calculated free sqft to backend
       };
-      console.log("payload : " , payload)
+      console.log("payload : ", payload)
       // return
       const response = await axios.post(
-        'http://192.168.1.40:9000/api/seller/lead/purchase',
+        'http://192.168.1.52:9000/api/seller/lead/purchase',
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -912,19 +918,19 @@ const LeadDetails = ({ navigation }) => {
       if (response.data.success) {
         setShowSlotModal(false);
         setUseFreeQuota(false);
-        
+
         // Refresh both leads and quota
         await Promise.all([fetchLeads(), fetchQuota()]);
-        
+
         Toast.show({
           type: 'success',
           text1: 'Success',
-          text2: useFreeQuota 
+          text2: useFreeQuota
             ? `Used ${freeSqftToUse} sqft from your free quota (${response.data.monthlyQuotaRemaining} remaining)`
             : 'Lead purchased (paid full price)'
         });
 
-        navigation.navigate('ContactBuyer', { 
+        navigation.navigate('ContactBuyer', {
           lead: currentLead,
           purchaseDetails: {
             freeSqftUsed: freeSqftToUse,
@@ -956,13 +962,13 @@ const LeadDetails = ({ navigation }) => {
           <AppText weight="Inter" style={styles.popupTitle}>
             Use Free Quota
           </AppText>
-          
+
           <AppText weight="Inter" style={styles.popupSubtitle}>
             You have {remainingQuota} sqft free this month
           </AppText>
-          
+
           <AppText weight="Inter" style={styles.quotaInfoText}>
-            You can use up to 100 sqft free for this lead purchase
+            You can use up to 50 sqft free for this lead purchase
           </AppText>
 
           <View style={styles.quotaCalculation}>
@@ -970,7 +976,7 @@ const LeadDetails = ({ navigation }) => {
               Lead size: {currentLead?.rawData?.totalSqft || 0} sqft
             </AppText>
             <AppText weight="Inter" style={styles.quotaCalculationText}>
-              Free applicable: {Math.min(100, remainingQuota, currentLead?.rawData?.totalSqft || 0)} sqft
+              Free applicable: {Math.min(50, remainingQuota, currentLead?.rawData?.totalSqft || 0)} sqft
             </AppText>
           </View>
 
@@ -978,7 +984,7 @@ const LeadDetails = ({ navigation }) => {
             <Switch
               value={useFreeQuota}
               onValueChange={(value) => {
-                setUseFreeQuota(value); 
+                setUseFreeQuota(value);
               }}
             />
             <AppText weight="Inter" style={styles.quotaOptionText}>
@@ -998,7 +1004,7 @@ const LeadDetails = ({ navigation }) => {
                 Continue
               </AppText>
             </TouchableOpacity>
-            
+
             <TouchableOpacity
               style={[styles.quotaButton, styles.skipButton]}
               onPress={() => {
@@ -1020,51 +1026,302 @@ const LeadDetails = ({ navigation }) => {
   //  388 points left
   //  324 points left
 
+
+
+  //logic for buy slot max profit 6250/-  keep this comment for future change
+
+  // const renderSlotOption = (num) => {
+  //   if (!currentLead?.rawData) return null;
+  //   console.log("currentLead price: ", currentLead.price)
+  //   console.log("currentLead dynamicSlotPrice: ", currentLead.rawData.dynamicSlotPrice)
+  //   const pricePerSqft = currentLead.rawData.basePricePerSqft; // 10.5
+  //   const leadSqft = currentLead.rawData.totalSqft; // 25 in your example
+  //   const totalSqft = leadSqft * num; // Total sqft for selected slots
+
+  //   // Calculate maximum free sqft that can be applied (max 100 per transaction)
+  //   const maxFreeApplicable = Math.min(
+  //     100, // Max 100 free per transaction
+  //     remainingQuota, // What's left in monthly quota
+  //     totalSqft // Can't exceed the purchase size
+  //   );
+  //   let actualPrice
+  //   // Actual free sqft used (when useFreeQuota is true)
+  //   const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
+  //   const paidSqft = Math.max(0, totalSqft - freeSqftUsed);
+  //   actualPrice = paidSqft * pricePerSqft;
+  //   if (currentLead.rawData.overProfit) {
+  //     //where overprofit we will directly multipy the divided amunt in no. of slots 
+  //     //discount freeSqftUsed
+  //     actualPrice = (currentLead.rawData.dynamicSlotPrice * num) - (10.50 * freeSqftUsed)
+  //   }
+  //   return (
+  //     <TouchableOpacity
+  //       key={num}
+  //       disabled={num > maxSlots}
+  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
+  //       onPress={() => handlePurchaseLead(num, actualPrice)}
+  //     >
+  //       <View>
+  //         <AppText weight="Inter" style={styles.slotOptionText}>
+  //           {num} slot(s)
+  //         </AppText>
+  //         <AppText weight="Inter" style={styles.discountText}>
+  //           {leadSqft * num} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
+  //         </AppText>
+  //       </View>
+  //       <AppText weight="SemiBold" style={styles.buyNowText}>
+  //         ₹{actualPrice.toFixed(2)}
+  //       </AppText>
+  //     </TouchableOpacity>
+  //   );
+  // };
+
+  //end logic   keep above comment for future change
+
+
+
+  // const renderSlotOption = (num) => {
+  //   const actualPrice = 599 * num; // Constant price
+
+
+  //   return (
+  //     <TouchableOpacity
+  //       key={num}
+  //       disabled={num > maxSlots}
+  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
+  //       onPress={() => handlePurchaseLead(num, actualPrice)}
+  //     >
+  //       <View>
+  //         <AppText weight="Inter" style={styles.slotOptionText}>
+  //           {num} slot(s)
+  //         </AppText>
+  //         <AppText weight="Inter" style={styles.discountText}>
+  //           {currentLead?.rawData?.totalSqft ? currentLead.rawData.totalSqft  : 0} sqft - {useFreeQuota} sqft free
+  //         </AppText>
+  //       </View>
+  //       <AppText weight="SemiBold" style={styles.buyNowText}>
+  //         ₹{actualPrice.toFixed(2)}
+  //       </AppText>
+  //     </TouchableOpacity>
+  //   );
+  // };
+
+
+  // const renderSlotOption = (num) => {
+  //   if (!currentLead?.rawData) return null;
+
+  //   const leadSqft = currentLead.rawData.totalSqft; // Total sqft of the lead
+  //   const timeline = currentLead.rawData.timeline; // "0-30 days", "31-60 days", etc.
+  //   const basePrice = 599; // Base price per slot
+  //   const slotsToBuy = num;
+
+  //   // Calculate maximum free sqft that can be applied (max 50 per transaction)
+  //   const maxFreeApplicable = Math.min(
+  //     50, // Max 50 free per transaction
+  //     remainingQuota, // What's left in monthly quota
+  //     leadSqft * slotsToBuy // Can't exceed the purchase size
+  //   );
+
+  //   // Actual free sqft used (when useFreeQuota is true)
+  //   const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
+  //   const paidSqft = Math.max(0, (leadSqft * slotsToBuy) - freeSqftUsed);
+
+  //   // Calculate price based on timeline
+  //   let priceMultiplier = 1;
+  //   if (timeline.includes("31-60 days")) {
+  //     priceMultiplier = 0.7; // 30% discount
+  //   } else if (timeline.includes("above 60 days")) {
+  //     priceMultiplier = 0.49; // 51% discount (70% of 70%)
+  //   }
+
+  //   // Calculate final price
+  //   const pricePerSqft = (basePrice / leadSqft) * priceMultiplier;
+  //   const actualPrice = paidSqft * pricePerSqft;
+
+  //   return (
+  //     <TouchableOpacity
+  //       key={num}
+  //       disabled={num > maxSlots}
+  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
+  //       onPress={() => handlePurchaseLead(num, actualPrice)}
+  //     >
+  //       <View>
+  //         <AppText weight="Inter" style={styles.slotOptionText}>
+  //           {num} slot(s)
+  //         </AppText>
+  //         <AppText weight="Inter" style={styles.discountText}>
+  //           {leadSqft * num} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
+  //         </AppText>
+  //       </View>
+  //       <AppText weight="SemiBold" style={styles.buyNowText}>
+  //         ₹{actualPrice.toFixed(2)}
+  //       </AppText>
+  //     </TouchableOpacity>
+  //   );
+  // };
+
+
+  // const renderSlotOption = (num) => {
+  //   if (!currentLead?.rawData) return null;
+
+  //   const leadSqft = currentLead.rawData.totalSqft || 0;
+  //   const timeline = String(currentLead.rawData.timeline || "").toLowerCase(); // Convert to string and lowercase
+  //   const basePrice = 599;
+  //   const slotsToBuy = num;
+
+  //   // Calculate maximum free sqft that can be applied (max 50 per transaction)
+  //   const maxFreeApplicable = Math.min(
+  //     50,
+  //     remainingQuota,
+  //     leadSqft * slotsToBuy
+  //   );
+
+  //   const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
+  //   const paidSqft = Math.max(0, (leadSqft * slotsToBuy) - freeSqftUsed);
+
+  //   // Safer timeline check
+  //   let priceMultiplier = 1;
+  //   if (timeline.includes("31-60 days")) {
+  //     priceMultiplier = 0.7;
+  //   } else if (timeline.includes("above 60 days") || timeline.includes("60+ days")) {
+  //     priceMultiplier = 0.49;
+  //   }
+
+  //   // Calculate final price
+  //   const pricePerSqft = (basePrice / leadSqft) * priceMultiplier;
+  //   const actualPrice = paidSqft * pricePerSqft;
+
+  //   return (
+  //     <TouchableOpacity
+  //       key={num}
+  //       disabled={num > maxSlots}
+  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
+  //       onPress={() => handlePurchaseLead(num, actualPrice)}
+  //     >
+  //       <View>
+  //         <AppText weight="Inter" style={styles.slotOptionText}>
+  //           {num} slot(s)
+  //         </AppText>
+  //         <AppText weight="Inter" style={styles.discountText}>
+  //           {leadSqft } sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
+  //         </AppText>
+  //       </View>
+  //       <AppText weight="SemiBold" style={styles.buyNowText}>
+  //          ₹{Math.round(actualPrice)}
+  //       </AppText>
+  //     </TouchableOpacity>
+  //   );
+  // };
+
+
+  // const renderSlotOption = (num) => {
+  //   if (!currentLead?.rawData) return null;
+
+  //   const leadSqft = currentLead.rawData.totalSqft || 0;
+  //   const timeline = String(currentLead.rawData.timeline || "").toLowerCase();
+  //   const basePricePerSlot = 599;
+  //   const slotsToBuy = num;
+
+  //   // Calculate maximum free sqft that can be applied (max 50 per transaction)
+  //   const maxFreeApplicable = Math.min(
+  //     50,
+  //     remainingQuota,
+  //     leadSqft * slotsToBuy
+  //   );
+
+  //   const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
+  //   const paidSqft = Math.max(0, (leadSqft * slotsToBuy) - freeSqftUsed);
+
+  //   // Timeline discount multiplier
+  //   let priceMultiplier = 1;
+  //   if (timeline.includes("31-60 days")) {
+  //     priceMultiplier = 0.7; // 30% discount
+  //   } else if (timeline.includes("above 60 days") || timeline.includes("60+ days")) {
+  //     priceMultiplier = 0.49; // 51% discount
+  //   }
+
+  //   // Calculate price for the slots being purchased
+  //   const pricePerSqft = (basePricePerSlot / leadSqft) * priceMultiplier;
+  //   const actualPrice = slotsToBuy * basePricePerSlot * priceMultiplier - (freeSqftUsed * pricePerSqft);
+
+  //   return (
+  //     <TouchableOpacity
+  //       key={num}
+  //       disabled={num > maxSlots}
+  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
+  //       onPress={() => handlePurchaseLead(num, actualPrice)}
+  //     >
+  //       <View>
+  //         <AppText weight="Inter" style={styles.slotOptionText}>
+  //           {num} slot(s)
+  //         </AppText>
+  //         <AppText weight="Inter" style={styles.discountText}>
+  //           {leadSqft} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
+  //         </AppText>
+  //       </View>
+  //       <AppText weight="SemiBold" style={styles.buyNowText}>
+  //         ₹{Math.round(actualPrice)}
+  //       </AppText>
+  //     </TouchableOpacity>
+  //   );
+  // };
+
+
   const renderSlotOption = (num) => {
     if (!currentLead?.rawData) return null;
-    console.log("currentLead price: " , currentLead.price) 
-    console.log("currentLead dynamicSlotPrice: " , currentLead.rawData.dynamicSlotPrice) 
-    const pricePerSqft = currentLead.rawData.basePricePerSqft; // 10.5
-    const leadSqft = currentLead.rawData.totalSqft; // 25 in your example
-    const totalSqft = leadSqft * num; // Total sqft for selected slots
-    
-    // Calculate maximum free sqft that can be applied (max 100 per transaction)
-    const maxFreeApplicable = Math.min(
-      100, // Max 100 free per transaction
-      remainingQuota, // What's left in monthly quota
-      totalSqft // Can't exceed the purchase size
-    );
-    let actualPrice
-    // Actual free sqft used (when useFreeQuota is true)
-    const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
-    const paidSqft = Math.max(0, totalSqft - freeSqftUsed);
-    actualPrice = paidSqft * pricePerSqft;
-    if(currentLead.rawData.overProfit){
-      //where overprofit we will directly multipy the divided amunt in no. of slots 
-      //discount freeSqftUsed
-      actualPrice = (currentLead.rawData.dynamicSlotPrice * num) - (10.50 * freeSqftUsed)
+
+    const leadSqft = currentLead.rawData.totalSqft || 0;
+    const timeline = String(currentLead.rawData.timeline || "").toLowerCase();
+    const basePricePerSlot = 599;
+    const slotsToBuy = num;
+
+    // Timeline discount multiplier
+    let priceMultiplier = 1;
+    if (timeline.includes("31-60 days")) {
+      priceMultiplier = 0.7; // 30% discount
+    } else if (timeline.includes("above 60 days") || timeline.includes("60+ days")) {
+      priceMultiplier = 0.49; // 51% discount
     }
+
+    // Calculate free sqft that can be applied (max 50 and only to first slot)
+    const maxFreeApplicable = Math.min(
+      50,
+      remainingQuota,
+      leadSqft // Only apply to first slot's sqft
+    );
+
+    const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
+    const freeSqftValue = freeSqftUsed * (basePricePerSlot / leadSqft) * priceMultiplier;
+
+    // Calculate price:
+    // First slot: (full price - free sqft value)
+    // Additional slots: full price
+    const firstSlotPrice = basePricePerSlot * priceMultiplier - freeSqftValue;
+    const additionalSlotsPrice = (slotsToBuy - 1) * basePricePerSlot * priceMultiplier;
+    const actualPrice = firstSlotPrice * num;
+
     return (
       <TouchableOpacity
         key={num}
         disabled={num > maxSlots}
         style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
-        onPress={() => handlePurchaseLead(num , actualPrice)}
+        onPress={() => handlePurchaseLead(num, actualPrice)}
       >
         <View>
           <AppText weight="Inter" style={styles.slotOptionText}>
             {num} slot(s)
           </AppText>
           <AppText weight="Inter" style={styles.discountText}>
-            {leadSqft * num} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
+            {leadSqft} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
           </AppText>
         </View>
         <AppText weight="SemiBold" style={styles.buyNowText}>
-          ₹{actualPrice.toFixed(2)}
+          ₹{Math.round(actualPrice)}
         </AppText>
       </TouchableOpacity>
     );
   };
+
 
   const PremiumPopup = () => (
     <Modal
@@ -1089,7 +1346,7 @@ const LeadDetails = ({ navigation }) => {
               customer sees your work and you
             </AppText>
           </View>
- 
+
           <View style={styles.popupButtons}>
             <TouchableOpacity
               style={[styles.popupButton, styles.primaryButton]}
@@ -1262,14 +1519,14 @@ const LeadDetails = ({ navigation }) => {
                 {renderSlotIndicator(lead)}
 
                 <View style={styles.priceContainer}>
-                  <View>
+                  {/* <View>
                     <AppText weight="Inter" style={styles.priceLabel}>
                       LEAD PRICE
                     </AppText>
                     <AppText weight="Inter" style={styles.priceValue}>
-                      {lead.price}
+                      {599 * 6}
                     </AppText>
-                  </View>
+                  </View> */}
 
                   <TouchableOpacity
                     style={styles.buyButton}
@@ -1309,6 +1566,7 @@ const LeadDetails = ({ navigation }) => {
               <View style={styles.occupantsHeader}>
                 <AppText weight="Inter" style={styles.occupantsTitle}>
                   Slot Occupants ({currentLead?.slotOccupants?.length || 0}/{currentLead?.rawData?.maxSlots || 6})
+                  {/* Slot Occupants(6) */}
                 </AppText>
                 <TouchableOpacity onPress={() => setShowSlotDetails(false)}>
                   <Icon name="close" size={24} color="#000" />
@@ -1344,7 +1602,7 @@ const LeadDetails = ({ navigation }) => {
               <AppText weight="Inter" style={styles.popupSubtitle}>
                 Choose how many slots you want to buy
               </AppText>
-              
+
               {[1, 2, 3, 4, 5, 6].map(num => renderSlotOption(num))}
             </View>
           </View>
@@ -1371,7 +1629,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 20,
     paddingBottom: 100,
-  }, 
+  },
   calendarContainer: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -1391,7 +1649,7 @@ const styles = StyleSheet.create({
   },
   cardElevation: {
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
@@ -1411,7 +1669,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   locationText: {
-    fontSize: 14, 
+    fontSize: 14,
     color: '#000',
     marginLeft: 5,
   },
@@ -1420,7 +1678,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   slotText: {
-    fontSize: 12, 
+    fontSize: 12,
     color: '#555',
     marginBottom: 8,
     letterSpacing: 0.3,
@@ -1453,14 +1711,14 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   detailLabel: {
-    fontSize: 11, 
+    fontSize: 11,
     color: '#666',
     marginBottom: 4,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
   detailValue: {
-    fontSize: 16, 
+    fontSize: 16,
     color: '#000',
     lineHeight: 22,
   },
@@ -1474,13 +1732,13 @@ const styles = StyleSheet.create({
     borderTopColor: '#e0e0e0',
   },
   priceLabel: {
-    fontSize: 11, 
+    fontSize: 11,
     color: '#666',
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
   priceValue: {
-    fontSize: 20, 
+    fontSize: 20,
     color: '#000',
     marginTop: 2,
   },
@@ -1492,14 +1750,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
   buyButtonText: {
     color: '#fff',
-    fontSize: 13, 
+    fontSize: 13,
     marginRight: 6,
     letterSpacing: 2,
   },
@@ -1521,7 +1779,7 @@ const styles = StyleSheet.create({
   },
   clearFilterLink: {
     fontSize: 14,
-    color: '#000', 
+    color: '#000',
     textDecorationLine: 'underline',
   },
   slotHeader: {
@@ -1535,7 +1793,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   viewOccupantsText: {
-    fontSize: 12, 
+    fontSize: 12,
     color: '#000',
     marginRight: 4,
   },
@@ -1559,7 +1817,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   occupantsTitle: {
-    fontSize: 20, 
+    fontSize: 20,
     color: '#000',
   },
   occupantsList: {
@@ -1572,14 +1830,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9f9f9',
     borderRadius: 12,
     marginBottom: 12,
-  }, 
+  },
   occupantInfo: {
     flex: 1,
-  }, 
+  },
   occupantBrand: {
     fontSize: 14,
     color: '#666',
-  },  
+  },
   popupOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
@@ -1590,13 +1848,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   popupContainer: {
     backgroundColor: '#fff',
     borderRadius: 20,
-    width: width *0.9,
-    padding: 25, 
+    width: width * 0.9,
+    padding: 25,
   },
   popupContainer2: {
     // backgroundColor: '#fff',
@@ -1604,18 +1862,18 @@ const styles = StyleSheet.create({
     // width: width * 0.85,
     // padding: 25,
     alignItems: 'center',
-    flexDirection:"row",
-    justifyContent:"space-between",
-    alignItems:"center"
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
   },
   popupHeader: {
     alignItems: 'center',
     marginBottom: 10,
-    justifyContent:"space-between",
-    flexDirection:"row"
+    justifyContent: "space-between",
+    flexDirection: "column"
   },
   popupTitle: {
-    fontSize: 20, 
+    fontSize: 20,
     color: '#000',
     // marginBottom: 5,
   },
@@ -1626,16 +1884,16 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   popupHighlight: {
-    fontSize: 20,  
+    fontSize: 20,
     color: '#000',
     marginVertical: 10,
-  }, 
+  },
   popupButtons: {
     width: '100%',
     marginTop: 20,
-    flexDirection:"column",
-    alignItems:"center",
-    justifyContent:"center"
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center"
   },
   popupButton: {
     flexDirection: 'row',
@@ -1654,24 +1912,24 @@ const styles = StyleSheet.create({
     borderColor: '#000',
   },
   popupButtonText: {
-    fontSize: 14, 
+    fontSize: 14,
     color: '#fff',
     marginLeft: 10,
   },
   header: {
     marginBottom: 25,
     paddingHorizontal: 5,
-  }, 
+  },
   logo: {
     alignSelf: 'center',
     width: 100,
-    height: 30, 
-  },   
+    height: 30,
+  },
   subheader: {
     fontSize: 16,
     color: '#555',
     marginTop: 8,
-    marginBottom: 15, 
+    marginBottom: 15,
     textAlign: 'center',
     color: 'black',
   },
@@ -1695,14 +1953,14 @@ const styles = StyleSheet.create({
   filterButtonText: {
     fontSize: 14,
     color: '#000',
-    marginLeft: 8, 
+    marginLeft: 8,
   },
   clearFilterButton: {
     padding: 10,
   },
   clearFilterText: {
     fontSize: 14,
-    color: '#000', 
+    color: '#000',
     textDecorationLine: 'underline',
   },
   slotOption: {
@@ -1714,16 +1972,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#fff', 
+    backgroundColor: '#fff',
   },
   slotOptionText: {
     color: '#000',
-    fontSize: 16, 
+    fontSize: 16,
   },
   buyNowText: {
     color: '#000',
   },
-   quotaInfoText: {
+  quotaInfoText: {
     fontSize: 14,
     color: '#666',
     marginBottom: 15,
@@ -1741,7 +1999,7 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   quotaButtons: {
-    marginTop:10,
+    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',

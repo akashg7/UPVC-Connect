@@ -32,12 +32,16 @@ const Price = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const videoResponse = await axios.get('http://192.168.1.40:9000/api/pricing/video');
+        const videoResponse = await axios.get(
+          'http://192.168.1.52:9000/api/pricing/video',
+        );
         if (videoResponse.data && videoResponse.data.length > 0) {
           setVideoData(videoResponse.data[0]);
         }
 
-        const headingResponse = await axios.get('http://192.168.1.40:9000/api/pricing/heading');
+        const headingResponse = await axios.get(
+          'http://192.168.1.52:9000/api/pricing/heading',
+        );
         if (headingResponse.data) {
           setHeadingData(headingResponse.data);
         }
@@ -63,7 +67,9 @@ const Price = () => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <AppText style={styles.errorText}>Error loading content: {error}</AppText>
+        <AppText style={styles.errorText}>
+          Error loading content: {error}
+        </AppText>
       </View>
     );
   }
@@ -98,7 +104,9 @@ const Price = () => {
             <View style={styles.videoContainer}>
               {videoData?.video ? (
                 <Video
-                  source={{uri: `http://192.168.1.40:9000/${videoData.video}`}}
+                  source={{
+                    uri: `http://192.168.1.52:9000/${videoData.video}`,
+                  }}
                   style={styles.video}
                   resizeMode="cover"
                   repeat
@@ -123,7 +131,9 @@ const Price = () => {
                 <View style={styles.premiumSponsorContent}>
                   <View style={styles.sponsorDivider} />
                   <Image
-                    source={{ uri: `http://192.168.1.40:9000/${videoData.sponsorLogo}` }}
+                    source={{
+                      uri: `http://192.168.1.52:9000/${videoData.sponsorLogo}`,
+                    }}
                     style={styles.premiumSponsorLogo}
                     resizeMode="contain"
                   />
@@ -138,7 +148,9 @@ const Price = () => {
             )}
           </View>
           <AppText weight="Inter" style={styles.headerSubtitle2}>
-            {'When you are investing in uPVC windows & doors the price can vary based on several important factors- heres what goes into it'}
+            {
+              'When you are investing in uPVC windows & doors the price can vary based on several important factors- heres what goes into it'
+            }
           </AppText>
 
           {/* Premium Content Blocks with Images */}
@@ -148,7 +160,9 @@ const Price = () => {
                 {/* Background Image with Overlay */}
                 {item.image && (
                   <Image
-                    source={{uri: `http://192.168.1.40:9000/${item.image}`}}
+                    source={{
+                      uri: `http://192.168.1.52:9000/${item.image}`,
+                    }}
                     style={styles.blockBackgroundImage}
                     blurRadius={2}
                   />
@@ -157,7 +171,7 @@ const Price = () => {
                   colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0.5)']}
                   style={styles.imageOverlay}
                 />
-                
+
                 <View style={styles.glassCard}>
                   <View style={styles.premiumHeader}>
                     <View style={styles.premiumBadge}>
@@ -171,10 +185,9 @@ const Price = () => {
                       </AppText>
                     </View>
                   </View>
-                  
-                  <View style={styles.premiumContent}>
-                  </View>
-                  
+
+                  <View style={styles.premiumContent}></View>
+
                   <View style={styles.premiumFooter}>
                     <AppText weight="Medium" style={styles.premiumText}>
                       {item.data}
@@ -187,7 +200,7 @@ const Price = () => {
                     </TouchableOpacity> */}
                   </View>
                 </View>
-                
+
                 {/* Floating decorative elements */}
                 <View style={[styles.floatingCircle, {right: 20, top: 20}]} />
                 <View style={[styles.floatingCircle, {left: 30, bottom: 30}]} />
@@ -197,11 +210,12 @@ const Price = () => {
 
           <View style={styles.buyNowContainer}>
             <TouchableOpacity
-                style={styles.buyNowButton}
-                onPress={() => navigation.navigate('BuyNowScreen')}
-              >
-                <AppText weight="Inter" style={styles.buyNowText}>BUY NOW</AppText>
-              </TouchableOpacity>
+              style={styles.buyNowButton}
+              onPress={() => navigation.navigate('BuyNowScreen')}>
+              <AppText weight="Inter" style={styles.buyNowText}>
+                BUY NOW
+              </AppText>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </View>
@@ -210,7 +224,7 @@ const Price = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
@@ -255,7 +269,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   Headercontainer: {
-    position: 'relative', 
+    position: 'relative',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
@@ -269,11 +283,11 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     justifyContent: 'center',
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   logo: {
     width: 100,
-    height: 50, 
+    height: 50,
   },
   loaderContainer: {
     flex: 1,
@@ -317,18 +331,18 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#eee',
   },
-  
+
   // Premium Content Styles with Images
   premiumContainer: {
     paddingHorizontal: 20,
-    marginBottom: 20, 
+    marginBottom: 20,
   },
   premiumBlock: {
     marginBottom: 25,
     borderRadius: 24,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: {width: 0, height: 10},
     shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 10,
@@ -440,7 +454,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },

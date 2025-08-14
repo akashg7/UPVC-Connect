@@ -1,27 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View,  
-  StyleSheet, 
-  Image, 
-  FlatList, 
-  TouchableOpacity, 
-  Dimensions, 
-  ActivityIndicator, 
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  StyleSheet,
+  Image,
+  FlatList,
+  TouchableOpacity,
+  Dimensions,
+  ActivityIndicator,
   Alert,
-  RefreshControl
+  RefreshControl,
 } from 'react-native';
 import Video from 'react-native-video';
-import Icon from 'react-native-vector-icons/MaterialIcons'; 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppText from '../../../../components/AppText';
 import TopTabBar from '../../Dashboard/TopTabBar';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import PremiumLoginModal from '../../../../components/PremiumLoginModal';
 
-const { width, height } = Dimensions.get('window');
-const BASE_URL = 'http://192.168.1.40:9000/api/buyer/advertisments';
+const {width, height} = Dimensions.get('window');
+const BASE_URL = 'http://192.168.1.52:9000/api/buyer/advertisments';
 
 const TheProcess = () => {
   const insets = useSafeAreaInsets();
@@ -29,7 +29,7 @@ const TheProcess = () => {
 
   const [activeTab, setActiveTab] = useState('featured');
   const [ads, setAds] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [userId, setUserId] = useState(null);
   const [paused, setPaused] = useState(false);
@@ -37,32 +37,32 @@ const TheProcess = () => {
 
   const fetchData = async () => {
     try {
-      const token = await AsyncStorage.getItem('buyerToken'); 
+      const token = await AsyncStorage.getItem('buyerToken');
       if (!token) {
-        setShowLoginModal(true)
+        setShowLoginModal(true);
         // Alert.alert('Please Login');
         // navigation.goBack();
         return;
-      } 
-      
+      }
+
       let url = BASE_URL;
       if (activeTab !== 'featured') {
         url = `${BASE_URL}/${activeTab}`;
       }
-      
+
       const [adsResponse, userResponse] = await Promise.all([
         axios.get(url, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }),
-        axios.get('http://192.168.1.40:9000/api/buyer', {
+        axios.get('http://192.168.1.52:9000/api/buyer', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        }),
       ]);
-      
+
       setUserId(userResponse.data.user._id);
       setAds(adsResponse.data.ads);
     } catch (error) {
@@ -82,51 +82,56 @@ const TheProcess = () => {
     setIsRefreshing(true);
     fetchData();
   };
-  
-  const toggleLike = async (adId) => {
+
+  const toggleLike = async adId => {
     try {
       const token = await AsyncStorage.getItem('buyerToken');
       const response = await axios.post(
         `${BASE_URL}/${adId}/like`,
-        { userId },
+        {userId},
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
-      
-      setAds(ads.map(ad => 
-        ad._id === adId 
-          ? { 
-              ...ad, 
-              likes: response.data.likes, 
-              likedBy: response.data.isLiked 
-                ? [...ad.likedBy, userId] 
-                : ad.likedBy.filter(id => id !== userId) 
-            } 
-          : ad
-      ));
+
+      setAds(
+        ads.map(ad =>
+          ad._id === adId
+            ? {
+                ...ad,
+                likes: response.data.likes,
+                likedBy: response.data.isLiked
+                  ? [...ad.likedBy, userId]
+                  : ad.likedBy.filter(id => id !== userId),
+              }
+            : ad,
+        ),
+      );
     } catch (error) {
       Alert.alert('Error', 'Failed to like the post');
       console.error('Error toggling like:', error);
     }
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}) => (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
-        <AppText weight='Inter' style={styles.postTitle}>{item.title}</AppText>
+        <AppText weight="Inter" style={styles.postTitle}>
+          {item.title}
+        </AppText>
       </View>
-      
+
       {item.type === 'video' ? (
-        <TouchableOpacity 
+        <TouchableOpacity
           activeOpacity={0.9}
           onPress={() => setPaused(!paused)}
-          style={styles.videoContainer}
-        >
+          style={styles.videoContainer}>
           <Video
-            source={{ uri: `http://192.168.1.40:9000/uploads/${item.mediaUrl}` }}
+            source={{
+              uri: `http://192.168.1.52:9000/uploads/${item.mediaUrl}`,
+            }}
             style={styles.video}
             resizeMode="cover"
             paused={paused}
@@ -135,51 +140,70 @@ const TheProcess = () => {
           />
           {paused && (
             <View style={styles.playButtonOverlay}>
-              <Icon name="play-circle-filled" size={50} color="rgba(255,255,255,0.7)" />
+              <Icon
+                name="play-circle-filled"
+                size={50}
+                color="rgba(255,255,255,0.7)"
+              />
             </View>
           )}
         </TouchableOpacity>
       ) : (
-        <Image 
-          source={{ uri: `http://192.168.1.40:9000/uploads/${item.mediaUrl}` }} 
-          style={styles.image} 
-          resizeMode="cover" 
+        <Image
+          source={{
+            uri: `http://192.168.1.52:9000/uploads/${item.mediaUrl}`,
+          }}
+          style={styles.image}
+          resizeMode="cover"
         />
       )}
-       
-      <AppText weight='Inter' style={styles.postDescription}>{item.description}</AppText>
-      
+
+      <AppText weight="Inter" style={styles.postDescription}>
+        {item.description}
+      </AppText>
+
       <View style={styles.postFooter}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => toggleLike(item._id)}
-        >
+          onPress={() => toggleLike(item._id)}>
           <Icon
-            name={item.likedBy?.includes(userId) ? "favorite" : "favorite-border"} 
-            size={24} 
-            color={item.likedBy?.includes(userId) ? "red" : "black"} 
+            name={
+              item.likedBy?.includes(userId) ? 'favorite' : 'favorite-border'
+            }
+            size={24}
+            color={item.likedBy?.includes(userId) ? 'red' : 'black'}
           />
-          <AppText weight='Inter' style={styles.actionText}>{item.likes}</AppText>
+          <AppText weight="Inter" style={styles.actionText}>
+            {item.likes}
+          </AppText>
         </TouchableOpacity>
-         
+
         <TouchableOpacity style={styles.actionButton}>
           <Icon name="share" size={22} color="black" />
-          <AppText weight='Inter' style={styles.actionText}>Share</AppText>
+          <AppText weight="Inter" style={styles.actionText}>
+            Share
+          </AppText>
         </TouchableOpacity>
       </View>
     </View>
   );
-  
+
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <Icon name="error-outline" size={50} color="#888" style={styles.emptyIcon} />
-      <AppText weight='Inter' style={styles.emptyText}>No advertisements found</AppText>
-      <TouchableOpacity 
-        style={styles.refreshButton}
-        onPress={onRefresh}
-      >
+      <Icon
+        name="error-outline"
+        size={50}
+        color="#888"
+        style={styles.emptyIcon}
+      />
+      <AppText weight="Inter" style={styles.emptyText}>
+        No advertisements found
+      </AppText>
+      <TouchableOpacity style={styles.refreshButton} onPress={onRefresh}>
         <Icon name="refresh" size={20} color="white" />
-        <AppText weight='Inter' style={styles.refreshText}>Try Again</AppText>
+        <AppText weight="Inter" style={styles.refreshText}>
+          Try Again
+        </AppText>
       </TouchableOpacity>
     </View>
   );
@@ -188,18 +212,19 @@ const TheProcess = () => {
     return (
       <View style={styles.loadingScreen}>
         <ActivityIndicator size="large" color="black" />
-        <AppText weight='Inter' style={styles.loadingText}>Loading advertisements...</AppText>
+        <AppText weight="Inter" style={styles.loadingText}>
+          Loading advertisements...
+        </AppText>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { paddingTop: insets.top }]}>
+      <View style={[styles.header, {paddingTop: insets.top}]}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+          onPress={() => navigation.goBack()}>
           <Icon name="arrow-back" size={30} color="#000" />
         </TouchableOpacity>
 
@@ -210,43 +235,57 @@ const TheProcess = () => {
           />
         </View>
       </View>
-      
+
       <TopTabBar />
-      
+
       <View style={styles.tabs}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.tab, activeTab === 'featured' && styles.activeTab]}
-          onPress={() => setActiveTab('featured')}
-        >
-          <AppText weight='SemiBold' style={[styles.tabText, activeTab === 'featured' && styles.activeTabText]}>
+          onPress={() => setActiveTab('featured')}>
+          <AppText
+            weight="SemiBold"
+            style={[
+              styles.tabText,
+              activeTab === 'featured' && styles.activeTabText,
+            ]}>
             FEATURED
           </AppText>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={[styles.tab, activeTab === 'latest' && styles.activeTab]}
-          onPress={() => setActiveTab('latest')}
-        >
-          <AppText weight='SemiBold' style={[styles.tabText, activeTab === 'latest' && styles.activeTabText]}>
+          onPress={() => setActiveTab('latest')}>
+          <AppText
+            weight="SemiBold"
+            style={[
+              styles.tabText,
+              activeTab === 'latest' && styles.activeTabText,
+            ]}>
             LATEST
           </AppText>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={[styles.tab, activeTab === 'trending' && styles.activeTab]}
-          onPress={() => setActiveTab('trending')}
-        >
-          <AppText weight='SemiBold' style={[styles.tabText, activeTab === 'trending' && styles.activeTabText]}>
+          onPress={() => setActiveTab('trending')}>
+          <AppText
+            weight="SemiBold"
+            style={[
+              styles.tabText,
+              activeTab === 'trending' && styles.activeTabText,
+            ]}>
             TRENDING
           </AppText>
         </TouchableOpacity>
       </View>
-       
+
       <FlatList
         data={ads}
         renderItem={renderItem}
         keyExtractor={item => item._id}
-        contentContainerStyle={ads.length === 0 ? styles.emptyListContent : styles.listContent}
+        contentContainerStyle={
+          ads.length === 0 ? styles.emptyListContent : styles.listContent
+        }
         ListEmptyComponent={renderEmptyComponent}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -258,7 +297,7 @@ const TheProcess = () => {
           />
         }
       />
-       <PremiumLoginModal
+      <PremiumLoginModal
         visible={showLoginModal}
         onClose={() => setShowLoginModal(false)}
         navigation={navigation}
@@ -346,14 +385,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   postTitle: {
-    textAlign: "center",
+    textAlign: 'center',
     fontSize: 18,
     color: 'black',
     flex: 1,
   },
   videoContainer: {
     width: '100%',
-    aspectRatio: 6/9,
+    aspectRatio: 6 / 9,
     borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: 'white',
@@ -371,7 +410,7 @@ const styles = StyleSheet.create({
   },
   image: {
     width: '100%',
-    aspectRatio: 16/9,
+    aspectRatio: 16 / 9,
     borderRadius: 8,
     backgroundColor: 'white',
   },
@@ -380,14 +419,14 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: 10,
     lineHeight: 20,
-    textAlign: "center",
+    textAlign: 'center',
   },
   postFooter: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 15,
     justifyContent: 'space-between',
-    paddingHorizontal: 10
+    paddingHorizontal: 10,
   },
   actionButton: {
     flexDirection: 'row',

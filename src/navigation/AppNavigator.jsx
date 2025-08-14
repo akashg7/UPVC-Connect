@@ -1,10 +1,10 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import React from 'react';
-import { SafeAreaView, StatusBar, StyleSheet } from 'react-native'; 
+import {SafeAreaView, StatusBar, StyleSheet} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome'; 
-import Ionicons from 'react-native-vector-icons/Ionicons'; 
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Buyer Components
 import SplashScreen from '../components/SplashScreen/SplashScreen';
@@ -16,7 +16,7 @@ import RequestStatus from '../screens/Buyer/Dashboard/RequestStatus';
 import SellerQuotes from '../screens/Buyer/Dashboard/SellerResponses/SellerQuotes';
 import ContactSellers from '../screens/Buyer/Dashboard/SellerResponses/ContactSellers';
 import InsightsAndAds from '../screens/Buyer/Dashboard/InsightsAndAds';
-import ActiveLeads from '../screens/Buyer/Dashboard/ActiveLeads'
+import ActiveLeads from '../screens/Buyer/Dashboard/ActiveLeads';
 // import BuyerAccountPage from '../screens/Buyer/BuyerAccountPage';
 import BuyerAccountPage from '../screens/Buyer/Dashboard/BuyerAccountPage';
 
@@ -38,73 +38,72 @@ import LoginScreen from '../screens/Buyer/Login/LoginScreen';
 import OTPScreen from '../screens/Buyer/Login/OTPScreen';
 import Notifications from '../screens/Buyer/Dashboard/Notifications';
 import LocationSelectionScreen from '../screens/Buyer/Dashboard/LocationSelectionScreen';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import QuoteRequestPage from '../screens/Buyer/components/QuoteRequestPage'; 
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import QuoteRequestPage from '../screens/Buyer/components/QuoteRequestPage';
 import SellerLoginScreen from '../screens/Seller/SellerLogin';
 import Price from '../screens/Buyer/components/Price/Price';
 import WhiteVsColors from '../screens/Buyer/components/WhiteVsColors/WhiteVsColors';
 import TheProcess from '../screens/Buyer/components/TheProcess/TheProcess';
 import WindowOptions from '../screens/Buyer/components/WindowOptions/WindowOptions';
 import TopTabBar from '../screens/Buyer/Dashboard/TopTabBar';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import BuyerTopNav from '../screens/Buyer/components/BuyerTopNav';
 
 // Create navigators
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
- 
+
 // Buyer Bottom Tab Navigator
 function BuyerTabs() {
-  const navigation = useNavigation();  
-  const iconName = 'account-search-outline'
-  const activeIconName = 'account-search'
+  const navigation = useNavigation();
+  const iconName = 'account-search-outline';
+  const activeIconName = 'account-search';
   return (
-     <GestureHandlerRootView style={{ flex: 1 }}>  
+    <GestureHandlerRootView style={{flex: 1}}>
       <Tab.Navigator
-        tabBar={(props) => <BuyerBottomNav {...props} />}
+        tabBar={props => <BuyerBottomNav {...props} />}
         screenOptions={{
           headerShown: false,
-        }}
-      > 
-        <Tab.Screen 
-          name="BuyerHome" 
+        }}>
+        <Tab.Screen
+          name="BuyerHome"
           component={HomeDashboard}
           options={{
             tabBarLabel: 'Home',
-            tabBarIcon: ({ color, size }) => (
+            tabBarIcon: ({color, size}) => (
               <MaterialIcons name="home" size={size} color={color} />
             ),
           }}
-        /> 
+        />
 
-        <Tab.Screen 
+        <Tab.Screen
           name="BuyerInsights"
           component={InsightsAndAds}
-          options={{ 
+          options={{
             tabBarLabel: 'Category',
-            tabBarIcon: ({ color, size }) => (
+            tabBarIcon: ({color, size}) => (
               <FontAwesome name="bar-chart" size={size} color={color} />
             ),
           }}
         />
 
-        <Tab.Screen 
-          name="ActiveLeads" 
+        <Tab.Screen
+          name="ActiveLeads"
           component={ActiveLeads}
           options={{
             tabBarLabel: 'History',
-            tabBarIcon: ({ color, size }) => ( 
+            tabBarIcon: ({color, size}) => (
               <Ionicons name="ios-list-circle" size={size} color={color} />
             ),
           }}
         />
-      
-        <Tab.Screen 
-          name="BuyerAccount" 
+
+        <Tab.Screen
+          name="BuyerAccount"
           component={BuyerAccountPage}
           options={{
             tabBarLabel: 'Account',
-            tabBarIcon: ({ color, size }) => (
+            tabBarIcon: ({color, size}) => (
               <MaterialIcons name="account-circle" size={size} color={color} />
             ),
           }}
@@ -118,21 +117,20 @@ function BuyerTabs() {
 function SellerTabs() {
   return (
     <Tab.Navigator
-      tabBar={(props) => <SellerBottomNav {...props} />}
+      tabBar={props => <SellerBottomNav {...props} />}
       screenOptions={{
         headerShown: false,
-      }}
-    >
+      }}>
       <Tab.Screen name="LeadDetails" component={LeadDetails} />
       <Tab.Screen name="SellerDashboard" component={SellerDashboard} />
       <Tab.Screen name="MarketInsights" component={MarketInsights} />
-     
-      <Tab.Screen 
-        name="SellerAccount" 
+
+      <Tab.Screen
+        name="SellerAccount"
         component={SellerAccountPage}
         options={{
           tabBarLabel: 'Account',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({color, size}) => (
             <MaterialIcons name="account-circle" size={size} color={color} />
           ),
         }}
@@ -152,8 +150,7 @@ const AppNavigator = () => {
           animation: 'slide_from_right',
           gestureEnabled: true,
           gestureDirection: 'horizontal',
-        }}
-      >
+        }}>
         {/* Initial Screens */}
         <Stack.Screen
           name="Splash"
@@ -171,59 +168,68 @@ const AppNavigator = () => {
             gestureEnabled: false,
           }}
         />
-        <Stack.Screen name="LoginScreen" component={LoginScreen} /> 
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
         {/* Buyer Flow */}
         <Stack.Group
           screenOptions={{
             gestureEnabled: false,
-          }}
-        >
+          }}>
           <Stack.Screen name="BuyerOnboarding" component={BuyerOnboarding} />
           <Stack.Screen name="OTPVerification" component={OTPVerification} />
           <Stack.Screen name="Notification" component={Notifications} />
-          <Stack.Screen name="LocationSelection" component={LocationSelectionScreen} /> 
+          <Stack.Screen
+            name="LocationSelection"
+            component={LocationSelectionScreen}
+          />
           <Stack.Screen name="QuoteRequestPage" component={QuoteRequestPage} />
-            <Stack.Screen name="WindowOptions" component={WindowOptions} />
-
+          <Stack.Screen name="WindowOptions" component={WindowOptions} />
         </Stack.Group>
 
         {/* Buyer Main App with Bottom Tabs */}
         <Stack.Screen
           name="BuyerMain"
           component={BuyerTabs}
-          options={{ gestureEnabled: false }}
+          options={{gestureEnabled: false}}
         />
-         
+
         {/* Buyer Sub-screens that should appear above tabs */}
         <Stack.Group>
           <Stack.Screen name="SellerQuotes" component={SellerQuotes} />
           <Stack.Screen name="ContactSellers" component={ContactSellers} />
-          <Stack.Screen name="RequestStatus" component={RequestStatus} />  
-          <Stack.Screen 
-            name="BuyerAccountPage" 
+          <Stack.Screen name="RequestStatus" component={RequestStatus} />
+          <Stack.Screen
+            name="BuyerAccountPage"
             component={BuyerAccountPage}
             options={{
               animation: 'slide_from_bottom',
               presentation: 'modal',
             }}
-          /> 
-            <Stack.Screen name="PricesScreen" component={Price} />
-           
-              <Stack.Screen name="BuyNowScreen" component={WindowOptions} />
-              
-            <Stack.Screen name="WhiteVsColorsScreen" component={WhiteVsColors} />
-            <Stack.Screen name="ProcessScreen" component={TheProcess} />
+          />
+          <Stack.Screen name="PricesScreen" component={Price} />
+
+          <Stack.Screen name="BuyNowScreen" component={WindowOptions} />
+
+          <Stack.Screen name="WhiteVsColorsScreen" component={WhiteVsColors} />
+          <Stack.Screen name="ProcessScreen" component={TheProcess} />
         </Stack.Group>
 
         {/* Seller Flow */}
         <Stack.Group
           screenOptions={{
             gestureEnabled: false,
-          }}
-        >
-          <Stack.Screen name="WelcomeProfileSetup" component={WelcomeProfileSetup} />
-          <Stack.Screen name="SellerLoginScreen" component={SellerLoginScreen} />
-          <Stack.Screen name="SellerOTPVerification" component={SellerOTPVerification} />
+          }}>
+          <Stack.Screen
+            name="WelcomeProfileSetup"
+            component={WelcomeProfileSetup}
+          />
+          <Stack.Screen
+            name="SellerLoginScreen"
+            component={SellerLoginScreen}
+          />
+          <Stack.Screen
+            name="SellerOTPVerification"
+            component={SellerOTPVerification}
+          />
           <Stack.Screen name="PendingApproval" component={PendingApproval} />
         </Stack.Group>
 
@@ -231,14 +237,14 @@ const AppNavigator = () => {
         <Stack.Screen
           name="SellerMain"
           component={SellerTabs}
-          options={{ gestureEnabled: false }}
+          options={{gestureEnabled: false}}
         />
 
         {/* Seller Sub-screens that should appear above tabs */}
         <Stack.Group>
           <Stack.Screen name="ContactBuyer" component={ContactBuyer} />
-          <Stack.Screen 
-            name="SellerAccountPage" 
+          <Stack.Screen
+            name="SellerAccountPage"
             component={SellerAccountPage}
             options={{
               animation: 'slide_from_bottom',

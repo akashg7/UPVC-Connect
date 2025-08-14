@@ -21,7 +21,7 @@
 //   const [activeTab, setActiveTab] = useState('personal');
 //   const [isEditing, setIsEditing] = useState(false);
 //   const [invoiceVisible, setInvoiceVisible] = useState(false);
-  
+
 //   // Seller information
 //   const [sellerInfo, setSellerInfo] = useState({
 //     company: 'Premium UPVC Solutions',
@@ -92,7 +92,7 @@
 //   const renderPersonalDetails = () => (
 //     <View style={styles.section}>
 //       <AppText weight='Inter' style={styles.sectionTitle}>BUSINESS INFORMATION</AppText>
-      
+
 //       <View style={styles.inputGroup}>
 //         <AppText weight='Inter' style={styles.label}>Company*</AppText>
 //         <View style={styles.inputContainer}>
@@ -263,13 +263,13 @@
 //             <AppText weight='Inter' style={styles.purchaseAmount}>{purchase.amount}</AppText>
 //           </View>
 //           <AppText  weight='Inter'style={styles.purchaseCustomer}>{purchase.customerName}</AppText>
-          
+
 //           <View style={styles.purchaseDetails}>
 //             <AppText weight='Inter' style={styles.detailLabel}>Project: {purchase.details.project.name}</AppText>
 //             <AppText weight='Inter' style={styles.detailLabel}>Location: {purchase.details.project.address}</AppText>
 //             <AppText weight='Inter' style={styles.detailLabel}>Area: {purchase.details.project.totalSqFt}</AppText>
 //           </View>
-          
+
 //           <TouchableOpacity 
 //             style={styles.invoiceButton}
 //             onPress={() => setInvoiceVisible(true)}
@@ -303,14 +303,14 @@
 //               <Icon name="close" size={24} color="#000" />
 //             </TouchableOpacity>
 //           </View>
-          
+
 //           <View style={styles.invoiceSection}>
 //             <AppText weight='Inter' style={styles.invoiceSectionTitle}>Seller Information</AppText>
 //             <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.company}</AppText>
 //             <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.address}, {sellerInfo.city}</AppText>
 //             <AppText weight='Inter' style={styles.invoiceText}>GST: {sellerInfo.gst}</AppText>
 //           </View>
-          
+
 //           <View style={styles.invoiceSection}>
 //             <AppText weight='Inter' style={styles.invoiceSectionTitle}>Invoice Details</AppText>
 //             <View style={styles.invoiceRow}>
@@ -322,7 +322,7 @@
 //               <AppText weight='Inter' style={styles.invoiceValue}>2023-06-15</AppText>
 //             </View>
 //           </View>
-          
+
 //           <View style={styles.invoiceSection}>
 //             <AppText weight='Inter' style={styles.invoiceSectionTitle}>Lead Purchase</AppText>
 //             <View style={styles.invoiceRow}>
@@ -338,12 +338,12 @@
 //               <AppText weight='Inter' style={styles.invoiceValue}>₹350</AppText>
 //             </View>
 //           </View>
-          
+
 //           <View style={styles.invoiceTotal}>
 //             <AppText weight='Inter' style={styles.invoiceTotalLabel}>TOTAL</AppText>
 //             <AppText weight='Inter' style={styles.invoiceTotalValue}>₹350</AppText>
 //           </View>
-          
+
 //           <View style={styles.invoiceFooter}>
 //             <AppText weight='Inter'style={styles.invoiceFooterText}>Thank you for your business!</AppText>
 //           </View>
@@ -368,7 +368,7 @@
 //             resizeMode="contain"
 //           /> 
 //         </View>
-        
+
 //         {/* Tabs */}
 //         <View style={styles.tabContainer}>
 //           <TouchableOpacity
@@ -379,7 +379,7 @@
 //               PERSONAL DETAILS
 //             </AppText>
 //           </TouchableOpacity>
-          
+
 //           <TouchableOpacity
 //             style={[styles.tabButton, activeTab === 'purchase' && styles.activeTab]}
 //             onPress={() => setActiveTab('purchase')}
@@ -389,11 +389,11 @@
 //             </AppText>
 //           </TouchableOpacity>
 //         </View>
-        
+
 //         {/* Content */}
 //         <ScrollView style={styles.contentContainer}>
 //           {activeTab === 'personal' ? renderPersonalDetails() : renderPurchaseHistory()}
-          
+
 //           {/* Additional Sections */}
 //           {activeTab === 'personal' && (
 //             <>
@@ -401,17 +401,17 @@
 //                 <AppText weight='Inter' style={styles.menuText}>TERMS & CONDITIONS</AppText>
 //                 <Icon name="chevron-right" size={24} color="#000" />
 //               </TouchableOpacity>
-              
+
 //               <TouchableOpacity style={styles.menuItem}>
 //                 <AppText weight='Inter' style={styles.menuText}>ABOUT US</AppText>
 //                 <Icon name="chevron-right" size={24} color="#000" />
 //               </TouchableOpacity>
-              
+
 //               <TouchableOpacity style={styles.menuItem}>
 //                 <AppText weight='Inter' style={styles.menuText}>CONTACT US</AppText>
 //                 <Icon name="chevron-right" size={24} color="#000" />
 //               </TouchableOpacity>
-              
+
 //               <TouchableOpacity 
 //                 style={[styles.menuItem, styles.logoutItem]} 
 //                 onPress={handleLogout}
@@ -422,7 +422,7 @@
 //             </>
 //           )}
 //         </ScrollView>
-        
+
 //         {renderInvoiceModal()}
 //       </View>
 //     </View>
@@ -453,7 +453,7 @@ const SellerAccountPage = ({ navigation }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [invoiceVisible, setInvoiceVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   // Seller information
   const [sellerInfo, setSellerInfo] = useState({
     company: '',
@@ -483,7 +483,7 @@ const SellerAccountPage = ({ navigation }) => {
           return;
         }
 
-        const response = await axios.get('http://192.168.1.40:9000/api/sellers', {
+        const response = await axios.get('http://192.168.1.52:9000/api/sellers', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -531,7 +531,7 @@ const SellerAccountPage = ({ navigation }) => {
                 },
               }
             }));
-            console.log("formattedPurchases : " , formattedPurchases)
+            console.log("formattedPurchases : ", formattedPurchases)
             setPurchaseHistory(formattedPurchases);
           }
         }
@@ -575,7 +575,7 @@ const SellerAccountPage = ({ navigation }) => {
       };
 
       const response = await axios.put(
-        'http://192.168.1.40:9000/api/sellers',
+        'http://192.168.1.52:9000/api/sellers',
         updateData,
         {
           headers: {
@@ -583,7 +583,7 @@ const SellerAccountPage = ({ navigation }) => {
           },
         }
       );
-      console.log("response : " , response.data)
+      console.log("response : ", response.data)
       if (response.data.success) {
         Alert.alert('Success', 'Profile updated successfully');
         setIsEditing(false);
@@ -601,7 +601,7 @@ const SellerAccountPage = ({ navigation }) => {
   const renderPersonalDetails = () => (
     <View style={styles.section}>
       <AppText weight='Inter' style={styles.sectionTitle}>BUSINESS INFORMATION</AppText>
-      
+
       <View style={styles.inputGroup}>
         <AppText weight='Inter' style={styles.label}>Company*</AppText>
         <View style={styles.inputContainer}>
@@ -785,11 +785,11 @@ const SellerAccountPage = ({ navigation }) => {
         <AppText weight='Inter' style={styles.editButtonText}>
           {isEditing ? 'SAVE CHANGES' : 'EDIT DETAILS'}
         </AppText>
-        <Icon 
-          name={isEditing ? 'save' : 'edit'} 
-          size={20} 
-          color="#000" 
-          style={styles.editIcon} 
+        <Icon
+          name={isEditing ? 'save' : 'edit'}
+          size={20}
+          color="#000"
+          style={styles.editIcon}
         />
       </TouchableOpacity>
     </View>
@@ -805,25 +805,25 @@ const SellerAccountPage = ({ navigation }) => {
               <AppText weight='Inter' style={styles.purchaseAmount}>{purchase.amount}</AppText>
             </View>
             <AppText weight='Inter' style={styles.purchaseCustomer}>{purchase.customerName}</AppText>
-            
+
             <View style={styles.purchaseDetails}>
               <AppText weight='Inter' style={styles.detailLabel}>Project: {purchase.details.project.name}</AppText>
               <AppText weight='Inter' style={styles.detailLabel}>Location: {purchase.details.project.address}</AppText>
               <AppText weight='Inter' style={styles.detailLabel}>Area: {purchase.details.project.totalSqFt}</AppText>
             </View>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.invoiceButton}
               onPress={() => setInvoiceVisible(true)}
             >
               <AppText weight='Inter' style={styles.invoiceButtonText}>VIEW INVOICE</AppText>
               <Icon name="receipt" size={20} color="#000" />
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.detailsButton}
               onPress={() => navigation.navigate('ContactBuyer', { lead: purchase })}
             >
-              <AppText weight='Inter' style={styles.invoiceButtonText}>VIEW DETAILS</AppText> 
+              <AppText weight='Inter' style={styles.invoiceButtonText}>VIEW DETAILS</AppText>
             </TouchableOpacity>
           </View>
         ))
@@ -848,14 +848,14 @@ const SellerAccountPage = ({ navigation }) => {
               <Icon name="close" size={24} color="#000" />
             </TouchableOpacity>
           </View>
-          
+
           <View style={styles.invoiceSection}>
             <AppText weight='Inter' style={styles.invoiceSectionTitle}>Seller Information</AppText>
             <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.company}</AppText>
             <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.address}, {sellerInfo.city}</AppText>
             <AppText weight='Inter' style={styles.invoiceText}>GST: {sellerInfo.gst}</AppText>
           </View>
-          
+
           <View style={styles.invoiceSection}>
             <AppText weight='Inter' style={styles.invoiceSectionTitle}>Invoice Details</AppText>
             <View style={styles.invoiceRow}>
@@ -867,7 +867,7 @@ const SellerAccountPage = ({ navigation }) => {
               <AppText weight='Inter' style={styles.invoiceValue}>{new Date().toISOString().split('T')[0]}</AppText>
             </View>
           </View>
-          
+
           <View style={styles.invoiceSection}>
             <AppText weight='Inter' style={styles.invoiceSectionTitle}>Lead Purchase</AppText>
             {purchaseHistory.length > 0 && (
@@ -887,14 +887,14 @@ const SellerAccountPage = ({ navigation }) => {
               </>
             )}
           </View>
-          
+
           <View style={styles.invoiceTotal}>
             <AppText weight='Inter' style={styles.invoiceTotalLabel}>TOTAL</AppText>
             {purchaseHistory.length > 0 && (
               <AppText weight='Inter' style={styles.invoiceTotalValue}>{purchaseHistory[0].amount}</AppText>
             )}
           </View>
-          
+
           <View style={styles.invoiceFooter}>
             <AppText weight='Inter' style={styles.invoiceFooterText}>Thank you for your business!</AppText>
           </View>
@@ -915,39 +915,39 @@ const SellerAccountPage = ({ navigation }) => {
 
   if (isLoading && activeTab === 'personal') {
     return (
-      <View style={{paddingTop: insets.top, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white'}}>
+      <View style={{ paddingTop: insets.top, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
         <AppText weight='Inter'>Loading...</AppText>
       </View>
     );
   }
 
-if (!token) {
-  return (
-    <View style={styles.loginPromptContainer}>
-      <View style={styles.loginCard}>
-        <Icon name="lock" size={40} color="#333" style={{ marginBottom: 10 }} />
-        <AppText weight="Inter" style={styles.loginTitle}>
-          Login Required
-        </AppText>
-        <AppText weight="Inter" style={styles.loginMessage}>
-          Please log in to view your details and purchase history.
-        </AppText>
-        <TouchableOpacity 
-          style={styles.loginButton} 
-          onPress={() => navigation.navigate('SellerLoginScreen')}
-        >
-          <AppText weight="Inter" style={styles.loginButtonText}>
-           GO TO LOGIN
+  if (!token) {
+    return (
+      <View style={styles.loginPromptContainer}>
+        <View style={styles.loginCard}>
+          <Icon name="lock" size={40} color="#333" style={{ marginBottom: 10 }} />
+          <AppText weight="Inter" style={styles.loginTitle}>
+            Login Required
           </AppText>
-        </TouchableOpacity>
+          <AppText weight="Inter" style={styles.loginMessage}>
+            Please log in to view your details and purchase history.
+          </AppText>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={() => navigation.navigate('SellerLoginScreen')}
+          >
+            <AppText weight="Inter" style={styles.loginButtonText}>
+              GO TO LOGIN
+            </AppText>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
-}
+    );
+  }
 
 
   return (
-    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+    <View style={{ paddingTop: insets.top, paddingBottom: insets.bottom, flex: 1, backgroundColor: 'white' }}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -955,9 +955,9 @@ if (!token) {
             source={require('../../assets/logo.png')}
             style={styles.logo}
             resizeMode="contain"
-          /> 
+          />
         </View>
-        
+
         {/* Tabs */}
         <View style={styles.tabContainer}>
           <TouchableOpacity
@@ -968,7 +968,7 @@ if (!token) {
               PERSONAL DETAILS
             </AppText>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.tabButton, activeTab === 'purchase' && styles.activeTab]}
             onPress={() => setActiveTab('purchase')}
@@ -978,11 +978,11 @@ if (!token) {
             </AppText>
           </TouchableOpacity>
         </View>
-        
+
         {/* Content */}
         <ScrollView style={styles.contentContainer}>
           {activeTab === 'personal' ? renderPersonalDetails() : renderPurchaseHistory()}
-          
+
           {/* Additional Sections */}
           {activeTab === 'personal' && (
             <>
@@ -990,19 +990,19 @@ if (!token) {
                 <AppText weight='Inter' style={styles.menuText}>TERMS & CONDITIONS</AppText>
                 <Icon name="chevron-right" size={24} color="#000" />
               </TouchableOpacity>
-              
+
               <TouchableOpacity style={styles.menuItem}>
                 <AppText weight='Inter' style={styles.menuText}>ABOUT US</AppText>
                 <Icon name="chevron-right" size={24} color="#000" />
               </TouchableOpacity>
-              
+
               <TouchableOpacity style={styles.menuItem}>
                 <AppText weight='Inter' style={styles.menuText}>CONTACT US</AppText>
                 <Icon name="chevron-right" size={24} color="#000" />
               </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.menuItem, styles.logoutItem]} 
+
+              <TouchableOpacity
+                style={[styles.menuItem, styles.logoutItem]}
                 onPress={handleLogout}
               >
                 <AppText weight='Inter' style={[styles.menuText, styles.logoutText]}>LOGOUT</AppText>
@@ -1011,7 +1011,7 @@ if (!token) {
             </>
           )}
         </ScrollView>
-        
+
         {renderInvoiceModal()}
       </View>
     </View>
@@ -1021,15 +1021,15 @@ if (!token) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff', 
-    paddingBottom:100,
+    backgroundColor: '#fff',
+    paddingBottom: 100,
   },
   header: {
-    alignItems: 'center', 
+    alignItems: 'center',
   },
   logo: {
     width: 100,
-    height: 50, 
+    height: 50,
   },
   invoicelogo: {
     width: 120,
@@ -1037,12 +1037,12 @@ const styles = StyleSheet.create({
   },
   invoicelogocontainer: {
     width: 120,
-    height: 60,  
-    display:"flex",
-    flexDirection:"row",
-    alignItems:"center",
-    justifyContent:"center"
-  }, 
+    height: 60,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center"
+  },
   tabContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
@@ -1058,12 +1058,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#000',
   },
   tabText: {
-    fontSize: 12, 
+    fontSize: 12,
     color: '#666',
-    letterSpacing:1
+    letterSpacing: 1
   },
   activeTabText: {
-    color: '#000', 
+    color: '#000',
   },
   contentContainer: {
     flex: 1,
@@ -1073,7 +1073,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
   },
   sectionTitle: {
-    fontSize: 14, 
+    fontSize: 14,
     color: '#000',
     marginBottom: 20,
     letterSpacing: 1,
@@ -1089,7 +1089,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 12,
     color: '#333',
-    marginBottom: 8, 
+    marginBottom: 8,
   },
   inputContainer: {
     borderWidth: 1,
@@ -1104,7 +1104,7 @@ const styles = StyleSheet.create({
   },
   valueText: {
     fontSize: 14,
-    color: '#000', 
+    color: '#000',
   },
   editButton: {
     flexDirection: 'row',
@@ -1116,10 +1116,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   editButtonText: {
-    fontSize: 14, 
+    fontSize: 14,
     color: '#000',
     marginRight: 10,
-    letterSpacing:2,
+    letterSpacing: 2,
   },
   editIcon: {
     marginTop: 2,
@@ -1144,14 +1144,14 @@ const styles = StyleSheet.create({
   },
   purchaseDate: {
     fontSize: 14,
-    color: '#666', 
+    color: '#666',
   },
   purchaseAmount: {
-    fontSize: 16, 
+    fontSize: 16,
     color: '#000',
   },
   purchaseCustomer: {
-    fontSize: 15, 
+    fontSize: 15,
     color: '#000',
     marginBottom: 12,
   },
@@ -1183,10 +1183,10 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   invoiceButtonText: {
-    fontSize: 12, 
+    fontSize: 12,
     color: '#000',
     marginRight: 8,
-    letterSpacing:2
+    letterSpacing: 2
   },
   menuItem: {
     flexDirection: 'row',
@@ -1199,7 +1199,7 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 14,
     color: '#000',
-    letterSpacing:2,
+    letterSpacing: 2,
   },
   logoutItem: {
     marginTop: 20,
@@ -1230,7 +1230,7 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   invoiceTitle: {
-    fontSize: 20, 
+    fontSize: 20,
     color: '#000',
     letterSpacing: 1,
   },
@@ -1238,7 +1238,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   invoiceSectionTitle: {
-    fontSize: 16, 
+    fontSize: 16,
     color: '#000',
     marginBottom: 12,
     borderBottomWidth: 1,
@@ -1261,7 +1261,7 @@ const styles = StyleSheet.create({
   },
   invoiceValue: {
     fontSize: 14,
-    color: '#000', 
+    color: '#000',
   },
   invoiceTotal: {
     flexDirection: 'row',
@@ -1272,11 +1272,11 @@ const styles = StyleSheet.create({
     borderTopColor: '#000',
   },
   invoiceTotalLabel: {
-    fontSize: 16, 
+    fontSize: 16,
     color: '#000',
   },
   invoiceTotalValue: {
-    fontSize: 18, 
+    fontSize: 18,
     color: '#000',
   },
   invoiceFooter: {
@@ -1334,7 +1334,7 @@ const styles = StyleSheet.create({
   loginButtonText: {
     color: '#fff',
     fontSize: 14,
-    letterSpacing:2,
+    letterSpacing: 2,
   },
 });
 

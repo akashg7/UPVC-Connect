@@ -13,7 +13,7 @@
 
 //   const [activeTab, setActiveTab] = useState('featured');
 //   const [likedPosts, setLikedPosts] = useState([]); 
- 
+
 //   const ads = [
 //     {
 //       id: '1',
@@ -48,7 +48,7 @@
 //       <View style={styles.postHeader}>
 //         <AppText weight='Inter' style={styles.postTitle}>{item.title}</AppText> 
 //       </View>
-      
+
 //       {item.type === 'video' ? (
 //         <View style={styles.videoContainer}>
 //           <Video
@@ -64,9 +64,9 @@
 //       ) : (
 //         <Image source={{ uri: item.url }} style={styles.image} resizeMode="cover" />
 //       )}
-      
+
 //       <AppText weight='Inter' style={styles.postDescription}>{item.description}</AppText>
-      
+
 //       <View style={styles.postFooter}>
 //         <TouchableOpacity 
 //           style={styles.actionButton}
@@ -79,12 +79,12 @@
 //           />
 //           <AppText weight='Inter' style={styles.actionText}>{item.likes + (likedPosts.includes(item.id) ? 1 : 0)}</AppText>
 //         </TouchableOpacity>
-         
+
 //         <TouchableOpacity style={styles.actionButton}>
 //           <Icon name="share" size={22} color="black" />
 //           <AppText weight='Inter' style={styles.actionText}>Share</AppText>
 //         </TouchableOpacity>
-         
+
 //       </View>
 //     </View>
 //   );
@@ -116,7 +116,7 @@
 //           <AppText weight='SemiBold' style={[styles.tabText, activeTab === 'trending' && styles.activeTabText]}>TRENDING</AppText>
 //         </TouchableOpacity>
 //       </View>
-      
+
 //       <FlatList
 //         data={ads}
 //         renderItem={renderItem}
@@ -217,14 +217,14 @@
 
 // export default MarketInsights;
 import React, { useState, useEffect } from 'react';
-import { 
-  View,  
-  StyleSheet, 
-  Image, 
-  FlatList, 
-  TouchableOpacity, 
-  Dimensions, 
-  ActivityIndicator, 
+import {
+  View,
+  StyleSheet,
+  Image,
+  FlatList,
+  TouchableOpacity,
+  Dimensions,
+  ActivityIndicator,
   Alert
 } from 'react-native';
 import Video from 'react-native-video';
@@ -235,7 +235,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
-const BASE_URL = 'http://192.168.1.40:9000/api/advertisments';
+const BASE_URL = 'http://192.168.1.52:9000/api/advertisments';
 
 const MarketInsights = () => {
 
@@ -243,33 +243,33 @@ const MarketInsights = () => {
 
   const [activeTab, setActiveTab] = useState('featured');
   const [ads, setAds] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); 
-  const [userId, setUserId] = useState(null); 
-  console.log("userId : " , userId)
+  const [isLoading, setIsLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
+  console.log("userId : ", userId)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = await AsyncStorage.getItem('sellerToken'); 
+        const token = await AsyncStorage.getItem('sellerToken');
         if (!token) {
           Alert.alert('Please Login');
           return;
-        } 
+        }
         let url = BASE_URL;
         if (activeTab !== 'featured') {
           url = `${BASE_URL}/${activeTab}`;
         }
-        
+
         const response = await axios.get(url, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        const sellerResponse = await axios.get('http://192.168.1.40:9000/api/sellers', {
+        const sellerResponse = await axios.get('http://192.168.1.52:9000/api/sellers', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }); 
+        });
         // console.log("sellerResponse.data : " , )
         setUserId(sellerResponse.data.seller._id);
         setAds(response.data.ads);
@@ -280,10 +280,10 @@ const MarketInsights = () => {
         setIsLoading(false);
       }
     };
-    
+
     fetchData();
   }, [activeTab]);
-  
+
   const toggleLike = async (adId) => {
     try {
       const token = await AsyncStorage.getItem('sellerToken');
@@ -296,30 +296,30 @@ const MarketInsights = () => {
           },
         }
       );
-      
-      setAds(ads.map(ad => 
-        ad._id === adId 
-          ? { 
-              ...ad, 
-              likes: response.data.likes, 
-              likedBy: response.data.isLiked 
-                ? [...ad.likedBy, userId] 
-                : ad.likedBy.filter(id => id !== userId) 
-            } 
+
+      setAds(ads.map(ad =>
+        ad._id === adId
+          ? {
+            ...ad,
+            likes: response.data.likes,
+            likedBy: response.data.isLiked
+              ? [...ad.likedBy, userId]
+              : ad.likedBy.filter(id => id !== userId)
+          }
           : ad
       ));
     } catch (error) {
       Alert.alert('Error', 'Failed to like the post');
       console.error('Error toggling like:', error);
     }
-  };   
+  };
   const renderItem = ({ item }) => (
     <View style={styles.postContainer}>
       <View style={styles.postHeader}>
         <AppText weight='Inter' style={styles.postTitle}>{item.title}</AppText>
-         
+
       </View>
-      
+
       {item.type === 'video' ? (
         <View style={styles.videoContainer}>
           <Video
@@ -333,37 +333,37 @@ const MarketInsights = () => {
           />
         </View>
       ) : (
-        <Image 
-          source={{ uri: `http://localhost:9000/uploads/${item.mediaUrl}` }} 
-          style={styles.image} 
-          resizeMode="cover" 
+        <Image
+          source={{ uri: `http://localhost:9000/uploads/${item.mediaUrl}` }}
+          style={styles.image}
+          resizeMode="cover"
         />
       )}
-      
+
       <AppText weight='Inter' style={styles.postDescription}>{item.description}</AppText>
-      
+
       <View style={styles.postFooter}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.actionButton}
           onPress={() => toggleLike(item._id)}
         >
-          <Icon 
-            name={item.likedBy?.includes(userId) ? "favorite" : "favorite-border"} 
-            size={24} 
-            color={item.likedBy?.includes(userId) ? "red" : "black"} 
+          <Icon
+            name={item.likedBy?.includes(userId) ? "favorite" : "favorite-border"}
+            size={24}
+            color={item.likedBy?.includes(userId) ? "red" : "black"}
           />
           <AppText weight='Inter' style={styles.actionText}>{item.likes}</AppText>
         </TouchableOpacity>
-         
+
         <TouchableOpacity style={styles.actionButton}>
           <Icon name="share" size={22} color="black" />
           <AppText weight='Inter' style={styles.actionText}>Share</AppText>
         </TouchableOpacity>
-         
+
       </View>
     </View>
   );
-  
+
   if (isLoading) {
     return (
       <View style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
@@ -374,14 +374,14 @@ const MarketInsights = () => {
 
   return (
     <View style={{ paddingTop: insets.top, flex: 1, backgroundColor: 'white' }}>
-      <View style={styles.container}> 
+      <View style={styles.container}>
         <Image
           source={require('../../assets/logo.png')}
           style={styles.logo}
         />
-        
+
         <View style={styles.tabs}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.tab, activeTab === 'featured' && styles.activeTab]}
             onPress={() => setActiveTab('featured')}
           >
@@ -389,8 +389,8 @@ const MarketInsights = () => {
               FEATURED
             </AppText>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.tab, activeTab === 'latest' && styles.activeTab]}
             onPress={() => setActiveTab('latest')}
           >
@@ -398,8 +398,8 @@ const MarketInsights = () => {
               LATEST
             </AppText>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.tab, activeTab === 'trending' && styles.activeTab]}
             onPress={() => setActiveTab('trending')}
           >
@@ -408,7 +408,7 @@ const MarketInsights = () => {
             </AppText>
           </TouchableOpacity>
         </View>
-        
+
         <FlatList
           data={ads}
           renderItem={renderItem}
@@ -421,9 +421,9 @@ const MarketInsights = () => {
             </View>
           }
         />
-         
+
       </View>
-       
+
     </View>
   );
 };
@@ -431,16 +431,16 @@ const MarketInsights = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white', 
-    paddingBottom:50 
-  },  
-  logo: { 
+    backgroundColor: 'white',
+    paddingBottom: 50
+  },
+  logo: {
     alignSelf: "center",
-    width: 100, 
-    height: 50,   
+    width: 100,
+    height: 50,
   },
   tabs: {
-    flexDirection: 'row', 
+    flexDirection: 'row',
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
@@ -451,14 +451,14 @@ const styles = StyleSheet.create({
   },
   activeTab: {
     borderBottomWidth: 2,
-    borderBottomColor: 'black', 
+    borderBottomColor: 'black',
   },
   tabText: {
     fontSize: 12,
-    color: '#888', 
+    color: '#888',
     letterSpacing: 2,
   },
-  activeTabText: { 
+  activeTabText: {
     color: 'black',
   },
   listContent: {
@@ -478,8 +478,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   postTitle: {
-    textAlign:"center",
-    fontSize: 18, 
+    textAlign: "center",
+    fontSize: 18,
     color: 'black',
     flex: 1,
   },
@@ -505,14 +505,14 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: 10,
     lineHeight: 20,
-    textAlign:"center",
+    textAlign: "center",
   },
   postFooter: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 15,
     justifyContent: 'space-between',
-    paddingHorizontal:10
+    paddingHorizontal: 10
   },
   actionButton: {
     flexDirection: 'row',
