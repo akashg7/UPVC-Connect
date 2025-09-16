@@ -15,6 +15,7 @@ import AppText from '../../../../components/AppText';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {useFocusEffect} from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 
 const {width} = Dimensions.get('window');
 
@@ -41,7 +42,7 @@ const WindowPrices = () => {
     const fetchHomepageData = async () => {
       try {
         const response = await axios.get(
-          'http://192.168.1.52:9000/api/homepage',
+          'http://10.7.10.49:9000/api/homepage',
         );
         setHomepageData(response.data.data);
       } catch (error) {
@@ -54,7 +55,7 @@ const WindowPrices = () => {
     //  const fetchHomepageData = async () => {
     //   try {
     //     const response = await axios.get(
-    //       'http://192.168.1.52:9000/api/banner',
+    //       'http://10.7.10.49:9000/api/banner',
     //     );
 
     //     console.log(response)
@@ -72,7 +73,7 @@ const WindowPrices = () => {
   // useEffect(() => {
   //   const fetchHomepageData = async () => {
   //     try {
-  //       const response = await axios.get('http://192.168.1.52:9000/api/banner');
+  //       const response = await axios.get('http://10.7.10.49:9000/api/banner');
 
   //       if (Array.isArray(response.data) && response.data.length > 0) {
   //         // Sort banners by createdAt in descending order
@@ -178,23 +179,26 @@ const WindowPrices = () => {
       </View>
 
       {homepageData?.sponsorLogo && (
-        <View style={styles.premiumSponsorContainer}>
-          <View style={styles.premiumSponsorContent}>
-            <View style={styles.sponsorDivider} />
-            <Text style={styles.premiumSponsorText}>VIDEO SPONSORED BY</Text>
+        <View style={styles.sponsorContainer}>
+          <LinearGradient
+                              colors={['white', 'white']}
+                              style={styles.sponsorGradient}>
+
+                              </LinearGradient>
+          <View style={styles.sponsorContent}> 
             <Image
               source={{
-                uri: `http://192.168.1.52:9000/${homepageData.sponsorLogo}`,
+                uri: `http://10.7.10.49:9000/${homepageData.sponsorLogo}`,
               }}
-              style={styles.premiumSponsorLogo}
+              style={styles.sponsorLogo}
               resizeMode="contain"
             />
             {homepageData.sponsorText && (
-              <AppText weight="Inter" style={styles.premiumSponsorText}>
-                {homepageData.sponsorText.toUpperCase()}
+              <AppText weight="Inter" style={styles.sponsorText}>
+                SPONSORED BY {homepageData.sponsorText.toUpperCase()}
               </AppText>
             )}
-            <View style={styles.sponsorDivider} />
+            
           </View>
         </View>
       )}
@@ -205,11 +209,11 @@ const WindowPrices = () => {
           <Video
             ref={videoRef}
             source={{
-              uri: `http://192.168.1.52:9000/${homepageData.videoUrl}`,
+              uri: `http://10.7.10.49:9000/${homepageData.videoUrl}`,
             }}
             style={styles.videoPlayer}
             paused={paused} // controlled via state
-            repeat={true}
+            // repeat={true}
             resizeMode="contain"
             controls={true}
             onError={() => setVideoError(true)}
@@ -249,7 +253,7 @@ const WindowPrices = () => {
                 <View style={styles.carouselContent}>
                   <Image
                     source={{
-                      uri: `http://192.168.1.52:9000/${item.thumbnail}`,
+                      uri: `http://10.7.10.49:9000/${item.thumbnail}`,
                     }}
                     style={styles.thumbnailImage}
                     resizeMode="cover"

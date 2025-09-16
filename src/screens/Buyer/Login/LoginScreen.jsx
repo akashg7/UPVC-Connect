@@ -14,7 +14,6 @@ import Toast from 'react-native-toast-message';
 import AppText from '../../../components/AppText';
 import * as Animatable from 'react-native-animatable';
 import axios from 'axios';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({navigation}) => {
   const [userName, setUserName] = useState('');
@@ -28,7 +27,7 @@ const LoginScreen = ({navigation}) => {
 
     try {
       const response = await axios.post(
-        'http://192.168.1.52:9000/api/auth/login',
+        'http://10.7.10.49:9000/api/auth/login',
         {
           name: userName,
           mobileNumber,
@@ -42,8 +41,7 @@ const LoginScreen = ({navigation}) => {
 
       console.log('data : ', response.data);
 
-      if (response.status === 200) {
-        // Show premium OTP notification
+      if (response.status === 200) { 
         Toast.show({
           type: 'otpNotification',
           position: 'top',
@@ -58,13 +56,13 @@ const LoginScreen = ({navigation}) => {
               mobileNumber,
               userName,
               token: response.data.token,
+              autootp: response.data.otp
             }),
         });
       } else {
         throw new Error(response.data.message || 'Failed to send OTP');
       }
-    } catch (error) {
-      // Axios wraps the error response in error.response
+    } catch (error) { 
       const errorMessage = error.response?.data?.message || error.message;
 
       Toast.show({
@@ -87,7 +85,7 @@ const LoginScreen = ({navigation}) => {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0} // Adjust if needed
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0} 
     >
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
@@ -170,13 +168,11 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#333',
-    // fontWeight: '500',
+    color: '#333', 
     textAlign: 'center',
     letterSpacing: 0.3,
   },
-  container: {
-    // flex: 1,
+  container: { 
     backgroundColor: '#fff',
     paddingHorizontal: 24,
     flexDirection: 'column',

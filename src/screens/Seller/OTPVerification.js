@@ -13,6 +13,7 @@ const SellerOTPVerification = ({ route, navigation }) => {
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [canResend, setCanResend] = useState(false);
+  const [showresend, setShowresend] = useState(true);
   const { mobileNumber } = route.params;
 
   const handleVerify = async (submittedOtp = otp) => {
@@ -31,7 +32,7 @@ const SellerOTPVerification = ({ route, navigation }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://192.168.1.52:9000/api/sellers/verify-otp',
+        'http://10.7.10.49:9000/api/sellers/verify-otp',
         {
           phoneNumber: mobileNumber,
           otp: submittedOtp
@@ -56,10 +57,16 @@ const SellerOTPVerification = ({ route, navigation }) => {
           if (response.data.isNewUser) {
             navigation.replace('WelcomeProfileSetup', { mobileNumber });
           } else {
-            navigation.replace('SellerMain');
+            // navigation.replace('SellerMain');
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'SellerMain' }],
+            });
+
           }
         }
       });
+      setShowresend(false)
       // console.log("notify success")
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'OTP verification failed';
@@ -81,7 +88,7 @@ const SellerOTPVerification = ({ route, navigation }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://192.168.1.52:9000/api/sellers/send-otp',
+        'http://10.7.10.49:9000/api/sellers/send-otp',
         { phoneNumber: mobileNumber }
       );
 
@@ -153,21 +160,33 @@ const SellerOTPVerification = ({ route, navigation }) => {
           disabled={loading}
         />
 
-        <ResendTimer
+        {/* <ResendTimer
           duration={30}
           onResend={() => setCanResend(true)}
           style={styles.resendTimer}
-        />
+        /> */}
+        { showresend ? 
+        <>
+          <ResendTimer
+            duration={30}
+            canResend={canResend}
+            onTimeout={() => setCanResend(true)} // parent controls when resend is allowed
+          />
+   
+          <PrimaryButton
+            title="Resend OTP"
+            onPress={resendOtp}
+            style={[
+              styles.resendButton,
+              (!canResend || loading) && styles.disabledButton
+            ]}
+            disabled={!canResend || loading}
+          />
+        </> : 
+        <>
 
-        <PrimaryButton
-          title="Resend OTP"
-          onPress={resendOtp}
-          style={[
-            styles.resendButton,
-            (!canResend || loading) && styles.disabledButton
-          ]}
-          disabled={!canResend || loading}
-        />
+        </>
+}
       </View>
     </View>
   );

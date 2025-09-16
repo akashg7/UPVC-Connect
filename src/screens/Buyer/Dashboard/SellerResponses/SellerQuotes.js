@@ -3,7 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet, Dimensions, 
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PrimaryButton from '../../../../components/UI/PrimaryButton';
 import Video from 'react-native-video';
-import dummyVideo from '../../../../assets/dummy.mp4';
+// import dummyVideo from '../../../../assets/dummy.mp4';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,7 +22,7 @@ const SellerQuotes = ({ navigation }) => {
       id: '1',
       name: 'UPVC Window Experts',
       phone: '+919876543210',
-      videoLink: dummyVideo,
+      videoLink: "dummyVideo",
       specialty: 'Tinted glass specialist',
       rating: 4.8,
       projects: 124,
@@ -34,7 +34,7 @@ const SellerQuotes = ({ navigation }) => {
       id: '2',
       name: 'UPVC Doors Experts',
       phone: '+919876543211',
-      videoLink: dummyVideo,
+      videoLink: "dummyVideo",
       specialty: 'Tinted Door specialist',
       rating: 4.0,
       projects: 12,

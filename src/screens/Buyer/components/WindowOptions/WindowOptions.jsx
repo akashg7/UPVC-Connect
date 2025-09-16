@@ -24,11 +24,14 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import PremiumLoginModal from '../../../../components/PremiumLoginModal';
+import { createLanguageService } from 'typescript';
+import HamburgerMenu from '../HamburgerMenu';
 const {width, height} = Dimensions.get('window');
+import {useFocusEffect} from '@react-navigation/native';
 
-const WindowOptions = () => {
-  const insets = useSafeAreaInsets();
-
+const WindowOptions = ({route}) => {
+  const insets = useSafeAreaInsets(); 
+  const selectedCategory = route?.params?.selectedCategory || null;
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedDesign, setSelectedDesign] = useState(null);
   const [currentDesignIndex, setCurrentDesignIndex] = useState(0);
@@ -55,83 +58,40 @@ const WindowOptions = () => {
   const [colorOpen, setColorOpen] = useState(false);
   const [colorValue, setColorValue] = useState(null);
   const [colorItems, setColorItems] = useState([
-    {label: 'White', value: 'white'},
-    {label: 'Black', value: 'black'},
-    {label: 'Wooden Brown', value: 'brown'},
-    {label: 'Silver Grey', value: 'grey'},
-    {label: 'Golden Oak', value: 'golden'},
+    {label: 'White', value: 'White'},
+    {label: 'Black', value: 'Black'},
+    {label: 'Wooden Brown', value: 'Wooden Brown'},
+    {label: 'Silver Grey', value: 'Silver Grey'},
+    {label: 'Golden Oak', value: 'Golden Oak'},
   ]);
 
   // Dropdown states for location
   const [locationOpen, setLocationOpen] = useState(false);
   const [locationValue, setLocationValue] = useState(null);
   const [locationItems, setLocationItems] = useState([
-    {label: 'Balcony', value: 'balcony'},
-    {label: 'Living Room', value: 'living_room'},
-    {label: 'Bedroom', value: 'bedroom'},
-    {label: 'Kitchen', value: 'kitchen'},
-    {label: 'Bathroom', value: 'bathroom'},
+    {label: 'Balcony', value: 'Balcony'},
+    {label: 'Living Room', value: 'Living Room'},
+    {label: 'Bedroom', value: 'Bedroom'},
+    {label: 'Kitchen', value: 'Kitchen'},
+    {label: 'Bathroom', value: 'Bathroom'},
   ]);
 
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef(null);
-
-  // useEffect(() => {
-
-  //   const fetchData = async () => {
-  //     try {
-  //       const token = await AsyncStorage.getItem('buyerToken');
-  //       if(!token){
-  //         return
-  //       }
-  //       if (token) {
-  //         setBuyerId(token);
-  //       }
-
-  //       const response = await axios.get('http://192.168.1.52:9000/api/options');
-  //       const formattedData = response.data.map(item => ({
-  //         id: item._id,
-  //         name: item.title.toUpperCase(),
-  //         count: item.subOptions.length,
-  //         designs: item.subOptions.map(subItem => ({
-  //           id: subItem._id,
-  //           title: subItem.title,
-  //           video: subItem.videoUrl,
-  //           features: subItem.features
-  //         }))
-  //       }));
-  //       setWindowDesigns(formattedData);
-
-  //       const responseQuotes = await axios.get('http://192.168.1.52:9000/api/quotes/buyer', {
-  //         headers: {
-  //           'Authorization': `Bearer ${token}`,
-  //           'Content-Type': 'application/json'
-  //         }
-  //       })
-  //       setQuoteCount(responseQuotes?.data?.count)
-
-  //     } catch (err) {
-  //       setError(err.message);
-  //       console.error('Error fetching data:', err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, []);
-
-  useEffect(() => {
+ 
+// Inside your component, replace the current useEffect with:
+useFocusEffect(
+  React.useCallback(() => {
     const fetchData = async () => {
       try {
         const token = await AsyncStorage.getItem('buyerToken');
-        setIsLoggedIn(!!token); // Set login status based on token existence
+        console.log("token : ", token);
+        setIsLoggedIn(!!token);
 
         if (token) {
           setBuyerId(token);
-          // Only fetch quotes if logged in
           const responseQuotes = await axios.get(
-            'http://192.168.1.52:9000/api/quotes/buyer',
+            'http://10.7.10.49:9000/api/quotes/buyer',
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -139,11 +99,14 @@ const WindowOptions = () => {
               },
             },
           );
-          setQuoteCount(responseQuotes?.data?.count);
+          console.log("responseQuotes data : ", responseQuotes?.data);
+          setQuoteCount(
+            responseQuotes?.data?.quotes?.filter(q => q.isGenerated === false)?.length || 0
+          );
         }
 
         const response = await axios.get(
-          'http://192.168.1.52:9000/api/options',
+          'http://10.7.10.49:9000/api/options',
         );
         const formattedData = response.data.map(item => ({
           id: item._id,
@@ -166,7 +129,12 @@ const WindowOptions = () => {
     };
 
     fetchData();
-  }, []);
+
+    return () => {
+      // Cleanup if needed
+    };
+  }, [])
+);
 
   const handleRequestQuote = () => {
     const finalQuoteData = {
@@ -191,6 +159,21 @@ const WindowOptions = () => {
 
     navigation.navigate('BuyerMain', {screen: 'BuyerInsights'});
   };
+  console.log("selectedCategory : " , selectedCategory)
+  const handlecategorycheck = () => {
+    if (selectedCategory) {
+      navigation.navigate('QuoteRequestPage', {
+        quotes: addedQuotes,
+        selectedCategory: selectedCategory,
+        formData: route.params?.formData
+      })
+    } else{
+      navigation.navigate('QuoteRequestPage', {
+        quotes: addedQuotes,
+        formData: route.params?.formData
+      })
+    } 
+  }
 
   const handleDesignSelection = design => {
     if (selectedDesign && selectedDesign.id === design.id) {
@@ -233,8 +216,7 @@ const WindowOptions = () => {
       const token = await AsyncStorage.getItem('buyerToken');
 
       if (!token) {
-        setShowLoginModal(true);
-        // Alert.alert('Login Required', 'Please login to generate a quote');
+        setShowLoginModal(true); 
         setShowQuoteForm(false);
         return;
       }
@@ -267,6 +249,7 @@ const WindowOptions = () => {
 
       const success = await submitQuote(newQuote, token); // Pass token for auth
       if (success) {
+        console.log("Success qoute created")
         setAddedQuotes([...addedQuotes, newQuote]);
         setQuoteCount(quoteCount + 1);
 
@@ -285,14 +268,14 @@ const WindowOptions = () => {
       }
     } catch (error) {
       console.error('Error adding quote:', error);
-      Alert.alert('Error', 'Failed to submit quote');
+      Alert.alert('Failed to submit quote');
     }
   };
 
   const submitQuote = async (quoteData, token) => {
     try {
       const response = await axios.post(
-        'http://192.168.1.52:9000/api/quotes',
+        'http://10.7.10.49:9000/api/quotes',
         quoteData,
         {
           headers: {
@@ -310,15 +293,14 @@ const WindowOptions = () => {
 
   const renderDesignItem = ({item}) => (
     <View style={styles.carouselItem}>
-      <AppText weight="Inter" style={styles.videoTitle}>
+      <AppText weight="SemiBold" style={styles.videoTitle}>
         {item.title}
       </AppText>
       <View style={styles.videoContainer}>
         <Video
           source={{uri: item.video}}
           style={styles.videoPlayer}
-          paused={false}
-          repeat={true}
+          paused={false} 
           resizeMode="cover"
           controls={true}
         />
@@ -362,11 +344,16 @@ const WindowOptions = () => {
             onPress={() => navigation.goBack()}>
             <Icon name="arrow-back" size={30} color="#000" />
           </TouchableOpacity>
+
           <View style={styles.logoContainer}>
             <Image
               source={require('../../../../assets/logo.png')}
               style={styles.logo}
             />
+          </View>
+          
+          <View style={styles.menuContainer}>
+            <HamburgerMenu/>
           </View>
         </View>
         <TopTabBar />
@@ -383,9 +370,7 @@ const WindowOptions = () => {
             <View style={styles.topQuote}>
               <TouchableOpacity
                 style={styles.floatingButton}
-                onPress={() =>
-                  navigation.navigate('QuoteRequestPage', {quotes: addedQuotes})
-                }>
+                onPress={handlecategorycheck}> 
                 <View style={styles.badge}>
                   <AppText weight="Inter" style={styles.badgeText}>
                     {quoteCount}
@@ -394,17 +379,7 @@ const WindowOptions = () => {
                 <AppText weight="Inter" style={styles.floatingButtonText}>
                   View
                 </AppText>
-              </TouchableOpacity>
-
-              <View style={styles.categoryButton}>
-                <TouchableOpacity
-                  style={styles.submitButton2}
-                  onPress={handleRequestQuote}>
-                  <AppText weight="Inter" style={styles.submitButtonText}>
-                    Select Categories
-                  </AppText>
-                </TouchableOpacity>
-              </View>
+              </TouchableOpacity> 
             </View>
           )}
           {windowDesigns.map((design,index) => (
@@ -489,7 +464,7 @@ const WindowOptions = () => {
                     </TouchableOpacity>
                   </View>
                   <View style={styles.featuresContainer}>
-                    <AppText weight="weight=" style={styles.featuresTitle}>
+                    <AppText weight="SemiBold" style={styles.featuresTitle}>
                       Key Features:
                     </AppText>
                     {selectedDesign.designs[currentDesignIndex]?.features?.map(
@@ -501,8 +476,7 @@ const WindowOptions = () => {
                     style={styles.quoteButton}
                     onPress={() => {
                       if (!isLoggedIn) {
-                        setShowLoginModal(true);
-                        // Alert.alert('Login Required', 'Please login to generate a quote');
+                        setShowLoginModal(true); 
                         return;
                       }
                       setShowQuoteForm(true);
@@ -754,7 +728,7 @@ const WindowOptions = () => {
 //           setBuyerId(token);
 //           // Only fetch quotes if logged in
 //           const responseQuotes = await axios.get(
-//             'http://192.168.1.52:9000/api/quotes/buyer',
+//             'http://10.7.10.49:9000/api/quotes/buyer',
 //             {
 //               headers: {
 //                 Authorization: `Bearer ${token}`,
@@ -766,7 +740,7 @@ const WindowOptions = () => {
 //         }
 
 //         const response = await axios.get(
-//           'http://192.168.1.52:9000/api/options',
+//           'http://10.7.10.49:9000/api/options',
 //         );
 //         const formattedData = response.data.map(item => ({
 //           id: item._id,
@@ -896,7 +870,7 @@ const WindowOptions = () => {
 //   const submitQuote = async (quoteData, token) => {
 //     try {
 //       const response = await axios.post(
-//         'http://192.168.1.52:9000/api/quotes',
+//         'http://10.7.10.49:9000/api/quotes',
 //         quoteData,
 //         {
 //           headers: {
@@ -1274,20 +1248,34 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     paddingBottom: 25,
   },
+  Headercontainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    width: '100%',
+  },
   backButton: {
-    position: 'absolute',
-    left: 10,
-    top: '30%',
-    transform: [{translateY: -12}],
+    // position: 'absolute',
+    // left: 10,
+    // top: '30%',
+    // transform: [{translateY: -12}],
+    // padding: 5,
     padding: 5,
+    width: 40,
+    alignItems: 'flex-start',
   },
   loaderContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
 
   logoContainer: {
-    justifyContent: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    flex: 1,
     alignItems: 'center',
   },
   errorContainer: {
@@ -1303,6 +1291,10 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 50,
+  },
+  menuContainer: {
+    width: 40,
+    alignItems: 'flex-end',
   },
   scrollContainer: {
     padding: 20,
@@ -1386,6 +1378,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black',
     marginBottom: 15,
+    letterSpacing:1
   },
   featuresContainer: {
     marginBottom: 25,
@@ -1395,6 +1388,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'black',
     marginBottom: 15,
+    letterSpacing:1
   },
   featureItem: {
     flexDirection: 'row',
@@ -1687,7 +1681,7 @@ export default WindowOptions;
 
 //         // Fetch window designs
 //         const response = await axios.get(
-//           'http://192.168.1.52:9000/api/options',
+//           'http://10.7.10.49:9000/api/options',
 //         );
 //         setWindowDesigns(
 //           response.data.map(item => ({
@@ -1705,7 +1699,7 @@ export default WindowOptions;
 //         // Fetch quote count if logged in
 //         if (token) {
 //           const quotesResponse = await axios.get(
-//             'http://192.168.1.52:9000/api/quotes/buyer',
+//             'http://10.7.10.49:9000/api/quotes/buyer',
 //             {headers: {Authorization: `Bearer ${token}`}},
 //           );
 //           setQuoteCount(quotesResponse.data?.count || 0);
@@ -1746,7 +1740,7 @@ export default WindowOptions;
 
 //     try {
 //       await axios.post(
-//         'http://192.168.1.52:9000/api/quotes',
+//         'http://10.7.10.49:9000/api/quotes',
 //         {
 //           product: selectedDesign.designs[currentDesignIndex].id,
 //           color: colorValue,

@@ -446,10 +446,11 @@ import AppText from '../../components/AppText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
+import Toast from 'react-native-toast-message';
 
 const SellerAccountPage = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
-  const [activeTab, setActiveTab] = useState('personal');
+  const insets = useSafeAreaInsets(); 
+  const [activeTab, setActiveTab] = useState('purchase');
   const [isEditing, setIsEditing] = useState(false);
   const [invoiceVisible, setInvoiceVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -478,12 +479,11 @@ const SellerAccountPage = ({ navigation }) => {
       try {
         const token = await AsyncStorage.getItem('sellerToken');
         setToken(token)
-        if (!token) {
-          // navigation.navigate("UserTypeSelection");
+        if (!token) { 
           return;
         }
 
-        const response = await axios.get('http://192.168.1.52:9000/api/sellers', {
+        const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -507,7 +507,10 @@ const SellerAccountPage = ({ navigation }) => {
 
           // Format purchase history from leads
           if (seller.leads && seller.leads.length > 0) {
-            const formattedPurchases = seller.leads.map(lead => ({
+            const formattedPurchases = seller.leads
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // recent first
+              .map(lead => ({
+
               id: lead._id,
               rawData: lead,
               date: new Date(lead.createdAt).toISOString().split('T')[0],
@@ -554,8 +557,7 @@ const SellerAccountPage = ({ navigation }) => {
     try {
       setIsLoading(true);
       const token = await AsyncStorage.getItem('sellerToken');
-      if (!token) {
-        // navigation.navigate("UserTypeSelection");
+      if (!token) { 
         Alert.alert("Please Login")
         return;
       }
@@ -573,9 +575,13 @@ const SellerAccountPage = ({ navigation }) => {
         yearsInBusiness: parseInt(sellerInfo.yearsInBusiness) || 0,
         website: sellerInfo.website
       };
+      alert("Your request for verification has been submited") 
+      setIsEditing(false)
+      return 
+      console.log("updateData : " , updateData)
 
       const response = await axios.put(
-        'http://192.168.1.52:9000/api/sellers',
+        'http://10.7.10.49:9000/api/sellers',
         updateData,
         {
           headers: {
@@ -583,11 +589,13 @@ const SellerAccountPage = ({ navigation }) => {
           },
         }
       );
+     
       console.log("response : ", response.data)
       if (response.data.success) {
         Alert.alert('Success', 'Profile updated successfully');
         setIsEditing(false);
       } else {
+        console.log("response.data.message : " , response.data.message)
         throw new Error(response.data.message || 'Failed to update profile');
       }
     } catch (error) {
@@ -768,13 +776,35 @@ const SellerAccountPage = ({ navigation }) => {
             <TextInput
               style={styles.input}
               value={sellerInfo.brandProfile}
-              onChangeText={(text) => handleInputChange('brandProfile', text)}
+              editable={false}
+              // onChangeText={(text) => handleInputChange('brandProfile', text)}
               placeholder="e.g., Veka, Aluplast"
             />
           ) : (
             <AppText weight='Inter' style={styles.valueText}>{sellerInfo.brandProfile || 'Not specified'}</AppText>
           )}
         </View>
+        {/* <RNPickerSelect
+            placeholder={{ label: 'Select a brand...', value: null }}
+            // value={formData.brandOfProfileUsed}
+            value={sellerInfo.brandProfile}
+            onValueChange={(val) =>{
+              return
+            }
+            //  handleChange('brandOfProfileUsed', val)
+            }
+            items={[
+              { label: 'Fenesta', value: 'fenesta' },
+              { label: 'Aparna Venster', value: 'aparna' },
+              { label: 'LG Hausys', value: 'lg' },
+            ]}
+            style={{
+              inputIOS: styles.pickerInput,
+              inputAndroid: styles.pickerInput,
+              iconContainer: styles.pickerIcon,
+            }}
+            Icon={() => <Icon name="arrow-drop-down" size={24} color="#000" />}
+          /> */}
       </View>
 
       <TouchableOpacity
@@ -834,84 +864,193 @@ const SellerAccountPage = ({ navigation }) => {
   );
 
   const renderInvoiceModal = () => (
-    <Modal
-      visible={invoiceVisible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={() => setInvoiceVisible(false)}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.invoiceContainer}>
-          <View style={styles.invoiceHeader}>
-            <AppText weight='Inter' style={styles.invoiceTitle}>INVOICE</AppText>
-            <TouchableOpacity onPress={() => setInvoiceVisible(false)}>
-              <Icon name="close" size={24} color="#000" />
-            </TouchableOpacity>
-          </View>
+    // <Modal
+    //   visible={invoiceVisible}
+    //   animationType="slide"
+    //   transparent={true}
+    //   onRequestClose={() => setInvoiceVisible(false)}
+    // >
+    //   <View style={styles.modalOverlay}>
+    //     <View style={styles.invoiceContainer}>
+    //       <View style={styles.invoiceHeader}>
+    //         <AppText weight='Inter' style={styles.invoiceTitle}>INVOICE</AppText>
+    //         <TouchableOpacity onPress={() => setInvoiceVisible(false)}>
+    //           <Icon name="close" size={24} color="#000" />
+    //         </TouchableOpacity>
+    //       </View>
 
-          <View style={styles.invoiceSection}>
-            <AppText weight='Inter' style={styles.invoiceSectionTitle}>Seller Information</AppText>
-            <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.company}</AppText>
-            <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.address}, {sellerInfo.city}</AppText>
-            <AppText weight='Inter' style={styles.invoiceText}>GST: {sellerInfo.gst}</AppText>
-          </View>
+    //       <View style={styles.invoiceSection}>
+    //         <AppText weight='Inter' style={styles.invoiceSectionTitle}>Seller Information</AppText>
+    //         <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.company}</AppText>
+    //         <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.address}, {sellerInfo.city}</AppText>
+    //         <AppText weight='Inter' style={styles.invoiceText}>GST: {sellerInfo.gst}</AppText>
+    //       </View>
 
-          <View style={styles.invoiceSection}>
-            <AppText weight='Inter' style={styles.invoiceSectionTitle}>Invoice Details</AppText>
-            <View style={styles.invoiceRow}>
-              <AppText weight='Inter' style={styles.invoiceLabel}>Invoice #:</AppText>
-              <AppText weight='Inter' style={styles.invoiceValue}>INV-{new Date().getFullYear()}-{Math.floor(1000 + Math.random() * 9000)}</AppText>
-            </View>
-            <View style={styles.invoiceRow}>
-              <AppText weight='Inter' style={styles.invoiceLabel}>Date:</AppText>
-              <AppText weight='Inter' style={styles.invoiceValue}>{new Date().toISOString().split('T')[0]}</AppText>
-            </View>
-          </View>
+    //       <View style={styles.invoiceSection}>
+    //         <AppText weight='Inter' style={styles.invoiceSectionTitle}>Invoice Details</AppText>
+    //         <View style={styles.invoiceRow}>
+    //           <AppText weight='Inter' style={styles.invoiceLabel}>Invoice #:</AppText>
+    //           <AppText weight='Inter' style={styles.invoiceValue}>INV-{new Date().getFullYear()}-{Math.floor(1000 + Math.random() * 9000)}</AppText>
+    //         </View>
+    //         <View style={styles.invoiceRow}>
+    //           <AppText weight='Inter' style={styles.invoiceLabel}>Date:</AppText>
+    //           <AppText weight='Inter' style={styles.invoiceValue}>{new Date().toISOString().split('T')[0]}</AppText>
+    //         </View>
+    //       </View>
 
-          <View style={styles.invoiceSection}>
-            <AppText weight='Inter' style={styles.invoiceSectionTitle}>Lead Purchase</AppText>
-            {purchaseHistory.length > 0 && (
-              <>
-                <View style={styles.invoiceRow}>
-                  <AppText weight='Inter' style={styles.invoiceLabel}>Customer:</AppText>
-                  <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].customerName}</AppText>
-                </View>
-                <View style={styles.invoiceRow}>
-                  <AppText weight='Inter' style={styles.invoiceLabel}>Project:</AppText>
-                  <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].details.project.name}</AppText>
-                </View>
-                <View style={styles.invoiceRow}>
-                  <AppText weight='Inter' style={styles.invoiceLabel}>Lead Price:</AppText>
-                  <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].amount}</AppText>
-                </View>
-              </>
-            )}
-          </View>
+    //       <View style={styles.invoiceSection}>
+    //         <AppText weight='Inter' style={styles.invoiceSectionTitle}>Lead Purchase</AppText>
+    //         {purchaseHistory.length > 0 && (
+    //           <>
+    //             <View style={styles.invoiceRow}>
+    //               <AppText weight='Inter' style={styles.invoiceLabel}>Customer:</AppText>
+    //               <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].customerName}</AppText>
+    //             </View>
+    //             <View style={styles.invoiceRow}>
+    //               <AppText weight='Inter' style={styles.invoiceLabel}>Project:</AppText>
+    //               <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].details.project.name}</AppText>
+    //             </View>
+    //             <View style={styles.invoiceRow}>
+    //               <AppText weight='Inter' style={styles.invoiceLabel}>Lead Price:</AppText>
+    //               <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].amount}</AppText>
+    //             </View>
+    //           </>
+    //         )}
+    //       </View>
 
-          <View style={styles.invoiceTotal}>
-            <AppText weight='Inter' style={styles.invoiceTotalLabel}>TOTAL</AppText>
-            {purchaseHistory.length > 0 && (
-              <AppText weight='Inter' style={styles.invoiceTotalValue}>{purchaseHistory[0].amount}</AppText>
-            )}
-          </View>
+    //       <View style={styles.invoiceTotal}>
+    //         <AppText weight='Inter' style={styles.invoiceTotalLabel}>TOTAL</AppText>
+    //         {purchaseHistory.length > 0 && (
+    //           <AppText weight='Inter' style={styles.invoiceTotalValue}>{purchaseHistory[0].amount}</AppText>
+    //         )}
+    //       </View>
 
-          <View style={styles.invoiceFooter}>
-            <AppText weight='Inter' style={styles.invoiceFooterText}>Thank you for your business!</AppText>
+    //       <View style={styles.invoiceFooter}>
+    //         <AppText weight='Inter' style={styles.invoiceFooterText}>Thank you for your business!</AppText>
+    //       </View>
+    //     </View>
+    //   </View>
+    // </Modal> 
+  <Modal
+    visible={invoiceVisible}
+    animationType="slide"
+    transparent={true}
+    onRequestClose={() => setInvoiceVisible(false)}
+  >
+    <View style={styles.modalOverlay}>
+      <View style={styles.invoiceContainer}>
+
+        {/* Logo */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
+
+        {/* Header */}
+        <View style={styles.invoiceHeader}>
+          <AppText weight='Inter' style={styles.invoiceTitle}>INVOICE</AppText>
+          <TouchableOpacity onPress={() => setInvoiceVisible(false)}>
+            <Icon name="close" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Seller Information */}
+        <View style={styles.invoiceSection}>
+          <AppText weight='Inter' style={styles.invoiceSectionTitle}>Seller Information</AppText>
+          <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.company}</AppText>
+          <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.address}, {sellerInfo.city}</AppText>
+          <AppText weight='Inter' style={styles.invoiceText}>GST: {sellerInfo.gst}</AppText>
+        </View>
+
+        {/* Invoice Details */}
+        <View style={styles.invoiceSection}>
+          <AppText weight='Inter' style={styles.invoiceSectionTitle}>Invoice Details</AppText>
+          <View style={styles.invoiceRow}>
+            <AppText weight='Inter' style={styles.invoiceLabel}>Invoice #:</AppText>
+            <AppText weight='Inter' style={styles.invoiceValue}>
+              INV-{new Date().getFullYear()}-{Math.floor(1000 + Math.random() * 9000)}
+            </AppText>
+          </View>
+          <View style={styles.invoiceRow}>
+            <AppText weight='Inter' style={styles.invoiceLabel}>Date:</AppText>
+            <AppText weight='Inter' style={styles.invoiceValue}>
+              {new Date().toISOString().split('T')[0]}
+            </AppText>
           </View>
         </View>
-      </View>
-    </Modal>
-  );
 
+        {/* Lead Purchase */}
+        <View style={styles.invoiceSection}>
+          <AppText weight='Inter' style={styles.invoiceSectionTitle}>Lead Purchase</AppText>
+          {purchaseHistory.length > 0 && (
+            <>
+              <View style={styles.invoiceRow}>
+                <AppText weight='Inter' style={styles.invoiceLabel}>Customer:</AppText>
+                <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].customerName}</AppText>
+              </View>
+              <View style={styles.invoiceRow}>
+                <AppText weight='Inter' style={styles.invoiceLabel}>Project:</AppText>
+                <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].details.project.name}</AppText>
+              </View>
+              <View style={styles.invoiceRow}>
+                <AppText weight='Inter' style={styles.invoiceLabel}>Lead Price:</AppText>
+                <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].amount}</AppText>
+              </View>
+            </>
+          )}
+        </View>
+
+        {/* Total */}
+        <View style={styles.invoiceTotal}>
+          <AppText weight='Inter' style={styles.invoiceTotalLabel}>TOTAL</AppText>
+          {purchaseHistory.length > 0 && (
+            <AppText weight='Inter' style={styles.invoiceTotalValue}>{purchaseHistory[0].amount}</AppText>
+          )}
+        </View>
+
+        {/* Footer */}
+        <View style={styles.invoiceFooter}>
+          <AppText weight='Inter' style={styles.invoiceFooterText}>Thank you for your business!</AppText>
+        </View>
+
+      </View>
+    </View>
+  </Modal>
+ 
+
+  );
+ 
   const handleLogout = async () => {
     try {
       await AsyncStorage.clear();
-      navigation.navigate("UserTypeSelection");
+
+      Toast.show({
+        type: 'success',
+        position: 'top',
+        text1: 'Logged out',
+        text2: 'You have been logged out successfully',
+        visibilityTime: 1000,
+        onHide: () => {
+          navigation.replace('SellerMain');
+        }
+      });
+
     } catch (error) {
       console.error('Error during logout:', error);
-      Alert.alert('Error', 'Failed to logout');
+
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Logout Failed',
+        text2: 'Something went wrong while logging out',
+        visibilityTime: 1000,
+      });
     }
   };
+
 
   if (isLoading && activeTab === 'personal') {
     return (
@@ -961,15 +1100,6 @@ const SellerAccountPage = ({ navigation }) => {
         {/* Tabs */}
         <View style={styles.tabContainer}>
           <TouchableOpacity
-            style={[styles.tabButton, activeTab === 'personal' && styles.activeTab]}
-            onPress={() => setActiveTab('personal')}
-          >
-            <AppText weight='Inter' style={[styles.tabText, activeTab === 'personal' && styles.activeTabText]}>
-              PERSONAL DETAILS
-            </AppText>
-          </TouchableOpacity>
-
-          <TouchableOpacity
             style={[styles.tabButton, activeTab === 'purchase' && styles.activeTab]}
             onPress={() => setActiveTab('purchase')}
           >
@@ -977,6 +1107,15 @@ const SellerAccountPage = ({ navigation }) => {
               PURCHASE HISTORY
             </AppText>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'personal' && styles.activeTab]}
+            onPress={() => setActiveTab('personal')}
+          >
+            <AppText weight='Inter' style={[styles.tabText, activeTab === 'personal' && styles.activeTabText]}>
+              BUSINESS INFORMATION
+            </AppText>
+          </TouchableOpacity> 
         </View>
 
         {/* Content */}
@@ -1106,6 +1245,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#000',
   },
+  pickerInput: {
+    fontSize: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    color: '#000',
+    backgroundColor: '#f9f9f9',
+    marginBottom: 16
+  },
+  pickerIcon: { top: 20, right: 12 },
   editButton: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -1336,6 +1486,108 @@ const styles = StyleSheet.create({
     fontSize: 14,
     letterSpacing: 2,
   },
+  logoContainer: {
+  alignItems: 'center',
+  marginBottom: 16,
+},
+logo: {
+  width: 120,
+  height: 50,
+},
+
+invoiceContainer: {
+  width: '90%',
+  backgroundColor: '#fff',
+  borderRadius: 16,
+  padding: 24,
+},
+
+invoiceHeader: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 20,
+  borderBottomWidth: 1,
+  borderBottomColor: '#f0f0f0',
+  paddingBottom: 16,
+},
+
+invoiceTitle: {
+  fontSize: 22,
+  color: '#000',
+  letterSpacing: 1,
+},
+
+invoiceSection: {
+  marginBottom: 20,
+},
+
+invoiceSectionTitle: {
+  fontSize: 16,
+  color: '#000',
+  marginBottom: 12,
+  borderBottomWidth: 1,
+  borderBottomColor: '#f0f0f0',
+  paddingBottom: 8,
+},
+
+invoiceText: {
+  fontSize: 14,
+  color: '#333',
+  marginBottom: 4,
+},
+
+invoiceRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginBottom: 6,
+},
+
+invoiceLabel: {
+  fontSize: 14,
+  color: '#666',
+  flex: 1,
+},
+
+invoiceValue: {
+  fontSize: 14,
+  color: '#000',
+  flex: 1,
+  textAlign: 'right',
+},
+
+invoiceTotal: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 10,
+  paddingTop: 16,
+  borderTopWidth: 2,
+  borderTopColor: '#000',
+},
+
+invoiceTotalLabel: {
+  fontSize: 16,
+  color: '#000',
+  fontWeight: '700',
+},
+
+invoiceTotalValue: {
+  fontSize: 18,
+  color: '#000',
+  fontWeight: '900',
+},
+
+invoiceFooter: {
+  marginTop: 20,
+  alignItems: 'center',
+},
+
+invoiceFooterText: {
+  fontSize: 14,
+  color: '#666',
+  fontStyle: 'italic',
+},
+
 });
 
 export default SellerAccountPage;

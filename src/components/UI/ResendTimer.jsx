@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import AppText from '../AppText';
 
-const ResendTimer = ({ duration = 30, onResend }) => {
+const ResendTimer = ({ duration = 30, canResend, onTimeout }) => {
   const [timer, setTimer] = useState(duration);
-  const [canResend, setCanResend] = useState(false);
 
   useEffect(() => {
     let interval;
-    if (timer > 0) {
+
+    if (!canResend && timer > 0) {
       interval = setInterval(() => {
         setTimer((prev) => prev - 1);
       }, 1000);
-    } else {
-      setCanResend(true);
+    } else if (timer === 0) {
+      onTimeout(); // let parent know resend is now allowed
     }
-    return () => clearInterval(interval);
-  }, [timer]);
 
-  const handleResend = () => {
-    if (!canResend) return;
-    onResend();
-    setTimer(duration);
-    setCanResend(false);
-  };
- 
+    return () => clearInterval(interval);
+  }, [timer, canResend]);
+
+  // reset timer when parent restarts countdown
+  useEffect(() => {
+    if (!canResend) {
+      setTimer(duration);
+    }
+  }, [canResend, duration]);
+
   return (
     <View style={styles.container}>
       {canResend ? (

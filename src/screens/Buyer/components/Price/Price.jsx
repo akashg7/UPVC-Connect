@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,40 +7,49 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import Video from 'react-native-video';
 import TopTabBar from '../../Dashboard/TopTabBar';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import AppText from '../../../../components/AppText';
 import axios from 'axios';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
+import HamburgerMenu from '../HamburgerMenu';
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 const Price = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef(null);
 
   const [videoData, setVideoData] = useState(null);
   const [headingData, setHeadingData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState('Economy');
+  const [isSticky, setIsSticky] = useState(false);
+
+  // Calculate the threshold for when the category selector should become sticky
+  const STICKY_THRESHOLD = 900; // Adjust this value based on your layout
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const videoResponse = await axios.get(
-          'http://192.168.1.52:9000/api/pricing/video',
+          'http://10.7.10.49:9000/api/pricing/video',
         );
         if (videoResponse.data && videoResponse.data.length > 0) {
           setVideoData(videoResponse.data[0]);
         }
 
         const headingResponse = await axios.get(
-          'http://192.168.1.52:9000/api/pricing/heading',
+          'http://10.7.10.49:9000/api/pricing/heading',
         );
         if (headingResponse.data) {
           setHeadingData(headingResponse.data);
@@ -55,6 +64,27 @@ const Price = () => {
 
     fetchData();
   }, []);
+
+  // Handle scroll events
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    {
+      useNativeDriver: false,
+      listener: (event) => {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        setIsSticky(offsetY > STICKY_THRESHOLD);
+      },
+    }
+  );
+
+  const scrollToComparison = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        y: STICKY_THRESHOLD + 10,
+        animated: true,
+      });
+    }
+  };
 
   if (loading) {
     return (
@@ -74,8 +104,86 @@ const Price = () => {
     );
   }
 
+  const renderComparisonRow = (category, economy, mid, premium) => {
+    let content = '';
+    switch (selectedCategory) {
+      case 'Economy':
+        content = economy;
+        break;
+      case 'Mid-Range':
+        content = mid;
+        break;
+      case 'Premium':
+        content = premium;
+        break;
+    }
+
+    return (
+      <View key={category} style={styles.comparisonRow}>
+        <AppText weight="Inter" style={styles.comparisonCategory}>
+          {category}
+        </AppText>
+        <AppText weight="Inter" style={styles.comparisonContent}>
+          {content}
+        </AppText>
+      </View>
+    );
+  };
+
+  // Sticky category selector component
+  const StickyCategorySelector = () => (
+    <View style={[styles.stickyCategorySelector, isSticky && styles.stickyActive]}>
+      <View style={styles.categorySelector}>
+        <TouchableOpacity 
+          style={[
+            styles.categoryButton, 
+            selectedCategory === 'Economy' && styles.categoryButtonActive
+          ]}
+          onPress={() => setSelectedCategory('Economy')}
+        >
+          <AppText weight="Inter" style={[
+            styles.categoryButtonText,
+            selectedCategory === 'Economy' && styles.categoryButtonTextActive
+          ]}>
+            ECONOMY
+          </AppText>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.categoryButton, 
+            selectedCategory === 'Mid-Range' && styles.categoryButtonActive
+          ]}
+          onPress={() => setSelectedCategory('Mid-Range')}
+        >
+          <AppText weight="Inter" style={[
+            styles.categoryButtonText,
+            selectedCategory === 'Mid-Range' && styles.categoryButtonTextActive
+          ]}>
+            MID-RANGE
+          </AppText>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[
+            styles.categoryButton, 
+            selectedCategory === 'Premium' && styles.categoryButtonActive
+          ]}
+          onPress={() => setSelectedCategory('Premium')}
+        >
+          <AppText weight="Inter" style={[
+            styles.categoryButtonText,
+            selectedCategory === 'Premium' && styles.categoryButtonTextActive
+          ]}>
+            PREMIUM
+          </AppText>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
   return (
-    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+    <View style={{ paddingTop: insets.top, flex: 1, backgroundColor: 'white' }}>
       <View style={styles.container}>
         <View style={styles.Headercontainer}>
           <TouchableOpacity
@@ -90,9 +198,22 @@ const Price = () => {
               style={styles.logo}
             />
           </View>
+
+          <View style={styles.menuContainer}>
+            <HamburgerMenu />
+          </View>
         </View>
         <TopTabBar />
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        
+        {/* Sticky Category Selector */}
+        <StickyCategorySelector />
+        
+        <ScrollView 
+          ref={scrollViewRef}
+          contentContainerStyle={styles.scrollContent}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        >
           <View style={styles.header}>
             <AppText weight="Inter" style={styles.headerTitle}>
               {videoData?.title || 'PRICE - KNOW IT ALL'}
@@ -105,45 +226,37 @@ const Price = () => {
               {videoData?.video ? (
                 <Video
                   source={{
-                    uri: `http://192.168.1.52:9000/${videoData.video}`,
+                    uri: `http://10.7.10.49:9000/${videoData.video}`,
                   }}
                   style={styles.video}
                   resizeMode="cover"
-                  repeat
                   muted
                   paused={false}
                   controls={false}
                 />
-              ) : (
-                <Video
-                  source={require('../../../../assets/dummy.mp4')}
-                  style={styles.video}
-                  resizeMode="cover"
-                  repeat
-                  muted
-                  paused={false}
-                  controls={false}
-                />
-              )}
+              ) : <></>}
             </View>
             {videoData?.sponsorLogo && (
-              <View style={styles.premiumSponsorContainer}>
-                <View style={styles.premiumSponsorContent}>
-                  <View style={styles.sponsorDivider} />
-                  <Image
-                    source={{
-                      uri: `http://192.168.1.52:9000/${videoData.sponsorLogo}`,
-                    }}
-                    style={styles.premiumSponsorLogo}
-                    resizeMode="contain"
-                  />
-                  {videoData.sponsorText && (
-                    <AppText weight="Inter" style={styles.premiumSponsorText}>
-                      {videoData.sponsorText.toUpperCase()}
-                    </AppText>
-                  )}
-                  <View style={styles.sponsorDivider} />
-                </View>
+              <View style={styles.sponsorContainer}>
+                <LinearGradient
+                  colors={['white', 'white']}
+                  style={styles.sponsorGradient}>
+
+                  <View style={styles.sponsorContent}>
+                    <Image
+                      source={{
+                        uri: `http://10.7.10.49:9000/${videoData.sponsorLogo}`,
+                      }}
+                      style={styles.sponsorLogo}
+                      resizeMode="contain"
+                    />
+                    {videoData.sponsorText && (
+                      <AppText weight="Inter" style={styles.sponsorText}>
+                        SPONSORED BY {videoData.sponsorText.toUpperCase()}
+                      </AppText>
+                    )}
+                  </View>
+                </LinearGradient>
               </View>
             )}
           </View>
@@ -153,59 +266,68 @@ const Price = () => {
             }
           </AppText>
 
-          {/* Premium Content Blocks with Images */}
-          <View style={styles.premiumContainer}>
-            {headingData.map((item, index) => (
-              <View key={item._id} style={styles.premiumBlock}>
-                {/* Background Image with Overlay */}
-                {item.image && (
-                  <Image
-                    source={{
-                      uri: `http://192.168.1.52:9000/${item.image}`,
-                    }}
-                    style={styles.blockBackgroundImage}
-                    blurRadius={2}
-                  />
-                )}
-                <LinearGradient
-                  colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0.5)']}
-                  style={styles.imageOverlay}
-                />
-
-                <View style={styles.glassCard}>
-                  <View style={styles.premiumHeader}>
-                    <View style={styles.premiumBadge}>
-                      <AppText weight="Bold" style={styles.premiumBadgeText}>
-                        {item.type?.toUpperCase() || 'PREMIUM'}
-                      </AppText>
-                    </View>
-                    <View style={styles.premiumNumber}>
-                      <AppText weight="Bold" style={styles.premiumNumberText}>
-                        {index + 1}
-                      </AppText>
-                    </View>
-                  </View>
-
-                  <View style={styles.premiumContent}></View>
-
-                  <View style={styles.premiumFooter}>
-                    <AppText weight="Medium" style={styles.premiumText}>
-                      {item.data}
-                    </AppText>
-                    {/* <TouchableOpacity style={styles.premiumButton}>
-                      <AppText weight="SemiBold" style={styles.premiumButtonText}>
-                        EXPLORE
-                      </AppText>
-                      <Icon name="arrow-forward" size={18} color="#fff" />
-                    </TouchableOpacity> */}
-                  </View>
-                </View>
-
-                {/* Floating decorative elements */}
-                <View style={[styles.floatingCircle, {right: 20, top: 20}]} />
-                <View style={[styles.floatingCircle, {left: 30, bottom: 30}]} />
-              </View>
-            ))}
+          {/* Premium Comparison Section */}
+          <View style={styles.comparisonContainer}>
+            <AppText weight="Inter" style={styles.comparisonTitle}>
+              COMPARISON OF UPVC WINDOWS
+            </AppText>
+            
+            {/* Category Selector (Regular - not sticky) */}
+            { isSticky === false ? 
+            <View style={styles.categorySelector}>
+              <TouchableOpacity 
+                style={[
+                  styles.categoryButton, 
+                  selectedCategory === 'Economy' && styles.categoryButtonActive
+                ]}
+                onPress={() => setSelectedCategory('Economy')}
+              >
+                <AppText weight="Inter" style={[
+                  styles.categoryButtonText,
+                  selectedCategory === 'Economy' && styles.categoryButtonTextActive
+                ]}>
+                  ECONOMY
+                </AppText>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[
+                  styles.categoryButton, 
+                  selectedCategory === 'Mid-Range' && styles.categoryButtonActive
+                ]}
+                onPress={() => setSelectedCategory('Mid-Range')}
+              >
+                <AppText weight="Inter" style={[
+                  styles.categoryButtonText,
+                  selectedCategory === 'Mid-Range' && styles.categoryButtonTextActive
+                ]}>
+                  MID-RANGE
+                </AppText>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[
+                  styles.categoryButton, 
+                  selectedCategory === 'Premium' && styles.categoryButtonActive
+                ]}
+                onPress={() => setSelectedCategory('Premium')}
+              >
+                <AppText weight="Inter" style={[
+                  styles.categoryButtonText,
+                  selectedCategory === 'Premium' && styles.categoryButtonTextActive
+                ]}>
+                  PREMIUM
+                </AppText>
+              </TouchableOpacity>
+            </View> : <></>
+}
+            {/* Comparison Content */}
+            <View style={styles.comparisonContentContainer}>
+              {comparisonData.map(item => 
+                renderComparisonRow(item.category, item.economy, item.mid, item.premium)
+              )}
+            </View>
+ 
           </View>
 
           <View style={styles.buyNowContainer}>
@@ -222,6 +344,76 @@ const Price = () => {
     </View>
   );
 };
+
+// Static comparison data based on the image
+const comparisonData = [
+  {
+    category: 'Profile Quality',
+    economy: 'Basic profiles, thinner walls (2–2.3 mm)',
+    mid: 'Standard profiles, medium wall thickness (2.5 mm)',
+    premium: 'High-grade profiles, thick walls (2.8 mm+), multi-chamber'
+  },
+  {
+    category: 'Steel Reinforcement',
+    economy: 'Minimal or absent (often 1 mm or less)',
+    mid: 'Moderate reinforcement (1.2–1.8 mm)',
+    premium: 'Strong reinforcement (1.5–2 mm galvanized steel)'
+  },
+  {
+    category: 'Durability',
+    economy: 'Prone to bending, discoloration, cracks over time',
+    mid: 'Good durability, average lifespan',
+    premium: 'Extremely durable, retains shape & finish for decades'
+  },
+  {
+    category: 'Hardware Quality',
+    economy: 'Low-cost hinges, locks, & handles',
+    mid: 'Branded basic hardware',
+    premium: 'Imported / premium hardware (multi point locking, anti-rust)'
+  },
+  {
+    category: 'Sound Insulation',
+    economy: 'Low (basic single glazing, limited sealing)',
+    mid: 'Moderate (better seals, option double glazing)',
+    premium: 'Excellent (multi-chamber design + double/triple glazing)'
+  },
+  {
+    category: 'Thermal Insulation',
+    economy: 'Poor insulation, limited energy savings',
+    mid: 'Decent insulation, noticeable comfort',
+    premium: 'High insulation, major energy savings on cooling/heating'
+  },
+  {
+    category: 'Weather Resistance',
+    economy: 'Limited, mostly white',
+    mid: 'Performs well in moderate weather',
+    premium: 'Designed for extreme weather conditions (UV resistant, storm proof)'
+  },
+  {
+    category: 'Aesthetic Options',
+    economy: 'Limited colors, mostly white',
+    mid: 'Some laminated color/wood finish',
+    premium: 'Wide range of laminated and designer finishes'
+  },
+  {
+    category: 'Warranty',
+    economy: '3–5 years',
+    mid: '7-10 years',
+    premium: '15–20+ years'
+  },
+  {
+    category: 'Cost',
+    economy: 'Lowest initial cost but frequent replacements',
+    mid: 'Balanced pricing & value',
+    premium: 'Higher upfront cost but lowest long-term cost'
+  }, 
+  {
+    category: 'Ideal For',
+    economy: 'Budget-conscious buyers, rental homes, short-term use',
+    mid: 'Middle-class homes, small offices, standard apartments',
+    premium: 'Premium homes, villas, high-rise luxury apartments/complexes',
+  },
+];
 
 const styles = StyleSheet.create({
   container: {
@@ -269,25 +461,30 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   Headercontainer: {
-    position: 'relative',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    width: '100%',
   },
   backButton: {
-    position: 'absolute',
-    left: 10,
-    top: '30%',
-    transform: [{translateY: -12}],
     padding: 5,
+    width: 40,
+    alignItems: 'flex-start',
   },
   logoContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
   logo: {
     width: 100,
     height: 50,
+  },
+  menuContainer: {
+    width: 40,
+    alignItems: 'flex-end',
   },
   loaderContainer: {
     flex: 1,
@@ -305,139 +502,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
-  premiumSponsorContainer: {
-    width: '100%',
-    paddingVertical: 20,
-    backgroundColor: '#fff',
-  },
-  premiumSponsorContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  premiumSponsorText: {
-    fontSize: 10,
-    color: '#999',
-    letterSpacing: 1,
-    marginHorizontal: 12,
-    fontWeight: '500',
-  },
-  premiumSponsorLogo: {
-    width: 100,
-    height: 40,
-  },
-  sponsorDivider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#eee',
-  },
-
-  // Premium Content Styles with Images
-  premiumContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
-  },
-  premiumBlock: {
-    marginBottom: 25,
-    borderRadius: 24,
+  sponsorContainer: {
+    width: '90%',
+    borderRadius: 10,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 10},
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 10,
-    height: 480, // Fixed height for consistency
-    position: 'relative',
+    shadowRadius: 4,
   },
-  blockBackgroundImage: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  imageOverlay: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  glassCard: {
-    padding: 25,
-    borderRadius: 24,
-    backgroundColor: 'rgba(254, 254, 254, 0.1)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
-    height: '100%',
-    justifyContent: 'space-between',
-  },
-  premiumHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  sponsorGradient: {
+    padding: 15,
     alignItems: 'center',
-    marginBottom: 15,
   },
-  premiumBadge: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+  sponsorContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  premiumBadgeText: {
+  sponsorLogo: {
+    width: 120,
+    height: 50,
+  },
+  sponsorText: {
     fontSize: 12,
-    color: '#fff',
-    letterSpacing: 1,
-  },
-  premiumNumber: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  premiumNumberText: {
-    fontSize: 16,
-    color: '#fff',
-  },
-  premiumContent: {
-    marginBottom: 20,
-    flex: 1,
-    justifyContent: 'center',
-  },
-  premiumText: {
-    fontSize: 16,
-    color: '#fff',
-    lineHeight: 24,
-    letterSpacing: 0.3,
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 3,
-  },
-  premiumFooter: {
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
-    paddingTop: 20,
-  },
-  premiumButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  premiumButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    marginRight: 10,
-    letterSpacing: 1,
-  },
-  floatingCircle: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    zIndex: -1,
+    color: '#333',
+    letterSpacing: 1.5,
+    marginTop: 8,
+    fontWeight: '600',
   },
   buyNowContainer: {
     flexDirection: 'row',
@@ -454,7 +542,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
@@ -463,8 +551,80 @@ const styles = StyleSheet.create({
     fontSize: 16,
     letterSpacing: 1,
   },
-  cartIcon: {
-    marginLeft: 5,
+  
+  // Comparison Section Styles
+  comparisonContainer: {
+    marginTop: 20,
+    paddingHorizontal: 15,
+  },
+  comparisonTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 20,
+    letterSpacing: 0.5,
+  },
+  categorySelector: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 10,
+    padding: 5,
+  },
+  categoryButton: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  categoryButtonActive: {
+    backgroundColor: '#000',
+  },
+  categoryButtonText: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '600',
+  },
+  categoryButtonTextActive: {
+    color: '#fff',
+  },
+  comparisonContentContainer: {
+    marginBottom: 20,
+  },
+  comparisonRow: {
+    marginBottom: 15,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  comparisonCategory: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 5,
+  },
+  comparisonContent: {
+    fontSize: 13,
+    color: '#333',
+    lineHeight: 18,
+  },
+  
+  // Sticky Category Selector Styles
+  stickyCategorySelector: {
+    position: 'absolute',
+    top: 120, // Adjust based on your header height
+    left: 0,
+    right: 0,
+    zIndex: 1000,
+    opacity: 0,
+    transform: [{ translateY: -50 }],
+    paddingHorizontal: 15,
+  },
+  stickyActive: {
+    opacity: 1,
+    transform: [{ translateY: 0 }],
   },
 });
 

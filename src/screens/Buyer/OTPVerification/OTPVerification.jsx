@@ -11,13 +11,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SmsRetriever from 'react-native-sms-retriever';
 
 const OTPVerification = ({route, navigation}) => {
+  const {mobileNumber, userName, token , autootp} = route.params;
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [canResend, setCanResend] = useState(false);
   const [countdown, setCountdown] = useState(30);
-  const {mobileNumber, userName, token} = route.params;
-
+  console.log("autootp : " , autootp)
   // Countdown timer for resend OTP
+  // useEffect(()=>{
+  //   if (autootp) setOtp(autootp)
+  // } , [])
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -87,7 +90,7 @@ const OTPVerification = ({route, navigation}) => {
 
     try {
       const response = await axios.post(
-        'http://192.168.1.52:9000/api/auth/verify-otp',
+        'http://10.7.10.49:9000/api/auth/verify-otp',
         {
           mobileNumber,
           otp: submittedOtp,
@@ -110,7 +113,12 @@ const OTPVerification = ({route, navigation}) => {
           visibilityTime: 3000,
         });
         console.log('response : ', response.data);
-        navigation.replace('BuyerMain');
+        // navigation.replace('BuyerMain');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'BuyerMain' }],
+        });
+
       } else {
         throw new Error(response.data.message || 'Verification failed');
       }
@@ -134,7 +142,7 @@ const OTPVerification = ({route, navigation}) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://192.168.1.52:9000/api/auth/login',
+        'http://10.7.10.49:9000/api/auth/login',
         {
           name: userName,
           mobileNumber,
@@ -282,7 +290,7 @@ export default OTPVerification;
 //     setLoading(true);
 //     try {
 //       const response = await axios.post(
-//         'http://192.168.1.52:9000/api/auth/verify-otp',
+//         'http://10.7.10.49:9000/api/auth/verify-otp',
 //         {mobileNumber, otp: submittedOtp},
 //         {
 //           headers: {
@@ -324,7 +332,7 @@ export default OTPVerification;
 //     try {
 //       setLoading(true);
 //       const response = await axios.post(
-//         'http://192.168.1.52:9000/api/auth/login',
+//         'http://10.7.10.49:9000/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,
@@ -532,7 +540,7 @@ export default OTPVerification;
 //     setLoading(true);
 //     try {
 //       const response = await axios.post(
-//         'http://192.168.1.52:9000/api/auth/verify-otp',
+//         'http://10.7.10.49:9000/api/auth/verify-otp',
 //         {mobileNumber, otp: submittedOtp},
 //         {
 //           headers: {
@@ -574,7 +582,7 @@ export default OTPVerification;
 //     try {
 //       setLoading(true);
 //       const response = await axios.post(
-//         'http://192.168.1.52:9000/api/auth/login',
+//         'http://10.7.10.49:9000/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,
@@ -764,7 +772,7 @@ export default OTPVerification;
 //     setLoading(true);
 //     try {
 //       const response = await axios.post(
-//         'http://192.168.1.52:9000/api/auth/verify-otp',
+//         'http://10.7.10.49:9000/api/auth/verify-otp',
 //         {mobileNumber, otp: submittedOtp},
 //         {
 //           headers: {
@@ -806,7 +814,7 @@ export default OTPVerification;
 //     try {
 //       setLoading(true);
 //       const response = await axios.post(
-//         'http://192.168.1.52:9000/api/auth/login',
+//         'http://10.7.10.49:9000/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,

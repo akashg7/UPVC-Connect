@@ -346,6 +346,7 @@
 // })
 
 // export default EditQuoteModal;
+
 import React, {useState, useEffect} from 'react';
 import {
   View,
@@ -358,6 +359,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../../components/AppText';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const EditQuoteModal = ({
   visible,
@@ -374,6 +376,25 @@ const EditQuoteModal = ({
     installationLocation: '',
     remark: '',
   });
+
+  const [colorOpen, setColorOpen] = useState(false);
+  const [colorItems, setColorItems] = useState([
+    {label: 'White', value: 'white'},
+    {label: 'Black', value: 'black'},
+    {label: 'Wooden Brown', value: 'brown'},
+    {label: 'Silver Grey', value: 'grey'},
+    {label: 'Golden Oak', value: 'golden'},
+  ]);
+
+  // Dropdown states for location
+  const [locationOpen, setLocationOpen] = useState(false);
+  const [locationItems, setLocationItems] = useState([
+    {label: 'Balcony', value: 'balcony'},
+    {label: 'Living Room', value: 'living_room'},
+    {label: 'Bedroom', value: 'bedroom'},
+    {label: 'Kitchen', value: 'kitchen'},
+    {label: 'Bathroom', value: 'bathroom'},
+  ]);
 
   // Reset form when quote changes
   useEffect(() => {
@@ -393,6 +414,20 @@ const EditQuoteModal = ({
     setFormData(prev => ({
       ...prev,
       [field]: value,
+    }));
+  };
+
+  const handleColorChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      color: value,
+    }));
+  };
+
+  const handleLocationChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      installationLocation: value,
     }));
   };
 
@@ -425,15 +460,26 @@ const EditQuoteModal = ({
           <AppText weight="Inter" style={styles.modalTitle}>
             Edit Quote
           </AppText>
-
-          <View style={styles.inputContainer}>
-            <AppText weight="Inter" style={styles.label}>
-              Color
+ 
+          <View style={styles.inputContainer1}>
+            <AppText weight="Inter" style={styles.inputLabel}>
+              COLOR
             </AppText>
-            <TextInput
-              style={styles.input}
+            <DropDownPicker
+              open={colorOpen}
               value={formData.color}
-              onChangeText={text => handleInputChange('color', text)}
+              items={colorItems}
+              setOpen={setColorOpen}
+              setValue={(callback) => {
+                const value = callback(formData.color);
+                handleColorChange(value);
+              }}
+              setItems={setColorItems}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownContainer}
+              placeholder="Select a color"
+              zIndex={3000}
+              zIndexInverse={1000}
             />
           </View>
 
@@ -472,16 +518,27 @@ const EditQuoteModal = ({
               value={formData.quantity}
               onChangeText={text => handleInputChange('quantity', text)}
             />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <AppText weight="Inter" style={styles.label}>
-              Installation Location
+          </View> 
+         
+          <View style={styles.inputContainer2}>
+            <AppText weight="Inter" style={styles.inputLabel}>
+              WHERE
             </AppText>
-            <TextInput
-              style={styles.input}
+            <DropDownPicker
+              open={locationOpen} 
               value={formData.installationLocation}
-              onChangeText={text => handleInputChange('installationLocation', text)}
+              items={locationItems}
+              setOpen={setLocationOpen}
+              setValue={(callback) => {
+                const value = callback(formData.installationLocation);
+                handleLocationChange(value);
+              }}
+              setItems={setLocationItems}
+              style={styles.dropdown}
+              dropDownContainerStyle={styles.dropdownContainer}
+              placeholder="Select location"
+              zIndex={2000}
+              zIndexInverse={2000}
             />
           </View>
 
@@ -520,36 +577,55 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    width: '90%',
     backgroundColor: 'white',
-    borderRadius: 10,
     padding: 20,
+    borderRadius: 10,
+    width: '90%',
+    maxHeight: '80%',
   },
   closeButton: {
     alignSelf: 'flex-end',
+    marginBottom: 10,
   },
   modalTitle: {
     fontSize: 18,
-    // fontWeight: 'bold',
+    fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
   },
-  inputContainer: {
+  inputContainer1: {
     marginBottom: 15,
+    zIndex: 3000,
+  },
+  inputContainer2: {
+    marginBottom: 15,
+    zIndex: 2000,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 5,
+    color: '#333',
   },
   inputRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 15,
   },
   inputGroup: {
     width: '48%',
   },
+  inputContainer: {
+    marginBottom: 15,
+  },
   label: {
-    marginBottom: 5,
     fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 5,
+    color: '#333',
   },
   input: {
     borderWidth: 1,
@@ -562,18 +638,26 @@ const styles = StyleSheet.create({
     height: 80,
     textAlignVertical: 'top',
   },
+  dropdown: {
+    borderColor: '#ddd',
+    borderRadius: 5,
+  },
+  dropdownContainer: {
+    borderColor: '#ddd',
+  },
   updateButton: {
-    backgroundColor: '#000',
+    backgroundColor: 'black',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
     marginTop: 10,
   },
   updateButtonText: {
-    color: '#fff',
-    // fontWeight: 'bold',
-    letterSpacing:2,
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
 export default EditQuoteModal;
+
+// export default EditQuoteModal;

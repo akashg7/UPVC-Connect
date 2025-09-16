@@ -48,13 +48,13 @@ export const styles = StyleSheet.create({
     color: 'black',
   },
 promptContainer: {
-  backgroundColor: '#fff',
-  padding: 20,
-  borderRadius: 12,
+  // backgroundColor: '#fff',
+  padding: 10,
+  // borderRadius: 12,
   margin: 16,
-  borderWidth: 1,
-  borderColor: '#e5e5e5',
-  elevation: 2,
+  // borderWidth: 1,
+  // borderColor: '#e5e5e5',
+  // elevation: 2,
 },
 
 promptTitle: {

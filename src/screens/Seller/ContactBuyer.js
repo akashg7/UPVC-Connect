@@ -311,11 +311,13 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import AppText from '../../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+// import { Share, Alert } from 'react-native';
 
 const ContactBuyer = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
   const { lead } = route.params;
-  console.log("Lead : " , lead)
+  // console.log("Lead : " , lead)
   
   const scaleAnim = useState(new Animated.Value(1))[0];
 
@@ -355,21 +357,91 @@ const ContactBuyer = ({ route, navigation }) => {
   const totalSqFt = lead.rawData.totalSqft;
   const totalQuantity = lead.rawData.totalQuantity;
 
-  const handleShare = async () => {
-    try {
-      const shareContent = {
-        message: `Buyer Details:
-        Name: ${buyerDetails.personal.fullName}
-        Contact: ${buyerDetails.personal.contactNumber}
-        Project: ${buyerDetails.project.name}
-        Address: ${buyerDetails.project.address}, ${buyerDetails.project.pinCode}
-        Timeline: ${buyerDetails.project.timeline}`,
-      };
-      await Share.share(shareContent);
-    } catch (error) {
-      Alert.alert('Error', 'Failed to share details');
+  const generatePDF = async () => {
+  try {
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 20px; color: #000; }
+            h2 { text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h2>Buyer Details</h2>
+          <table>
+            <tr>
+              <th colspan="2">Personal Information</th>
+            </tr>
+            <tr><td>Full Name</td><td>${buyerDetails.personal.fullName}</td></tr>
+            <tr><td>Contact Number</td><td>${buyerDetails.personal.contactNumber}</td></tr>
+            <tr><td>Email</td><td>${buyerDetails.personal.email}</td></tr>
+            <tr><td>WhatsApp Number</td><td>${buyerDetails.personal.whatsappNumber}</td></tr>
+
+            <tr>
+              <th colspan="2">Project Information</th>
+            </tr>
+            <tr><td>Project Name</td><td>${buyerDetails.project.name}</td></tr>
+            <tr><td>Category</td><td>${buyerDetails.project.category}</td></tr>
+            <tr><td>Address</td><td>${buyerDetails.project.address}, ${buyerDetails.project.pinCode}</td></tr>
+            <tr><td>Google Map Link</td><td>${buyerDetails.project.googleMapLink}</td></tr>
+            <tr><td>Stage</td><td>${buyerDetails.project.stage}</td></tr>
+            <tr><td>Timeline</td><td>${buyerDetails.project.timeline}</td></tr>
+            <tr><td>Total Area</td><td>${buyerDetails.project.totalSqFt}</td></tr>
+          </table>
+        </body>
+      </html>
+    `;
+
+    const options = {
+      html: htmlContent,
+      fileName: `Buyer_Details_${buyerDetails.personal.fullName}`,
+      directory: 'Documents',
+    };
+
+    const file = await RNHTMLtoPDF.convert(options);
+    return file.filePath; // Path of the generated PDF
+  } catch (err) {
+    console.error(err);
+    Alert.alert('Error', 'Failed to generate PDF');
+  }
+};
+
+
+  // const handleShare = async () => {
+  //   try {
+  //     console.log("buyerDetails : " , buyerDetails)
+  //     const shareContent = {
+  //       message: `Buyer Details:
+  //       Name: ${buyerDetails.personal.fullName}
+  //       Contact: ${buyerDetails.personal.contactNumber}
+  //       Project: ${buyerDetails.project.name}
+  //       Address: ${buyerDetails.project.address}, ${buyerDetails.project.pinCode}
+  //       Timeline: ${buyerDetails.project.timeline}`,
+  //     };
+  //     await Share.share(shareContent);
+  //   } catch (error) {
+  //     Alert.alert('Error', 'Failed to share details');
+  //   }
+  // };
+
+  const handleSharePDF = async () => {
+  try {
+    const filePath = await generatePDF();
+    if (filePath) {
+      await Share.share({
+        url: `file://${filePath}`,
+        title: 'Buyer Details PDF',
+      });
     }
-  };
+  } catch (err) {
+    Alert.alert('Error', 'Failed to share PDF');
+  }
+};
+
 
   const handlePrint = () => {
     Alert.alert('Print', 'Print functionality would connect to a printer in production');
@@ -384,6 +456,8 @@ const ContactBuyer = ({ route, navigation }) => {
                   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(buyerDetails.project.address)}`;
     Linking.openURL(mapUrl);
   };
+
+  // console.log("selectedItems : " , selectedItems)
 
   return (
     <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
@@ -401,9 +475,9 @@ const ContactBuyer = ({ route, navigation }) => {
         <View style={styles.header}>
           <AppText weight='Inter' style={styles.headline}>LEAD UNLOCKED</AppText>
           <AppText weight='Inter' style={styles.subheader}>Full buyer details now available</AppText>
-          <AppText weight='Inter' style={styles.viewTitle} onPress={() => navigation.navigate("SellerMain", { screen: "SellerAccount" })}>
+          {/* <AppText weight='Inter' style={styles.viewTitle} onPress={() => navigation.navigate("SellerMain", { screen: "SellerAccount" })}>
             View in History
-          </AppText>
+          </AppText> */}
         </View>
 
         {/* Selected Items */}
@@ -427,7 +501,16 @@ const ContactBuyer = ({ route, navigation }) => {
                     </View>
                     <View style={styles.itemField}>
                       <AppText weight='Inter' style={styles.itemLabel}>SIZE</AppText>
-                      <AppText weight='Inter' style={styles.itemValue}>{item.size}</AppText>
+                      {/* <AppText weight='Inter' style={styles.itemValue}>{item.size}</AppText> */}
+                      <AppText weight='Inter' style={styles.itemValue}>
+                        {(() => {
+                          const [widthStr, heightStr] = item.size.split('x');
+                          const width = parseFloat(widthStr);
+                          const height = parseFloat(heightStr);
+                          return `${width * height} sq ft`;
+                        })()}
+                      </AppText>
+
                     </View>
                   </View>
                   
@@ -445,7 +528,11 @@ const ContactBuyer = ({ route, navigation }) => {
                 
                 <View style={styles.totalContainer}>
                   <AppText weight='Inter' style={styles.totalLabel}>TOTAL</AppText>
-                  <AppText weight='Inter' style={styles.totalValue}>{item.qty} x {item.total}</AppText>
+                  <AppText weight='Inter' style={styles.totalValue}>
+                   { parseFloat(item.qty)*parseFloat(item.total)} 
+                   {/* { } */}
+                    {/* {item.qty} x {item.total} */}
+                    </AppText>
                 </View>
                 
                 {item.remarks && (
@@ -573,7 +660,7 @@ const ContactBuyer = ({ route, navigation }) => {
 
         {/* Action Buttons */}
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleSharePDF}>
             <Icon name="share" size={24} color="#000" />
             <AppText weight='Inter' style={styles.actionText}>Share</AppText>
           </TouchableOpacity>
@@ -613,7 +700,7 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginBottom: 20,
+    // marginBottom: 20,
     paddingHorizontal: 20,
   },
   headline: {

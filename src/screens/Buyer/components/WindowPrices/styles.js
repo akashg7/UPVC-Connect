@@ -57,12 +57,10 @@ export const styles = StyleSheet.create({
     marginBottom: 10,
   },
   carouselTitle: {
-    fontSize: 18,
-    // color: '',
+    fontSize: 18, 
     textAlign: 'center',
     marginBottom: 15,
-    letterSpacing: 1,
-    // fontWeight: '600',
+    letterSpacing: 1, 
   },
   carouselListContent: {
     paddingHorizontal: 10,
@@ -99,8 +97,7 @@ export const styles = StyleSheet.create({
   carouselText: {
     fontSize: 15,
     color: '#000000',
-    marginBottom: 5,
-    // fontWeight: '500',
+    marginBottom: 5, 
   },
   carouselTimestamp: {
     fontSize: 12,
@@ -133,15 +130,12 @@ export const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     letterSpacing: 1, 
-  },
-  // Add these to your existing styles
-activeCarouselItem: {
-  // borderColor: 'black',
+  }, 
+activeCarouselItem: { 
   borderWidth: 2,
 },
 activeCarouselText: {
-  color: 'black',
-  // fontWeight: '600',
+  color: 'black', 
 },
 activeCarouselTimestamp: {
   color: 'black',
@@ -151,30 +145,63 @@ thumbnailImage: {
   height: '100%',
   backgroundColor: 'black',
 }, 
-premiumSponsorContainer: {
-  width: '100%',
-  paddingVertical: 20,
-  backgroundColor: '#fff',
-},
-premiumSponsorContent: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  justifyContent: 'center',
-},
-premiumSponsorText: {
-  fontSize: 10,
-  color: '#999',
-  letterSpacing: 1,
-  marginHorizontal: 12,
-  fontWeight: '500',
-},
-premiumSponsorLogo: {
-  width: 100,
-  height: 40,
-},
-sponsorDivider: {
-  flex: 1,
-  height: 1,
-  backgroundColor: '#eee',
-},
+// premiumSponsorContainer: {
+//   width: '100%',
+//   paddingVertical: 20,
+//   backgroundColor: '#fff',
+// },
+// premiumSponsorContent: {
+//   flexDirection: 'row',
+//   alignItems: 'center',
+//   justifyContent: 'center',
+// },
+// premiumSponsorText: {
+//   fontSize: 10,
+//   color: '#999',
+//   letterSpacing: 1,
+//   marginHorizontal: 12,
+//   fontWeight: '500',
+// },
+// premiumSponsorLogo: {
+//   width: 100,
+//   height: 40,
+// },
+// sponsorDivider: {
+//   flex: 1,
+//   height: 1,
+//   backgroundColor: '#eee',
+// },
+  sponsorContainer: {
+    width: '90%',
+    // marginTop: 15,
+    borderRadius: 10,
+    overflow: 'hidden',
+    // elevation: 4,
+    // shadowColor: '#000',
+    // shadowOffset: {width: 0, height: 2},
+    // shadowOpacity: 0.2,
+    shadowRadius: 4,
+    // alignItems:"center",
+    // alignContent:"center",
+    // flexDirection:"column",
+  },
+  sponsorGradient: {
+    // padding: 15,
+    alignItems: 'center',
+  },
+  sponsorContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sponsorLogo: {
+    width: 120,
+    height: 50,
+  },
+  sponsorText: {
+    fontSize: 12,
+    color: '#333',
+    letterSpacing: 1.5,
+    marginTop: 8,
+    fontWeight: '600',
+  },
 });

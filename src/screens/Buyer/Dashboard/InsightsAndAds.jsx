@@ -23,7 +23,7 @@ import PremiumLoginModal from '../../../components/PremiumLoginModal';
 
 const {width, height} = Dimensions.get('window');
 
-const MarketInsights = ({navigation}) => {
+const MarketInsights = ({navigation , route}) => {
   const [buyerId, setBuyerId] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -39,7 +39,7 @@ const MarketInsights = ({navigation}) => {
           setBuyerId(token);
         }
         const categoryresponse = await axios.get(
-          'http://192.168.1.52:9000/api/categories',
+          'http://10.7.10.49:9000/api/categories',
         );
         setCategories(categoryresponse?.data);
         setLoading(false);
@@ -70,9 +70,36 @@ const MarketInsights = ({navigation}) => {
       // setShowQuoteForm(false);
       return;
     }
-    navigation.navigate('QuoteRequestPage', {
-      selectedCategory: category,
-    });
+     if (token) {
+          // setBuyerId(token);
+          // Only fetch quotes if logged in
+          const responseQuotes = await axios.get(
+            'http://10.7.10.49:9000/api/quotes/buyer',
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            },
+          );
+          // console.log("responseQuotes data : " , responseQuotes?.data)
+          // setQuoteCount(responseQuotes?.data?.count);
+          const hasPendingQuotes = responseQuotes?.data?.quotes?.some(
+  (q) => q.isGenerated === false
+);
+
+if (hasPendingQuotes) {
+  navigation.navigate('QuoteRequestPage', {
+    selectedCategory: category,
+    formData: route.params?.formData // Pass back the original form data
+  });
+} else {
+  navigation.navigate('BuyNowScreen', {
+    selectedCategory: category,
+    formData: route.params?.formData // Pass back the original form data
+  });
+}
+        }
   };
 
   const renderSection = ({item}) => {
@@ -90,7 +117,7 @@ const MarketInsights = ({navigation}) => {
         </View>
       );
     } else if (item.type === 'category') {
-      // console.log('item : ', item);
+      console.log('item : ', item);
       const category = item.data;
       return (
         <View style={styles.categoryCard}>
@@ -126,12 +153,12 @@ const MarketInsights = ({navigation}) => {
             <View style={styles.videoContainer}>
               <Video
                 source={{
-                  uri: `http://192.168.1.52:9000${category.videoUrl}`,
+                  uri: `http://10.7.10.49:9000${category.videoUrl}`,
                 }}
                 style={styles.video}
                 resizeMode="cover"
                 controls={true}
-                repeat
+                // repeat
                 muted
                 paused={false}
               />
@@ -141,7 +168,33 @@ const MarketInsights = ({navigation}) => {
                 start={{x: 0.5, y: 1}}
                 end={{x: 0.5, y: 0}}
               />
+              <AppText>HIIiiiiiiiiii</AppText>
             </View>
+              {true && (
+        <View style={styles.sponsorContainer}>
+          <LinearGradient colors={['white', 'white']} style={styles.sponsorGradient}>
+            <View style={styles.sponsorContent}>
+              {category.sponsorLogo ? (
+                <Image
+                  source={{ uri: `http://10.7.10.49:9000/${category.sponsorLogo}` }}
+                  style={styles.sponsorLogo}
+                  resizeMode="contain"
+                />
+              ) : (
+                <Image
+                  source={require('../../../assets/logo.png')}
+                  style={styles.logo}
+                />
+              )}
+               
+                <AppText weight="Inter" style={styles.sponsorText}>
+                  SPONSORED BY {category?.sponsorText?.toUpperCase() || "ELITE CREST"}
+                </AppText>
+             
+            </View>
+          </LinearGradient>
+        </View>
+      )}
           </LinearGradient>
         </View>
       );
@@ -299,6 +352,31 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: 20,
     paddingHorizontal: 5,
+  },
+      sponsorContainer: {
+    width: '90%',
+    borderRadius: 10,
+    overflow: 'hidden',
+    shadowRadius: 4,
+  },
+  sponsorGradient: {
+    padding: 15,
+    alignItems: 'center',
+  },
+  sponsorContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sponsorLogo: {
+    width: 120,
+    height: 50,
+  },
+  sponsorText: {
+    fontSize: 12,
+    color: '#333',
+    letterSpacing: 1.5,
+    marginTop: 8,
+    fontWeight: '600',
   },
   divider: {
     height: 1,

@@ -36,7 +36,7 @@ const LoginScreen = ({ navigation }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://192.168.1.52:9000/api/sellers/send-otp',
+        'http://10.7.10.49:9000/api/sellers/send-otp',
         { phoneNumber: mobileNumber },
       );
 

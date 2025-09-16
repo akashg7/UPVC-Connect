@@ -55,7 +55,7 @@ const UserAccount = () => {
         setLoading(true);
         // Fetch video data
         const userResponse = await axios.get(
-          'http://192.168.1.52:9000/api/buyer',
+          'http://10.7.10.49:9000/api/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -86,7 +86,7 @@ const UserAccount = () => {
       setLoading(true);
 
       const response = await axios.patch(
-        `http://192.168.1.52:9000/api/buyer/update`,
+        `http://10.7.10.49:9000/api/buyer/update`,
         {name, mobileNumber: phone},
         {
           headers: {
@@ -126,7 +126,7 @@ const UserAccount = () => {
       setLoading(true);
 
       await axios.post(
-        'http://192.168.1.52:9000/api/feedback',
+        'http://10.7.10.49:9000/api/feedback',
         {
           name: userData?.name,
           phone: userData?.mobileNumber,
@@ -171,11 +171,13 @@ const UserAccount = () => {
   };
 
   const handlePhonePress = () => {
-    Linking.openURL('tel:+18001234567');
+    return
+    // Linking.openURL('tel:+18001234567');
   };
 
   const handleEmailPress = () => {
-    Linking.openURL('mailto:support@example.com');
+    return
+    // Linking.openURL('mailto:support@example.com');
   };
 
   const handleLogout = async () => {
@@ -190,7 +192,8 @@ const UserAccount = () => {
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{name: 'UserTypeSelection'}],
+          // routes: [{name: 'UserTypeSelection'}],
+          routes: [{name: 'BuyerMain'}],
         }),
       );
 

@@ -46,7 +46,7 @@
 //     const fetchQuota = async () => {
 //       try {
 //         const token = await AsyncStorage.getItem('sellerToken');
-//         const response = await axios.get('http://192.168.1.52:9000/api/seller/quota', {
+//         const response = await axios.get('http://10.7.10.49:9000/api/seller/quota', {
 //           headers: { Authorization: `Bearer ${token}` }
 //         });
 //         setRemainingQuota(response.data.remainingQuota);
@@ -59,7 +59,7 @@
 
 //   const fetchLeads = async () => {
 //     try {
-//       const response = await axios.get('http://192.168.1.52:9000/api/seller/lead');
+//       const response = await axios.get('http://10.7.10.49:9000/api/seller/lead');
 //       if (response.data.success) {
 //         const formattedLeads = response.data.leads.map(lead => ({
 //           id: lead._id,
@@ -176,7 +176,7 @@
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token) return;
 //       console.log("token : " , token)
-//       const response = await axios.get('http://192.168.1.52:9000/api/sellers', {
+//       const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //         },
@@ -203,7 +203,7 @@
 //     if (!hasVideo) {
 //       setShowPremiumPopup(true);
 //     } else {
-//         const quotaCheck = await axios.get(`http://192.168.1.52:9000/api/seller/lead-quota-check/${lead.id}`, {
+//         const quotaCheck = await axios.get(`http://10.7.10.49:9000/api/seller/lead-quota-check/${lead.id}`, {
 //         headers: { Authorization: `Bearer ${token}` }
 //       });
 
@@ -221,7 +221,7 @@
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token || !currentLead) return; 
 //       const response = await axios.post(
-//         'http://192.168.1.52:9000/api/seller/lead/purchase',
+//         'http://10.7.10.49:9000/api/seller/lead/purchase',
 //         {
 //           leadId: currentLead.rawData._id, 
 //           slotsToBuy
@@ -661,9 +661,9 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
-// import  from 'react-native-reanimated';
-import AppText from '../../components/AppText';
 import PremiumLoginModal from '../../components/PremiumLoginModal';
+import CountdownTimer from '../Buyer/components/CountdownTimer';
+import AppText from '../../components/AppText';
 
 const { width, height } = Dimensions.get('window');
 
@@ -685,14 +685,12 @@ const LeadDetails = ({ navigation }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [freeSqftToUse, setFreeSqftToUse] = useState(0);
 
-  // console.log("remainingQuota : " , remainingQuota)
-  // Fetch seller quota when component loads
   const fetchQuota = async () => {
     try {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return;
 
-      const response = await axios.get('http://192.168.1.52:9000/api/seller/lead/quota', {
+      const response = await axios.get('http://10.7.10.49:9000/api/seller/lead/quota', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRemainingQuota(response.data.remainingQuota);
@@ -712,30 +710,34 @@ const LeadDetails = ({ navigation }) => {
 
   const fetchLeads = async () => {
     try {
-      // const token = await AsyncStorage.getItem('sellerToken');
-      // if (!token) return;
-
-      const response = await axios.get('http://192.168.1.52:9000/api/seller/lead')
-      // {headers: { Authorization: `Bearer ${token}` }});
+      const response = await axios.get('http://10.7.10.49:9000/api/seller/lead');
 
       if (response.data.success) {
-        const formattedLeads = response.data.leads.map(lead => ({
-          id: lead._id,
-          city: lead.projectInfo.address,
-          pincode: lead.projectInfo.pincode,
-          area: `${lead.totalSqft} sq ft`,
-          timeline: lead.projectInfo.timeline,
-          price: `₹${Math.round(lead.dynamicSlotPrice || lead.basePricePerSqft * lead.totalSqft)}`,
-          date: format(new Date(lead.createdAt), 'yyyy-MM-dd'),
-          specs: lead.quotes.map(q => q.product?.title).join(', '),
-          slotsLeft: lead.availableSlots,
-          slotOccupants: lead?.seller?.map(s => ({
-            id: s.sellerId?._id,
-            name: s.sellerId?.companyName,
-            brand: s.sellerId?.brandOfProfileUsed
-          })),
-          rawData: lead,
-        }));
+        // UPDATED LOGIC: Filter leads to be within the last 72 hours
+        // const seventyTwoHoursAgo = new Date(Date.now() - 72 * 60 * 60 * 1000);
+        const seventyTwoHoursAgo = new Date(Date.now() - 48 * 60 * 60 * 1000);
+
+        const formattedLeads = response.data.leads
+          .filter(lead => new Date(lead.createdAt) >= seventyTwoHoursAgo) // This is the new filter
+          .filter(lead => new Date(lead.availableSlots) > 0)
+          .map(lead => ({
+            id: lead._id,
+            city: lead.projectInfo.address,
+            projectArea: lead?.projectInfo?.area,
+            pincode: lead.projectInfo.pincode,
+            area: `${lead.totalSqft} sq ft`,
+            timeline: lead.projectInfo.timeline,
+            price: `₹${Math.round(lead.dynamicSlotPrice || lead.basePricePerSqft * lead.totalSqft)}`,
+            date: format(new Date(lead.createdAt), 'yyyy-MM-dd'),
+            specs: lead.quotes.map(q => q.product?.title).join(', '),
+            slotsLeft: lead.availableSlots,
+            slotOccupants: lead?.seller?.map(s => ({
+              id: s.sellerId?._id,
+              name: s.sellerId?.companyName,
+              brand: s.sellerId?.brandOfProfileUsed
+            })),
+            rawData: lead, // Keep rawData for createdAt timestamp
+          }));
         setLeads(formattedLeads);
       }
     } catch (error) {
@@ -751,14 +753,19 @@ const LeadDetails = ({ navigation }) => {
   };
 
   useEffect(() => {
-    fetchLeads();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetchLeads();
+      fetchQuota();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   // Filter leads based on selected date
   const filteredLeads = selectedDate
     ? leads.filter(lead => lead.date === selectedDate)
     : leads;
-
+  // console.log("filteredLeads : " , filteredLeads[0].rawData.projectInfo)
   const toggleCalendar = () => setShowCalendar(!showCalendar);
 
   const handleDayPress = day => {
@@ -769,7 +776,6 @@ const LeadDetails = ({ navigation }) => {
   const clearFilter = () => setSelectedDate(null);
 
   const renderSlotIndicator = lead => {
-    // const totalSlots = lead.rawData.maxSlots || 6;
     const totalSlots = 6;
     const slotsLeft = lead.slotsLeft;
     const slotsTaken = totalSlots - slotsLeft;
@@ -835,7 +841,7 @@ const LeadDetails = ({ navigation }) => {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return false;
 
-      const response = await axios.get('http://192.168.1.52:9000/api/sellers', {
+      const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data.success && response.data.seller.businessProfileVideo;
@@ -849,8 +855,6 @@ const LeadDetails = ({ navigation }) => {
     const token = await AsyncStorage.getItem('sellerToken');
     if (!token) {
       setShowLoginModal(true)
-      // Alert.alert('Please Login');
-      // navigation.navigate('SellerLogin');
       return;
     }
 
@@ -865,52 +869,49 @@ const LeadDetails = ({ navigation }) => {
 
     try {
       const quotaCheck = await axios.get(
-        `http://192.168.1.52:9000/api/seller/lead/lead-quota-check/${lead.id}`,
+        `http://10.7.10.49:9000/api/seller/lead/lead-quota-check/${lead.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("remainingQuota , quotaCheck.data.alreadyUsed : ", remainingQuota, quotaCheck.data.alreadyUsed)
       if (remainingQuota > 0 && !quotaCheck.data.alreadyUsed) {
         setShowQuotaModal(true);
-      } else {
-        setShowSlotModal(true);
+      }
+      else {
+        // alert("No you cant buy this lead")
+        setShowQuotaModal(true);
+        //   setShowSlotModal(true);
       }
     } catch (error) {
       console.error('Error checking quota:', error);
-      setShowSlotModal(true);
+      // setShowSlotModal(true);
     }
   };
 
   const handlePurchaseLead = async (slotsToBuy, actualPrice) => {
     try {
+      setShowQuotaModal(false)
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token || !currentLead) return;
 
       const leadSqft = currentLead.rawData.totalSqft;
-      const totalSqft = leadSqft * slotsToBuy;
 
-      // Calculate free quota to use (max 100 per transaction)
       const freeSqftToUse = useFreeQuota
         ? Math.min(
           50, // Max per transaction
           remainingQuota,
-          totalSqft // Can't exceed purchase size
+          leadSqft // Can't exceed the first slot purchase size
         )
         : 0;
 
       setFreeSqftToUse(freeSqftToUse)
 
-      console.log(freeSqftToUse, "freeSqftToUse", useFreeQuota)
-
       const payload = {
         leadId: currentLead.rawData._id,
         slotsToBuy,
         useFreeQuota,
-        freeSqftToUse // Explicitly send the calculated free sqft to backend
+        freeSqftToUse
       };
-      console.log("payload : ", payload)
-      // return
       const response = await axios.post(
-        'http://192.168.1.52:9000/api/seller/lead/purchase',
+        'http://10.7.10.49:9000/api/seller/lead/purchase',
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -919,16 +920,16 @@ const LeadDetails = ({ navigation }) => {
         setShowSlotModal(false);
         setUseFreeQuota(false);
 
-        // Refresh both leads and quota
         await Promise.all([fetchLeads(), fetchQuota()]);
 
         Toast.show({
           type: 'success',
           text1: 'Success',
           text2: useFreeQuota
-            ? `Used ${freeSqftToUse} sqft from your free quota (${response.data.monthlyQuotaRemaining} remaining)`
-            : 'Lead purchased (paid full price)'
+            ? `Used ${freeSqftToUse} sqft from your free quota `
+            : 'Lead purchased successfully'
         });
+        // (${response.data.monthlyQuotaRemaining} remaining)`
 
         navigation.navigate('ContactBuyer', {
           lead: currentLead,
@@ -937,11 +938,12 @@ const LeadDetails = ({ navigation }) => {
             amountPaid: response.data.actualPricePaid
           }
         });
-      } else {
-        throw new Error(response.data.message || 'Purchase failed');
       }
+      // else {
+      //   throw new Error(response.data.message || 'Purchase failed');
+      // }
     } catch (error) {
-      console.error('Purchase error:', error);
+      // console.error('Purchase error:', error);
       Toast.show({
         type: 'error',
         text1: 'Error',
@@ -950,340 +952,25 @@ const LeadDetails = ({ navigation }) => {
     }
   };
 
-  const QuotaModal = () => (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={showQuotaModal}
-      onRequestClose={() => setShowQuotaModal(false)}
-    >
-      <View style={styles.popupOverlay}>
-        <View style={styles.popupContainer}>
-          <AppText weight="Inter" style={styles.popupTitle}>
-            Use Free Quota
-          </AppText>
-
-          <AppText weight="Inter" style={styles.popupSubtitle}>
-            You have {remainingQuota} sqft free this month
-          </AppText>
-
-          <AppText weight="Inter" style={styles.quotaInfoText}>
-            You can use up to 50 sqft free for this lead purchase
-          </AppText>
-
-          <View style={styles.quotaCalculation}>
-            <AppText weight="Inter" style={styles.quotaCalculationText}>
-              Lead size: {currentLead?.rawData?.totalSqft || 0} sqft
-            </AppText>
-            <AppText weight="Inter" style={styles.quotaCalculationText}>
-              Free applicable: {Math.min(50, remainingQuota, currentLead?.rawData?.totalSqft || 0)} sqft
-            </AppText>
-          </View>
-
-          <View style={styles.quotaOption}>
-            <Switch
-              value={useFreeQuota}
-              onValueChange={(value) => {
-                setUseFreeQuota(value);
-              }}
-            />
-            <AppText weight="Inter" style={styles.quotaOptionText}>
-              Use free quota for this purchase
-            </AppText>
-          </View>
-
-          <View style={styles.quotaButtons}>
-            <TouchableOpacity
-              style={[styles.quotaButton, styles.continueButton]}
-              onPress={() => {
-                setShowQuotaModal(false);
-                setShowSlotModal(true);
-              }}
-            >
-              <AppText weight="Inter" style={styles.continueButtonText}>
-                Continue
-              </AppText>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.quotaButton, styles.skipButton]}
-              onPress={() => {
-                setUseFreeQuota(false);
-                setShowQuotaModal(false);
-                setShowSlotModal(true);
-              }}
-            >
-              <AppText weight="Inter" style={styles.skipButtonText}>
-                Skip Free Quota
-              </AppText>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-
-  //  388 points left
-  //  324 points left
-
-
-
-  //logic for buy slot max profit 6250/-  keep this comment for future change
-
-  // const renderSlotOption = (num) => {
-  //   if (!currentLead?.rawData) return null;
-  //   console.log("currentLead price: ", currentLead.price)
-  //   console.log("currentLead dynamicSlotPrice: ", currentLead.rawData.dynamicSlotPrice)
-  //   const pricePerSqft = currentLead.rawData.basePricePerSqft; // 10.5
-  //   const leadSqft = currentLead.rawData.totalSqft; // 25 in your example
-  //   const totalSqft = leadSqft * num; // Total sqft for selected slots
-
-  //   // Calculate maximum free sqft that can be applied (max 100 per transaction)
-  //   const maxFreeApplicable = Math.min(
-  //     100, // Max 100 free per transaction
-  //     remainingQuota, // What's left in monthly quota
-  //     totalSqft // Can't exceed the purchase size
-  //   );
-  //   let actualPrice
-  //   // Actual free sqft used (when useFreeQuota is true)
-  //   const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
-  //   const paidSqft = Math.max(0, totalSqft - freeSqftUsed);
-  //   actualPrice = paidSqft * pricePerSqft;
-  //   if (currentLead.rawData.overProfit) {
-  //     //where overprofit we will directly multipy the divided amunt in no. of slots 
-  //     //discount freeSqftUsed
-  //     actualPrice = (currentLead.rawData.dynamicSlotPrice * num) - (10.50 * freeSqftUsed)
-  //   }
-  //   return (
-  //     <TouchableOpacity
-  //       key={num}
-  //       disabled={num > maxSlots}
-  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
-  //       onPress={() => handlePurchaseLead(num, actualPrice)}
-  //     >
-  //       <View>
-  //         <AppText weight="Inter" style={styles.slotOptionText}>
-  //           {num} slot(s)
-  //         </AppText>
-  //         <AppText weight="Inter" style={styles.discountText}>
-  //           {leadSqft * num} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
-  //         </AppText>
-  //       </View>
-  //       <AppText weight="SemiBold" style={styles.buyNowText}>
-  //         ₹{actualPrice.toFixed(2)}
-  //       </AppText>
-  //     </TouchableOpacity>
-  //   );
-  // };
-
-  //end logic   keep above comment for future change
-
-
-
-  // const renderSlotOption = (num) => {
-  //   const actualPrice = 599 * num; // Constant price
-
-
-  //   return (
-  //     <TouchableOpacity
-  //       key={num}
-  //       disabled={num > maxSlots}
-  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
-  //       onPress={() => handlePurchaseLead(num, actualPrice)}
-  //     >
-  //       <View>
-  //         <AppText weight="Inter" style={styles.slotOptionText}>
-  //           {num} slot(s)
-  //         </AppText>
-  //         <AppText weight="Inter" style={styles.discountText}>
-  //           {currentLead?.rawData?.totalSqft ? currentLead.rawData.totalSqft  : 0} sqft - {useFreeQuota} sqft free
-  //         </AppText>
-  //       </View>
-  //       <AppText weight="SemiBold" style={styles.buyNowText}>
-  //         ₹{actualPrice.toFixed(2)}
-  //       </AppText>
-  //     </TouchableOpacity>
-  //   );
-  // };
-
-
-  // const renderSlotOption = (num) => {
-  //   if (!currentLead?.rawData) return null;
-
-  //   const leadSqft = currentLead.rawData.totalSqft; // Total sqft of the lead
-  //   const timeline = currentLead.rawData.timeline; // "0-30 days", "31-60 days", etc.
-  //   const basePrice = 599; // Base price per slot
-  //   const slotsToBuy = num;
-
-  //   // Calculate maximum free sqft that can be applied (max 50 per transaction)
-  //   const maxFreeApplicable = Math.min(
-  //     50, // Max 50 free per transaction
-  //     remainingQuota, // What's left in monthly quota
-  //     leadSqft * slotsToBuy // Can't exceed the purchase size
-  //   );
-
-  //   // Actual free sqft used (when useFreeQuota is true)
-  //   const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
-  //   const paidSqft = Math.max(0, (leadSqft * slotsToBuy) - freeSqftUsed);
-
-  //   // Calculate price based on timeline
-  //   let priceMultiplier = 1;
-  //   if (timeline.includes("31-60 days")) {
-  //     priceMultiplier = 0.7; // 30% discount
-  //   } else if (timeline.includes("above 60 days")) {
-  //     priceMultiplier = 0.49; // 51% discount (70% of 70%)
-  //   }
-
-  //   // Calculate final price
-  //   const pricePerSqft = (basePrice / leadSqft) * priceMultiplier;
-  //   const actualPrice = paidSqft * pricePerSqft;
-
-  //   return (
-  //     <TouchableOpacity
-  //       key={num}
-  //       disabled={num > maxSlots}
-  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
-  //       onPress={() => handlePurchaseLead(num, actualPrice)}
-  //     >
-  //       <View>
-  //         <AppText weight="Inter" style={styles.slotOptionText}>
-  //           {num} slot(s)
-  //         </AppText>
-  //         <AppText weight="Inter" style={styles.discountText}>
-  //           {leadSqft * num} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
-  //         </AppText>
-  //       </View>
-  //       <AppText weight="SemiBold" style={styles.buyNowText}>
-  //         ₹{actualPrice.toFixed(2)}
-  //       </AppText>
-  //     </TouchableOpacity>
-  //   );
-  // };
-
-
-  // const renderSlotOption = (num) => {
-  //   if (!currentLead?.rawData) return null;
-
-  //   const leadSqft = currentLead.rawData.totalSqft || 0;
-  //   const timeline = String(currentLead.rawData.timeline || "").toLowerCase(); // Convert to string and lowercase
-  //   const basePrice = 599;
-  //   const slotsToBuy = num;
-
-  //   // Calculate maximum free sqft that can be applied (max 50 per transaction)
-  //   const maxFreeApplicable = Math.min(
-  //     50,
-  //     remainingQuota,
-  //     leadSqft * slotsToBuy
-  //   );
-
-  //   const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
-  //   const paidSqft = Math.max(0, (leadSqft * slotsToBuy) - freeSqftUsed);
-
-  //   // Safer timeline check
-  //   let priceMultiplier = 1;
-  //   if (timeline.includes("31-60 days")) {
-  //     priceMultiplier = 0.7;
-  //   } else if (timeline.includes("above 60 days") || timeline.includes("60+ days")) {
-  //     priceMultiplier = 0.49;
-  //   }
-
-  //   // Calculate final price
-  //   const pricePerSqft = (basePrice / leadSqft) * priceMultiplier;
-  //   const actualPrice = paidSqft * pricePerSqft;
-
-  //   return (
-  //     <TouchableOpacity
-  //       key={num}
-  //       disabled={num > maxSlots}
-  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
-  //       onPress={() => handlePurchaseLead(num, actualPrice)}
-  //     >
-  //       <View>
-  //         <AppText weight="Inter" style={styles.slotOptionText}>
-  //           {num} slot(s)
-  //         </AppText>
-  //         <AppText weight="Inter" style={styles.discountText}>
-  //           {leadSqft } sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
-  //         </AppText>
-  //       </View>
-  //       <AppText weight="SemiBold" style={styles.buyNowText}>
-  //          ₹{Math.round(actualPrice)}
-  //       </AppText>
-  //     </TouchableOpacity>
-  //   );
-  // };
-
-
-  // const renderSlotOption = (num) => {
-  //   if (!currentLead?.rawData) return null;
-
-  //   const leadSqft = currentLead.rawData.totalSqft || 0;
-  //   const timeline = String(currentLead.rawData.timeline || "").toLowerCase();
-  //   const basePricePerSlot = 599;
-  //   const slotsToBuy = num;
-
-  //   // Calculate maximum free sqft that can be applied (max 50 per transaction)
-  //   const maxFreeApplicable = Math.min(
-  //     50,
-  //     remainingQuota,
-  //     leadSqft * slotsToBuy
-  //   );
-
-  //   const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
-  //   const paidSqft = Math.max(0, (leadSqft * slotsToBuy) - freeSqftUsed);
-
-  //   // Timeline discount multiplier
-  //   let priceMultiplier = 1;
-  //   if (timeline.includes("31-60 days")) {
-  //     priceMultiplier = 0.7; // 30% discount
-  //   } else if (timeline.includes("above 60 days") || timeline.includes("60+ days")) {
-  //     priceMultiplier = 0.49; // 51% discount
-  //   }
-
-  //   // Calculate price for the slots being purchased
-  //   const pricePerSqft = (basePricePerSlot / leadSqft) * priceMultiplier;
-  //   const actualPrice = slotsToBuy * basePricePerSlot * priceMultiplier - (freeSqftUsed * pricePerSqft);
-
-  //   return (
-  //     <TouchableOpacity
-  //       key={num}
-  //       disabled={num > maxSlots}
-  //       style={[styles.slotOption, num > maxSlots && { opacity: 0.4 }]}
-  //       onPress={() => handlePurchaseLead(num, actualPrice)}
-  //     >
-  //       <View>
-  //         <AppText weight="Inter" style={styles.slotOptionText}>
-  //           {num} slot(s)
-  //         </AppText>
-  //         <AppText weight="Inter" style={styles.discountText}>
-  //           {leadSqft} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
-  //         </AppText>
-  //       </View>
-  //       <AppText weight="SemiBold" style={styles.buyNowText}>
-  //         ₹{Math.round(actualPrice)}
-  //       </AppText>
-  //     </TouchableOpacity>
-  //   );
-  // };
-
-
-  const renderSlotOption = (num) => {
+  const QuotaModal = () => {
     if (!currentLead?.rawData) return null;
-
+    console.log("currentLead.rawData : " , currentLead.rawData.projectInfo.timeline)
     const leadSqft = currentLead.rawData.totalSqft || 0;
-    const timeline = String(currentLead.rawData.timeline || "").toLowerCase();
+    const timeline = String(currentLead.rawData.projectInfo.timeline || "").toLowerCase();
     const basePricePerSlot = 599;
-    const slotsToBuy = num;
-
-    // Timeline discount multiplier
+    const slotsToBuy = 1; //only 1 slot seller can buy at a time
+    // console.log("timeline : 1111111" , timeline)
     let priceMultiplier = 1;
     if (timeline.includes("31-60 days")) {
-      priceMultiplier = 0.7; // 30% discount
+      // priceMultiplier = 0.7; // 30% discount
+      console.log("timeline : " , timeline)
+      priceMultiplier = 0.8330550918;
     } else if (timeline.includes("above 60 days") || timeline.includes("60+ days")) {
-      priceMultiplier = 0.49; // 51% discount
+      console.log("timeline : " , timeline)
+      // priceMultiplier = 0.49; // 51% discount
+      priceMultiplier = 0.6661101836
     }
 
-    // Calculate free sqft that can be applied (max 50 and only to first slot)
     const maxFreeApplicable = Math.min(
       50,
       remainingQuota,
@@ -1293,12 +980,138 @@ const LeadDetails = ({ navigation }) => {
     const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
     const freeSqftValue = freeSqftUsed * (basePricePerSlot / leadSqft) * priceMultiplier;
 
-    // Calculate price:
-    // First slot: (full price - free sqft value)
-    // Additional slots: full price
+    // BUG FIX: Correctly calculate total price based on comments.
     const firstSlotPrice = basePricePerSlot * priceMultiplier - freeSqftValue;
     const additionalSlotsPrice = (slotsToBuy - 1) * basePricePerSlot * priceMultiplier;
-    const actualPrice = firstSlotPrice * num;
+    const actualPrice = firstSlotPrice + (slotsToBuy > 1 ? additionalSlotsPrice : 0);
+
+    return (
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showQuotaModal}
+        onRequestClose={() => setShowQuotaModal(false)}
+      >
+        <View style={styles.popupOverlay}>
+          <View style={styles.quotaPopupContainer}>
+            <AppText weight="SemiBold" style={styles.popupTitle}>
+              Use Free Quota
+            </AppText>
+
+            {/* New container for the quota summary */}
+            <View style={styles.quotaSummaryContainer}>
+              <View style={styles.quotaSummaryRow}>
+                <AppText style={styles.quotaSummaryLabel}>Monthly Bonus:</AppText>
+                <AppText weight="SemiBold" style={styles.quotaSummaryValue}>200 sqft</AppText>
+              </View>
+              <View style={styles.quotaSummaryRow}>
+                <AppText style={styles.quotaSummaryLabel}>Used:</AppText>
+                <AppText weight="SemiBold" style={styles.quotaSummaryValue}>{200 - parseInt(remainingQuota)} sqft</AppText>
+              </View>
+              <View style={styles.quotaDivider} />
+              <View style={styles.quotaSummaryRow}>
+                <AppText style={styles.quotaSummaryLabel}>Available:</AppText>
+                <AppText weight="Bold" style={[styles.quotaSummaryValue, { color: '#000' }]}>{remainingQuota} sqft</AppText>
+              </View>
+            </View>
+
+            <AppText weight="Inter" style={styles.quotaInfoText}>
+              A maximum of 50 sqft can be used per transaction.
+            </AppText>
+
+            <View style={styles.quotaCalculation}>
+              <View style={styles.quotaSummaryRow}>
+                <AppText style={styles.quotaCalculationText}>Lead Size:</AppText>
+                <AppText weight="SemiBold" style={styles.quotaCalculationText}>{currentLead?.rawData?.totalSqft || 0} sqft</AppText>
+              </View>
+              <View style={styles.quotaSummaryRow}>
+                <AppText style={styles.quotaCalculationText}>Free Quota Applicable:</AppText>
+                <AppText weight="Bold" style={styles.quotaCalculationText}>{Math.min(50, remainingQuota, currentLead?.rawData?.totalSqft || 0)} sqft</AppText>
+              </View>
+            </View>
+            {remainingQuota ?
+              <View style={styles.quotaOption}>
+                <Switch
+                  trackColor={{ false: '#ccc', true: '#000' }}
+                  thumbColor={useFreeQuota ? '#fff' : '#f4f3f4'}
+                  ios_backgroundColor="#3e3e3e"
+                  value={useFreeQuota}
+                  onValueChange={setUseFreeQuota}
+                />
+                <AppText weight="Inter" style={styles.quotaOptionText}>
+                  Apply free quota to this purchase
+                </AppText>
+              </View> : <></>
+            }
+            <AppText weight="SemiBold" style={styles.buyNowText}>
+              Total payable amount :
+              ₹{Math.round(actualPrice)}
+            </AppText>
+
+            <AppText weight="SemiBold" style={styles.buyNowText}>
+            </AppText>
+
+            <View style={styles.quotaButtons}>
+              <TouchableOpacity
+                style={[styles.quotaButton, styles.skipButton]}
+                onPress={() => {
+                  setUseFreeQuota(false);
+                  setShowQuotaModal(false);
+                }}
+              >
+                <AppText weight="SemiBold" style={styles.skipButtonText}>
+                  CANCEL
+                </AppText>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.quotaButton, styles.continueButton]}
+                onPress={() => {
+                  handlePurchaseLead(1, actualPrice)
+                  setShowQuotaModal(false)
+                }}
+              >
+                <AppText weight="SemiBold" style={styles.continueButtonText}>
+                  BUY
+                </AppText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+    )
+  };
+
+  const renderSlotOption = (num) => {
+    if (!currentLead?.rawData) return null;
+
+    const leadSqft = currentLead.rawData.totalSqft || 0;
+    const timeline = String(currentLead.rawData.timeline || "").toLowerCase();
+    const basePricePerSlot = 599;
+    const slotsToBuy = num;
+
+    let priceMultiplier = 1;
+    if (timeline.includes("31-60 days")) {
+      // priceMultiplier = 0.7; // 30% discount
+      priceMultiplier = 0.8330550918;
+    } else if (timeline.includes("above 60 days") || timeline.includes("60+ days")) {
+      // priceMultiplier = 0.49; // 51% discount
+      priceMultiplier = 0.6661101836
+    }
+
+    const maxFreeApplicable = Math.min(
+      50,
+      remainingQuota,
+      leadSqft // Only apply to first slot's sqft
+    );
+
+    const freeSqftUsed = useFreeQuota ? maxFreeApplicable : 0;
+    const freeSqftValue = freeSqftUsed * (basePricePerSlot / leadSqft) * priceMultiplier;
+
+    // BUG FIX: Correctly calculate total price based on comments.
+    const firstSlotPrice = basePricePerSlot * priceMultiplier - freeSqftValue;
+    const additionalSlotsPrice = (slotsToBuy - 1) * basePricePerSlot * priceMultiplier;
+    const actualPrice = firstSlotPrice + (slotsToBuy > 1 ? additionalSlotsPrice : 0);
 
     return (
       <TouchableOpacity
@@ -1312,7 +1125,7 @@ const LeadDetails = ({ navigation }) => {
             {num} slot(s)
           </AppText>
           <AppText weight="Inter" style={styles.discountText}>
-            {leadSqft} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
+            {leadSqft * num} sqft - {useFreeQuota ? `${freeSqftUsed}` : '0'} sqft free
           </AppText>
         </View>
         <AppText weight="SemiBold" style={styles.buyNowText}>
@@ -1321,7 +1134,6 @@ const LeadDetails = ({ navigation }) => {
       </TouchableOpacity>
     );
   };
-
 
   const PremiumPopup = () => (
     <Modal
@@ -1364,7 +1176,8 @@ const LeadDetails = ({ navigation }) => {
               style={[styles.popupButton, styles.secondaryButton]}
               onPress={() => {
                 setShowPremiumPopup(false);
-                setShowSlotModal(true);
+                setShowQuotaModal(true) //added new
+                // setShowSlotModal(true);
               }}>
               <AppText weight="Inter" style={[styles.popupButtonText, { color: '#000' }]}>
                 Skip for now
@@ -1391,42 +1204,44 @@ const LeadDetails = ({ navigation }) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
+          {/* UI REWORK: Header and Subheader section */}
           <View style={styles.header}>
             <Image
               source={require('../../assets/logo.png')}
               style={styles.logo}
             />
-
             <View style={styles.headerContent}>
-              <AppText weight="Inter" style={styles.subheader}>
-                High-intent buyers in your network
+              <AppText weight="SemiBold" style={styles.subheader}>
+                Only 6 lucky manufacturers get a chance to buy a 100% authentic and verified lead.
               </AppText>
+              <AppText weight="Bold" style={styles.subheader2}>
+                Are you one of them?
+              </AppText>
+            </View>
+            {/* <View style={styles.filterContainer}>
+              <TouchableOpacity
+                style={styles.filterButton}
+                onPress={toggleCalendar}
+              >
+                <Icon name="filter-list" size={20} color="#000" />
+                <AppText weight="Inter" style={styles.filterButtonText}>
+                  {selectedDate
+                    ? format(new Date(selectedDate), 'dd MMM yyyy')
+                    : 'Filter by Date'}
+                </AppText>
+              </TouchableOpacity>
 
-              <View style={styles.filterContainer}>
+              {selectedDate && (
                 <TouchableOpacity
-                  style={styles.filterButton}
-                  onPress={toggleCalendar}
+                  style={styles.clearFilterButton}
+                  onPress={clearFilter}
                 >
-                  <Icon name="filter-list" size={20} color="#000" />
-                  <AppText weight="Inter" style={styles.filterButtonText}>
-                    {selectedDate
-                      ? format(new Date(selectedDate), 'dd MMM yyyy')
-                      : 'Filter by Date'}
+                  <AppText weight="Inter" style={styles.clearFilterText}>
+                    Clear
                   </AppText>
                 </TouchableOpacity>
-
-                {selectedDate && (
-                  <TouchableOpacity
-                    style={styles.clearFilterButton}
-                    onPress={clearFilter}
-                  >
-                    <AppText weight="Inter" style={styles.clearFilterText}>
-                      Clear
-                    </AppText>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
+              )}
+            </View> */}
           </View>
 
           {showCalendar && (
@@ -1445,89 +1260,92 @@ const LeadDetails = ({ navigation }) => {
                   todayTextColor: '#000',
                   dayTextColor: '#000',
                   textDisabledColor: '#d9d9d9',
-                  dotColor: '#000',
-                  selectedDotColor: '#ffffff',
                   arrowColor: '#000',
                   monthTextColor: '#000',
-                  indicatorColor: '#000',
                   textDayFontWeight: '500',
                   textMonthFontWeight: '600',
                   textDayHeaderFontWeight: '600',
-                  textDayFontSize: 14,
-                  textMonthFontSize: 16,
-                  textDayHeaderFontSize: 12,
                 }}
               />
             </View>
           )}
 
+          {/* UI REWORK: Lead card section */}
           {filteredLeads.length > 0 ? (
             filteredLeads.map(lead => (
               <Animated.View
                 key={lead.id}
                 style={[styles.card, styles.cardElevation]}
-                entering={Animated.spring(new Animated.Value(0), {
-                  toValue: 1,
-                  friction: 6,
-                  useNativeDriver: true,
-                })}
               >
+                <CountdownTimer createdAt={lead.rawData.createdAt} />
                 <View style={styles.cardHeader}>
+                  {/* <View style={styles.locationTag}>
+                    <Icon name="location-on" size={16} color="#000" />
+                    <AppText weight="Inter" style={styles.locationText}>
+                      {lead.city}
+                    </AppText>
+                  </View> */}
                   <View style={styles.locationTag}>
                     <Icon name="location-on" size={16} color="#000" />
                     <AppText weight="Inter" style={styles.locationText}>
-                      {lead.city} • {lead.pincode}
+                      {lead?.rawData?.projectInfo?.area}
                     </AppText>
                   </View>
-                  <View style={styles.locationTag}>
-                    <Icon name="date-range" size={16} color="#000" />
-                    <AppText weight="Inter" style={styles.locationText}>
-                      {format(new Date(lead.date), 'dd/MM/yy')}
-                    </AppText>
-                  </View>
+
+                  {/* NEW FEATURE: Countdown Timer */}
                 </View>
 
+                {/* UI REWORK: Details grid for better alignment */}
                 <View style={styles.detailsGrid}>
                   <View style={styles.detailItem}>
-                    <AppText weight="Inter" style={styles.detailLabel}>
-                      AREA
-                    </AppText>
-                    <AppText weight="Inter" style={styles.detailValue}>
-                      {lead.area}
-                    </AppText>
+                    <AppText weight="Inter" style={styles.detailLabel}>PIN CODE</AppText>
+                    <AppText weight="SemiBold" style={styles.detailValue}>{lead.pincode}</AppText>
                   </View>
-
                   <View style={styles.detailItem}>
-                    <AppText weight="Inter" style={styles.detailLabel}>
-                      TIMELINE
-                    </AppText>
-                    <AppText weight="Inter" style={styles.detailValue}>
-                      {lead.timeline}
-                    </AppText>
+                    <AppText weight="Inter" style={styles.detailLabel}>AREA</AppText>
+                    <AppText weight="SemiBold" style={styles.detailValue}>{lead.area}</AppText>
                   </View>
-
                   <View style={styles.detailItem}>
-                    <AppText weight="Inter" style={styles.detailLabel}>
-                      SPECS
-                    </AppText>
-                    <AppText weight="Inter" style={styles.detailValue}>
-                      {lead.specs}
-                    </AppText>
+                    <AppText weight="Inter" style={styles.detailLabel}>TIMELINE</AppText>
+                    <AppText weight="SemiBold" style={styles.detailValue}>{lead.timeline}</AppText>
                   </View>
+                  {/* <View style={styles.detailItem}>
+                    <AppText weight="Inter" style={styles.detailLabel}>COLOR</AppText>
+                    <AppText weight="SemiBold" style={styles.detailValue} numberOfLines={1}>
+                      {lead.rawData?.quotes?.[0]?.color || 'N/A'}
+                      {' - '}
+                      {lead.rawData?.quotes?.[0]?.sqft || 'N/A'} {'sqft'}
+                    </AppText>
+                  </View> */}
+                  <View style={styles.detailItem}>
+  <AppText weight="Inter" style={styles.detailLabel}>COLOR</AppText>
+  <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+    {lead.rawData?.quotes?.length > 0 ? (
+      lead.rawData.quotes.map((quote, index) => {
+        const totalSqft = (quote.sqft || 0) * (quote.quantity || 1);
+        return (
+          <AppText
+            key={index}
+            weight="SemiBold"
+            style={styles.detailValue}
+            numberOfLines={1}
+          >
+            {quote.color || 'N/A'} - {totalSqft} sqft 
+          </AppText>
+        );
+      })
+    ) : (
+      <AppText weight="SemiBold" style={styles.detailValue}>N/A</AppText>
+    )}
+  </View>
+</View>
+
+
                 </View>
 
                 {renderSlotIndicator(lead)}
 
                 <View style={styles.priceContainer}>
-                  {/* <View>
-                    <AppText weight="Inter" style={styles.priceLabel}>
-                      LEAD PRICE
-                    </AppText>
-                    <AppText weight="Inter" style={styles.priceValue}>
-                      {599 * 6}
-                    </AppText>
-                  </View> */}
-
                   <TouchableOpacity
                     style={styles.buyButton}
                     onPress={() => handleBuyLead(lead)}
@@ -1544,13 +1362,15 @@ const LeadDetails = ({ navigation }) => {
             <View style={styles.noResultsContainer}>
               <Icon name="info-outline" size={30} color="#666" />
               <AppText weight="Inter" style={styles.noResultsText}>
-                No leads found for selected date
+                No active leads available right now.
               </AppText>
-              <TouchableOpacity onPress={clearFilter}>
-                <AppText weight="Inter" style={styles.clearFilterLink}>
-                  Clear filter
-                </AppText>
-              </TouchableOpacity>
+              {selectedDate && (
+                <TouchableOpacity onPress={clearFilter}>
+                  <AppText weight="Inter" style={styles.clearFilterLink}>
+                    (Clear date filter to see all leads)
+                  </AppText>
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </ScrollView>
@@ -1566,13 +1386,11 @@ const LeadDetails = ({ navigation }) => {
               <View style={styles.occupantsHeader}>
                 <AppText weight="Inter" style={styles.occupantsTitle}>
                   Slot Occupants ({currentLead?.slotOccupants?.length || 0}/{currentLead?.rawData?.maxSlots || 6})
-                  {/* Slot Occupants(6) */}
                 </AppText>
                 <TouchableOpacity onPress={() => setShowSlotDetails(false)}>
                   <Icon name="close" size={24} color="#000" />
                 </TouchableOpacity>
               </View>
-
               <FlatList
                 data={currentLead?.slotOccupants || []}
                 renderItem={renderSlotOccupant}
@@ -1602,7 +1420,6 @@ const LeadDetails = ({ navigation }) => {
               <AppText weight="Inter" style={styles.popupSubtitle}>
                 Choose how many slots you want to buy
               </AppText>
-
               {[1, 2, 3, 4, 5, 6].map(num => renderSlotOption(num))}
             </View>
           </View>
@@ -1621,13 +1438,15 @@ const LeadDetails = ({ navigation }) => {
   );
 };
 
+// CSS is below
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
   },
   scrollContent: {
-    padding: 20,
+    paddingHorizontal: 10,
     paddingBottom: 100,
   },
   calendarContainer: {
@@ -1654,11 +1473,6 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 3,
   },
-  cardHeader: {
-    marginBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
   locationTag: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1668,8 +1482,18 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: 'flex-start',
   },
+  pinTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+    marginBottom: 10,
+  },
   locationText: {
-    fontSize: 14,
+    // fontSize: 14,
     color: '#000',
     marginLeft: 5,
   },
@@ -1678,7 +1502,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   slotText: {
-    fontSize: 12,
+    // fontSize: 12,
     color: '#555',
     marginBottom: 8,
     letterSpacing: 0.3,
@@ -1705,20 +1529,21 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
     marginBottom: 5,
+    columnGap: 10,
   },
   detailItem: {
-    width: '48%',
+    width: '25%',
     marginBottom: 15,
   },
   detailLabel: {
-    fontSize: 11,
+    // fontSize: 11,
     color: '#666',
     marginBottom: 4,
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
   detailValue: {
-    fontSize: 16,
+    // fontSize: 16,
     color: '#000',
     lineHeight: 22,
   },
@@ -1732,13 +1557,13 @@ const styles = StyleSheet.create({
     borderTopColor: '#e0e0e0',
   },
   priceLabel: {
-    fontSize: 11,
+    // fontSize: 11,
     color: '#666',
     letterSpacing: 0.5,
     textTransform: 'uppercase',
   },
   priceValue: {
-    fontSize: 20,
+    // fontSize: 20,
     color: '#000',
     marginTop: 2,
   },
@@ -1757,7 +1582,7 @@ const styles = StyleSheet.create({
   },
   buyButtonText: {
     color: '#fff',
-    fontSize: 13,
+    // fontSize: 13,
     marginRight: 6,
     letterSpacing: 2,
   },
@@ -1771,14 +1596,14 @@ const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
   },
   noResultsText: {
-    fontSize: 16,
+    // fontSize: 16,
     color: '#666',
     marginTop: 15,
     marginBottom: 20,
     textAlign: 'center',
   },
   clearFilterLink: {
-    fontSize: 14,
+    // fontSize: 14,
     color: '#000',
     textDecorationLine: 'underline',
   },
@@ -1793,7 +1618,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   viewOccupantsText: {
-    fontSize: 12,
+    // fontSize: 12,
     color: '#000',
     marginRight: 4,
   },
@@ -1817,7 +1642,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   occupantsTitle: {
-    fontSize: 20,
+    // fontSize: 20,
     color: '#000',
   },
   occupantsList: {
@@ -1835,7 +1660,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   occupantBrand: {
-    fontSize: 14,
+    // fontSize: 14,
     color: '#666',
   },
   popupOverlay: {
@@ -1857,10 +1682,6 @@ const styles = StyleSheet.create({
     padding: 25,
   },
   popupContainer2: {
-    // backgroundColor: '#fff',
-    // borderRadius: 20,
-    // width: width * 0.85,
-    // padding: 25,
     alignItems: 'center',
     flexDirection: "row",
     justifyContent: "space-between",
@@ -1873,18 +1694,19 @@ const styles = StyleSheet.create({
     flexDirection: "column"
   },
   popupTitle: {
-    fontSize: 20,
+    // fontSize: 20,
     color: '#000',
-    // marginBottom: 5,
+    marginBottom: 10,
+    textAlign: "center"
   },
   popupSubtitle: {
-    fontSize: 14,
+    // fontSize: 14,
     color: '#555',
     textAlign: 'center',
     marginBottom: 10
   },
   popupHighlight: {
-    fontSize: 20,
+    // fontSize: 20,
     color: '#000',
     marginVertical: 10,
   },
@@ -1912,31 +1734,9 @@ const styles = StyleSheet.create({
     borderColor: '#000',
   },
   popupButtonText: {
-    fontSize: 14,
+    // fontSize: 14,
     color: '#fff',
     marginLeft: 10,
-  },
-  header: {
-    marginBottom: 25,
-    paddingHorizontal: 5,
-  },
-  logo: {
-    alignSelf: 'center',
-    width: 100,
-    height: 30,
-  },
-  subheader: {
-    fontSize: 16,
-    color: '#555',
-    marginTop: 8,
-    marginBottom: 15,
-    textAlign: 'center',
-    color: 'black',
-  },
-  filterContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
   },
   filterButton: {
     flexDirection: 'row',
@@ -1951,7 +1751,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   filterButtonText: {
-    fontSize: 14,
+    // fontSize: 14,
     color: '#000',
     marginLeft: 8,
   },
@@ -1959,7 +1759,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   clearFilterText: {
-    fontSize: 14,
+    // fontSize: 14,
     color: '#000',
     textDecorationLine: 'underline',
   },
@@ -1976,13 +1776,13 @@ const styles = StyleSheet.create({
   },
   slotOptionText: {
     color: '#000',
-    fontSize: 16,
+    // fontSize: 16,
   },
   buyNowText: {
     color: '#000',
   },
   quotaInfoText: {
-    fontSize: 14,
+    // fontSize: 14,
     color: '#666',
     marginBottom: 15,
     textAlign: 'center',
@@ -1994,7 +1794,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   quotaCalculationText: {
-    fontSize: 14,
+    // fontSize: 14,
     color: '#333',
     marginBottom: 5,
   },
@@ -2025,6 +1825,267 @@ const styles = StyleSheet.create({
   },
   quotaOptionText: {
     color: 'black',
+  },
+
+
+  //new
+  header: {
+    alignItems: 'center',
+    // marginBottom: 20,
+  },
+  logo: {
+    width: 150,
+    height: 50,
+    resizeMode: 'contain',
+    marginBottom: 15,
+  },
+  headerContent: {
+    paddingHorizontal: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  subheader: {
+    // fontSize: 15,
+    textAlign: 'center',
+    color: '#333',
+    lineHeight: 22,
+  },
+  subheader2: {
+    // fontSize: 16,
+    textAlign: 'center',
+    marginTop: 8,
+    color: '#000',
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+
+  // MODIFIED: Card Styles
+  card: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 10,
+    marginHorizontal: 5, // Added for slight spacing from edge
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    marginTop: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    paddingBottom: 12,
+    justifyContent: 'center',
+  },
+  locationTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+  },
+  locationText: {
+    marginLeft: 5,
+    // fontSize: 13,
+    color: '#333',
+  },
+
+  // MODIFIED & NEW: Details Grid Styles for perfect alignment
+  detailsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+  },
+  detailItem: {
+    width: '48%', // Creates a two-column layout
+    marginBottom: 12,
+  },
+  detailLabel: {
+    // fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  detailValue: {
+    // fontSize: 14,
+    color: '#000',
+  },
+
+  // REMOVED: pinTag style (no longer needed with the new grid)
+
+  // MODIFIED: No Results Container
+  noResultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 40,
+    minHeight: 300,
+  },
+  noResultsText: {
+    marginTop: 10,
+    // fontSize: 16,
+    color: '#666',
+    textAlign: 'center'
+  },
+  clearFilterLink: {
+    marginTop: 8,
+    color: '#888',
+    // fontSize: 12,
+  },
+
+  // MODIFIED: Slot option styles for better clarity
+  slotOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#eee',
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  slotOptionText: {
+    // fontSize: 16,
+    color: '#000',
+  },
+  discountText: {
+    // fontSize: 12,
+    color: '#555',
+    marginTop: 2,
+  },
+  buyNowText: {
+    fontSize: 18,
+    color: '#000',
+    letterSpacing: 1.3
+  },
+  popupOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  quotaPopupContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    width: '100%',
+    padding: 24,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 10,
+  },
+  popupTitle: {
+    // fontSize: 22,
+    color: '#000',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  quotaSummaryContainer: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    padding: 16,
+    width: '100%',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  quotaSummaryRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 6,
+  },
+  quotaSummaryLabel: {
+    // fontSize: 14,
+    color: '#6c757d',
+  },
+  quotaSummaryValue: {
+    // fontSize: 14,
+    color: '#212529',
+  },
+  quotaDivider: {
+    height: 1,
+    backgroundColor: '#e9ecef',
+    marginVertical: 8,
+  },
+  quotaInfoText: {
+    // fontSize: 13,
+    color: '#6c757d',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  quotaCalculation: {
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    width: '100%',
+    marginBottom: 25,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  quotaCalculationText: {
+    // fontSize: 14,
+    color: '#212529',
+  },
+  quotaOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    width: '100%',
+    marginBottom: 25,
+    padding: 10,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+  },
+  quotaOptionText: {
+    // fontSize: 15,
+    color: '#000',
+    marginLeft: 15,
+  },
+  quotaButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  quotaButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  continueButton: {
+    backgroundColor: '#000',
+    marginLeft: 8,
+  },
+  continueButtonText: {
+    color: '#fff',
+    // fontSize: 16,
+    letterSpacing: 1
+  },
+  skipButton: {
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#ced4da',
+    marginRight: 8,
+  },
+  skipButtonText: {
+    color: '#495057',
+    letterSpacing: 1
+    // fontSize: 16,
   },
 });
 

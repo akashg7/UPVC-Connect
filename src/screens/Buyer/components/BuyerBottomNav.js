@@ -39,10 +39,10 @@ const BuyerBottomNav = ({ state, descriptors, navigation }) => {
             break;
           case 'ActiveLeads':
             // iconComponent = <Ionicons name="ios-list-circle" size={24} color={iconColor} />;
-            iconComponent = <MaterialCommunityIcons name="account-search" size={24} color={iconColor}/>
+            iconComponent = <MaterialCommunityIcons name="history" size={24} color={iconColor}/>
             break;
           case 'BuyerInsights':
-            iconComponent = <FontAwesome name="bar-chart" size={20} color={iconColor} />;
+            iconComponent = <FontAwesome name="th-large" size={20} color={iconColor} />;
             break;
           case 'BuyerAccount':
             iconComponent = <MaterialIcons name="account-circle" size={24} color={iconColor} />;

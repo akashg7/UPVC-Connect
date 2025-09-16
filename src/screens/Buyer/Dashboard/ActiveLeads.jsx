@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,14 +15,15 @@ import {
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../../components/AppText';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import PremiumLoginModal from '../../../components/PremiumLoginModal';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import LinearGradient from 'react-native-linear-gradient';
 
-const {width} = Dimensions.get('window');
-const BASE_URL = 'http://192.168.1.52:9000';
+const { width } = Dimensions.get('window');
+const BASE_URL = 'http://10.7.10.49:9000';
 
 const LeadsHistory = () => {
   const [leadsData, setLeadsData] = useState([]);
@@ -48,7 +49,7 @@ const LeadsHistory = () => {
           // Alert.alert('Error', 'Please login to view leads');
           return;
         }
-
+        // console.log("token : " , token)
         const response = await axios.get(`${BASE_URL}/api/buyer/leads`, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -56,6 +57,7 @@ const LeadsHistory = () => {
         });
 
         if (response.data.success) {
+          // console.log("response.data.leads : " , response.data.leads[0])
           setLeadsData(response.data.leads);
         }
       } catch (error) {
@@ -84,10 +86,10 @@ const LeadsHistory = () => {
     const isExpanding = expandedLead !== leadId;
 
     if (isExpanding) {
-      setCardLoading(prev => ({...prev, [leadId]: true}));
+      setCardLoading(prev => ({ ...prev, [leadId]: true }));
       setExpandedLead(leadId);
       setTimeout(() => {
-        setCardLoading(prev => ({...prev, [leadId]: false}));
+        setCardLoading(prev => ({ ...prev, [leadId]: false }));
       }, 600); // Simulate loading delay
     } else {
       setExpandedLead(null);
@@ -95,7 +97,7 @@ const LeadsHistory = () => {
     }
 
     if (!activeSellerIndices[leadId]) {
-      setActiveSellerIndices(prev => ({...prev, [leadId]: 0}));
+      setActiveSellerIndices(prev => ({ ...prev, [leadId]: 0 }));
     }
   };
 
@@ -124,7 +126,19 @@ const LeadsHistory = () => {
     Linking.openURL(`whatsapp://send?phone=${whatsappNumber}`);
   };
 
-  const renderSellerItem = ({item, leadId}) => {
+  const renderSellerItem = ({ item, leadId }) => {
+    console.log("item.quotes : " , item)
+    const pdfUrl = 
+    `${item.visitingCard}`
+    // item?.visitingCard ? `http://10.7.10.49:9000/
+      // : DUMMY_PDF;
+
+    const openPDF = () => {
+      Linking.openURL(pdfUrl).catch(err =>
+        console.error("Failed to open PDF:", err)
+      );
+    };
+
     const videoId = `${leadId}-${item.id}`;
     const isVideoActive = activeVideo === videoId;
 
@@ -142,7 +156,7 @@ const LeadsHistory = () => {
           activeOpacity={0.9}>
           <Video
             ref={ref => handleVideoRef(ref, videoId)}
-            source={{uri: item.video}}
+            source={{ uri: item.video }}
             style={styles.video}
             resizeMode="cover"
             paused={!isVideoActive}
@@ -196,48 +210,96 @@ const LeadsHistory = () => {
           />
           <DetailRow icon="build" text={`Capacity: ${item.manuCap}`} />
           <DetailRow icon="people" text={`Team: ${item.teamSize}`} />
-
+ 
           {/* Quotes Section */}
           <View style={styles.quotesContainer}>
             <AppText weight="Inter" style={styles.sectionTitle}>
-              QUOTED PRODUCTS
+              Your Selections
             </AppText>
-            {item.quotes.map((quote, index) => (
-              <View key={index} style={styles.quoteItem}>
-                <AppText weight="Inter" style={styles.quoteTitle}>
-                  {quote.productTitle} ({quote.color})
-                </AppText>
-                <AppText weight="Inter" style={styles.quoteDetail}>
-                  Size: {quote.size} | Qty: {quote.quantity}
-                </AppText>
-                {quote.features.map((feature, i) => (
-                  <AppText key={i} weight="Inter" style={styles.quoteFeature}>
-                    • {feature}
-                  </AppText>
-                ))}
-              </View>
-            ))}
-          </View>
 
-          <View style={styles.visitingCardContainer}>
+            {/* Compute total sq ft */}
+            {(() => {
+              let totalSqFt = 0;
+
+              item.quotes.forEach((quote) => {
+                if (quote.size) {
+                  const match = quote.size.match(/(\d+(?:\.\d+)?)ft\s*x\s*(\d+(?:\.\d+)?)ft/i);
+                  if (match) {
+                    const width = parseFloat(match[1]);
+                    const height = parseFloat(match[2]);
+                    totalSqFt += (width * height) * (quote.quantity || 1);
+                  }
+                }
+              });
+
+              return (
+                <AppText weight="Inter" style={[styles.quoteDetail, { marginVertical: 8, fontSize: 14, }]}>
+                  <AppText weight="Bold">Total : {totalSqFt} sq ft</AppText> 
+                </AppText>
+              );
+            })()}
+
+            {/* List each quote */}
+            {item.quotes.map((quote, index) => {
+              let sqFt = "";
+              if (quote.size) {
+                const match = quote.size.match(/(\d+(?:\.\d+)?)ft\s*x\s*(\d+(?:\.\d+)?)ft/i);
+                if (match) {
+                  const width = parseFloat(match[1]);
+                  const height = parseFloat(match[2]);
+                  sqFt = (width * height) + " sq ft";
+                } else {
+                  sqFt = quote.size;
+                }
+              }
+
+              return (
+                <View key={index} style={styles.quoteItem}>
+                  <AppText weight="Inter" style={styles.quoteTitle}>
+                    {quote.productTitle} ({quote.color})
+                  </AppText>
+                  <AppText weight="Inter" style={styles.quoteDetail}>
+                    Size: {sqFt} | Qty: {quote.quantity}
+                  </AppText>
+                </View>
+              );
+            })}
+          </View>
+ 
+          {/* <View style={styles.visitingCardContainer}>
             <AppText weight="Inter" style={styles.detailLabel}>
               Visiting Card
             </AppText>
             <Image
-              source={{uri: item.visitingCard}}
+              source={{ uri: item.visitingCard }}
               style={styles.visitingCard}
               resizeMode="contain"
             />
-          </View>
+          </View> */}
+
         </View>
+        <LinearGradient
+          colors={['#000000', '#1a1a1a']}
+          style={styles.pdfCard}
+        >
+          <Icon name="picture-as-pdf" size={40} color="#fff" />
+          <AppText weight="Inter" style={styles.pdfTitle}>
+            {item?.visitingCard ? "View Visiting Card" : "Dummy Visiting Card"}
+          </AppText>
+          <TouchableOpacity style={styles.openButton} onPress={openPDF}>
+            <AppText weight="Inter" style={styles.openButtonText}>
+              Open PDF
+            </AppText>
+          </TouchableOpacity>
+        </LinearGradient>
       </View>
     );
   };
 
-  const renderLeadCard = ({item}) => {
+  const renderLeadCard = ({ item }) => {
     const currentSellerIndex = activeSellerIndices[item.id] || 0;
     const hasMultipleSellers = item.sellers.length > 1;
-
+    // console.log("item : " , item.quotes)
     return (
       <View style={styles.leadCard}>
         <TouchableOpacity
@@ -277,54 +339,74 @@ const LeadsHistory = () => {
         {expandedLead === item.id && (
           <View style={styles.sellersContainer}>
             {cardLoading[item.id] ? (
-              <View style={{paddingVertical: 30, alignItems: 'center'}}>
+              <View style={{ paddingVertical: 30, alignItems: 'center' }}>
                 <ActivityIndicator size="large" color="black" />
               </View>
             ) : item.sellers.length === 0 ? (
-              <View style={{padding: 20, alignItems: 'center'}}>
-                <Icon name="info" size={40} color="#ccc" />
-                <AppText
-                  weight="Inter"
-                  style={{fontSize: 14, color: '#777', marginTop: 10}}>
-                  No seller responses yet. Please check back later!
+              
+                <View style={{ padding: 20, alignItems: 'center' }}>
+                  <Icon name="info" size={40} color="#ccc" />
+                  <AppText
+                    weight="Inter"
+                    style={{ fontSize: 14, color: '#777', marginTop: 10 }}>
+                    No seller responses yet. Please check back later!
+                  </AppText>
+                  {/* Quotes Section */}
+                  <View style={styles.quotesContainer}>
+                    <AppText weight="Inter" style={styles.sectionTitle}>
+                      Your Selections
+                    </AppText>
+                    {(() => {
+              let totalSqFt = 0;
+
+              item.quotes.forEach((quote) => {
+                if (quote.size) {
+                  const match = quote.size.match(/(\d+(?:\.\d+)?)ft\s*x\s*(\d+(?:\.\d+)?)ft/i);
+                  if (match) {
+                    const width = parseFloat(match[1]);
+                    const height = parseFloat(match[2]);
+                    totalSqFt += (width * height) * (quote.quantity || 1);
+                  }
+                }
+              });
+
+              return (
+                <AppText weight="Inter" style={[styles.quoteDetail, { marginVertical: 8, fontSize: 14, }]}>
+                  <AppText weight="Bold">Total : {totalSqFt} sq ft</AppText> 
                 </AppText>
-              </View>
+              );
+            })()}
+                    {item?.quotes?.map((quote, index) => {
+                      let sqFt = "";
+                      if (quote.size) {
+                        const match = quote.size.match(/(\d+(?:\.\d+)?)ft\s*x\s*(\d+(?:\.\d+)?)ft/i);
+                        if (match) {
+                          const width = parseFloat(match[1]);
+                          const height = parseFloat(match[2]);
+                          sqFt = (width * height) + " sq ft";
+                        } else {
+                          sqFt = quote.size;
+                        }
+                      }
+
+                      return (
+                        <View key={index} style={styles.quoteItem}>
+                          <AppText weight="Inter" style={styles.quoteTitle}>
+                            {quote.productTitle} ({quote.color})
+                          </AppText>
+                          <AppText weight="Inter" style={styles.quoteDetail}>
+                            Size: {sqFt} | Qty: {quote.quantity}
+                          </AppText>
+                        </View>
+                      );
+                    })}
+
+                  </View>
+                </View>
+                
             ) : (
               <>
-                {/* EXISTING FlatList + Dots code goes here */}
-                <Animated.FlatList
-                  ref={ref => (flatListRefs.current[item.id] = ref)}
-                  data={item.sellers}
-                  renderItem={({item: seller}) =>
-                    renderSellerItem({item: seller, leadId: item.id})
-                  }
-                  keyExtractor={seller => seller.id}
-                  horizontal
-                  pagingEnabled
-                  showsHorizontalScrollIndicator={false}
-                  scrollEventThrottle={16}
-                  onScroll={Animated.event(
-                    [{nativeEvent: {contentOffset: {x: scrollX}}}],
-                    {useNativeDriver: false},
-                  )}
-                  onMomentumScrollEnd={e => {
-                    const newIndex = Math.round(
-                      e.nativeEvent.contentOffset.x / (width - 40),
-                    );
-                    setActiveSellerIndices(prev => ({
-                      ...prev,
-                      [item.id]: newIndex,
-                    }));
-                    setActiveVideo(null);
-                  }}
-                  initialScrollIndex={currentSellerIndex}
-                  getItemLayout={(_, index) => ({
-                    length: width - 40,
-                    offset: (width - 40) * index,
-                    index,
-                  })}
-                />
-                {hasMultipleSellers && (
+               {hasMultipleSellers && (
                   <View style={styles.dotsContainer}>
                     {item.sellers.map((_, index) => {
                       const inputRange = [
@@ -351,13 +433,47 @@ const LeadsHistory = () => {
                           style={[
                             styles.dot,
                             index === currentSellerIndex && styles.activeDot,
-                            {transform: [{scale}], opacity},
+                            { transform: [{ scale }], opacity },
                           ]}
                         />
                       );
                     })}
                   </View>
                 )}
+                {/* EXISTING FlatList + Dots code goes here */}
+                <Animated.FlatList
+                  ref={ref => (flatListRefs.current[item.id] = ref)}
+                  data={item.sellers}
+                  renderItem={({ item: seller }) =>
+                    renderSellerItem({ item: seller, leadId: item.id })
+                  }
+                  keyExtractor={seller => seller.id}
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  scrollEventThrottle={16}
+                  onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+                    { useNativeDriver: false },
+                  )}
+                  onMomentumScrollEnd={e => {
+                    const newIndex = Math.round(
+                      e.nativeEvent.contentOffset.x / (width - 40),
+                    );
+                    setActiveSellerIndices(prev => ({
+                      ...prev,
+                      [item.id]: newIndex,
+                    }));
+                    setActiveVideo(null);
+                  }}
+                  initialScrollIndex={currentSellerIndex}
+                  getItemLayout={(_, index) => ({
+                    length: width - 40,
+                    offset: (width - 40) * index,
+                    index,
+                  })}
+                />
+               
               </>
             )}
           </View>
@@ -368,14 +484,14 @@ const LeadsHistory = () => {
 
   if (loading) {
     return (
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <ActivityIndicator size="large" color="black" />
       </View>
     );
   }
 
   return (
-    <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+    <View style={{ paddingTop: insets.top, flex: 1, backgroundColor: 'white' }}>
       {/* Removed ScrollView wrapper since FlatList is scrollable by itself */}
       <View style={styles.container}>
         <Image
@@ -415,7 +531,7 @@ const LeadsHistory = () => {
   );
 };
 
-const DetailRow = ({icon, text, onPress}) => (
+const DetailRow = ({ icon, text, onPress }) => (
   <TouchableOpacity style={styles.detailRow} onPress={onPress}>
     <Icon name={icon} size={18} color="#555" style={styles.detailIcon} />
     <AppText weight="Inter" style={styles.detailText}>
@@ -445,7 +561,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
@@ -609,6 +725,36 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: '#eee',
+  },
+  //new
+  pdfCard: {
+    backgroundColor: '#000',
+    padding: 20,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 5,
+    marginTop: 10,
+  },
+  pdfTitle: {
+    color: '#fff',
+    fontSize: 14,
+    marginTop: 8,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  openButton: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  openButtonText: {
+    color: '#000',
+    fontWeight: 'bold',
   },
   dotsContainer: {
     flexDirection: 'row',

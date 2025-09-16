@@ -35,8 +35,9 @@ const PremiumLoginModal = ({ visible, onClose, navigation, seller }) => {
     onClose();
     if (seller){
       navigation.navigate('SellerLoginScreen');
+    } else{
+      navigation.navigate('LoginScreen');
     }
-    navigation.navigate('LoginScreen');
   };
 
   return (
