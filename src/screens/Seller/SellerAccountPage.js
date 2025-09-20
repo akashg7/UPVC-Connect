@@ -474,6 +474,7 @@ const SellerAccountPage = ({ navigation }) => {
   const [purchaseHistory, setPurchaseHistory] = useState([]);
   const [token, setToken] = useState(null);
 
+  console.log("token : " , token)
   useEffect(() => {
     const fetchSellerData = async () => {
       try {
@@ -482,8 +483,7 @@ const SellerAccountPage = ({ navigation }) => {
         if (!token) { 
           return;
         }
-
-        const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
+        const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -581,7 +581,7 @@ const SellerAccountPage = ({ navigation }) => {
       console.log("updateData : " , updateData)
 
       const response = await axios.put(
-        'http://10.7.10.49:9000/api/sellers',
+        'https://upvc-backend-oh6m.onrender.com/api/sellers',
         updateData,
         {
           headers: {
@@ -829,10 +829,11 @@ const SellerAccountPage = ({ navigation }) => {
     <View style={styles.section}>
       {purchaseHistory.length > 0 ? (
         purchaseHistory.map((purchase) => (
-          <View key={purchase.id} style={styles.purchaseCard}>
+          // <View key={purchase.id} style={styles.purchaseCard}>
+          <View key={`${purchase.id}-${purchase.date}`} style={styles.purchaseCard}>
             <View style={styles.purchaseHeader}>
               <AppText weight='Inter' style={styles.purchaseDate}>{purchase.date}</AppText>
-              <AppText weight='Inter' style={styles.purchaseAmount}>{purchase.amount}</AppText>
+              {/* <AppText weight='Inter' style={styles.purchaseAmount}>{purchase.amount}</AppText> */}
             </View>
             <AppText weight='Inter' style={styles.purchaseCustomer}>{purchase.customerName}</AppText>
 
@@ -1050,8 +1051,7 @@ const SellerAccountPage = ({ navigation }) => {
       });
     }
   };
-
-
+ 
   if (isLoading && activeTab === 'personal') {
     return (
       <View style={{ paddingTop: insets.top, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
@@ -1084,6 +1084,7 @@ const SellerAccountPage = ({ navigation }) => {
     );
   }
 
+  console.log("activeTab : " , activeTab)
 
   return (
     <View style={{ paddingTop: insets.top, paddingBottom: insets.bottom, flex: 1, backgroundColor: 'white' }}>
@@ -1119,37 +1120,40 @@ const SellerAccountPage = ({ navigation }) => {
         </View>
 
         {/* Content */}
-        <ScrollView style={styles.contentContainer}>
-          {activeTab === 'personal' ? renderPersonalDetails() : renderPurchaseHistory()}
+      <ScrollView style={styles.contentContainer}>
+        {activeTab === 'personal' ? (
+          <>
+            {renderPersonalDetails()}
+            
+            {/* Additional Sections */}
+            <TouchableOpacity style={styles.menuItem}>
+              <AppText weight='Inter' style={styles.menuText}>TERMS & CONDITIONS</AppText>
+              <Icon name="chevron-right" size={24} color="#000" />
+            </TouchableOpacity>
 
-          {/* Additional Sections */}
-          {activeTab === 'personal' && (
-            <>
-              <TouchableOpacity style={styles.menuItem}>
-                <AppText weight='Inter' style={styles.menuText}>TERMS & CONDITIONS</AppText>
-                <Icon name="chevron-right" size={24} color="#000" />
-              </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <AppText weight='Inter' style={styles.menuText}>ABOUT US</AppText>
+              <Icon name="chevron-right" size={24} />
+            </TouchableOpacity>
 
-              <TouchableOpacity style={styles.menuItem}>
-                <AppText weight='Inter' style={styles.menuText}>ABOUT US</AppText>
-                <Icon name="chevron-right" size={24} color="#000" />
-              </TouchableOpacity>
+            <TouchableOpacity style={styles.menuItem}>
+              <AppText weight='Inter' style={styles.menuText}>CONTACT US</AppText>
+              <Icon name="chevron-right" size={24} color="#000" />
+            </TouchableOpacity>
 
-              <TouchableOpacity style={styles.menuItem}>
-                <AppText weight='Inter' style={styles.menuText}>CONTACT US</AppText>
-                <Icon name="chevron-right" size={24} color="#000" />
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.menuItem, styles.logoutItem]}
+              onPress={handleLogout}
+            >
+              <AppText weight='Inter' style={[styles.menuText, styles.logoutText]}>LOGOUT</AppText>
+              <Icon name="exit-to-app" size={24} color="#f44336" />
+            </TouchableOpacity>
+          </>
+        ) : (
+          renderPurchaseHistory()
+        )}
+      </ScrollView>
 
-              <TouchableOpacity
-                style={[styles.menuItem, styles.logoutItem]}
-                onPress={handleLogout}
-              >
-                <AppText weight='Inter' style={[styles.menuText, styles.logoutText]}>LOGOUT</AppText>
-                <Icon name="exit-to-app" size={24} color="#f44336" />
-              </TouchableOpacity>
-            </>
-          )}
-        </ScrollView>
 
         {renderInvoiceModal()}
       </View>

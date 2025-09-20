@@ -50,7 +50,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       }
 
       const responseQuotes = await axios.get(
-        'http://10.7.10.49:9000/api/quotes/buyer',
+        'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -59,7 +59,7 @@ const QuoteRequestPage = ({navigation, route}) => {
         },
       );
 
-      const userRes = await axios.get('http://10.7.10.49:9000/api/buyer', {
+      const userRes = await axios.get('https://upvc-backend-oh6m.onrender.com/api/buyer', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -252,7 +252,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       };
       console.log("leadData : " , leadData) 
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/seller/lead',
+        'https://upvc-backend-oh6m.onrender.com/api/seller/lead',
         leadData,
         {
           headers: {
@@ -333,7 +333,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       const token = await AsyncStorage.getItem('buyerToken');
 
       const response = await axios.put(
-        `http://10.7.10.49:9000/api/quotes/${updatedQuote._id}`,
+        `https://upvc-backend-oh6m.onrender.com/api/quotes/${updatedQuote._id}`,
         updatedQuote,
         {
           headers: {
@@ -346,7 +346,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       if (response.status === 200) {
         setIsEditModalVisible(false);
         const updatedQuotes = await axios.get(
-          'http://10.7.10.49:9000/api/quotes/buyer',
+          'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -381,7 +381,7 @@ const QuoteRequestPage = ({navigation, route}) => {
   const handleDeleteItem = async quoteId => { 
     try {
       const token = await AsyncStorage.getItem('buyerToken');
-      await axios.delete(`http://10.7.10.49:9000/api/quotes/${quoteId}`, {
+      await axios.delete(`https://upvc-backend-oh6m.onrender.com/api/quotes/${quoteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -389,7 +389,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
       // Refresh quotes after deletion
       const response = await axios.get(
-        'http://10.7.10.49:9000/api/quotes/buyer',
+        'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1575,7 +1575,7 @@ export default QuoteRequestPage;
 
 //       // Fetch cart data
 //       const response = await axios.get(
-//         'http://10.7.10.49:9000/api/buyer',
+//         'https://upvc-backend-oh6m.onrender.com/api/buyer',
 //         {
 //           headers: {
 //             Authorization: `Bearer ${token}`,
@@ -1589,7 +1589,7 @@ export default QuoteRequestPage;
 //       // If no cart exists, create one
 //       if (!response.data) {
 //         await axios.post(
-//           'http://10.7.10.49:9000/api/buyer',
+//           'https://upvc-backend-oh6m.onrender.com/api/buyer',
 //           { buyer: user._id },
 //           {
 //             headers: {
@@ -1605,7 +1605,7 @@ export default QuoteRequestPage;
 //       }
 
 //       // Fetch user data
-//       const userRes = await axios.get('http://10.7.10.49:9000/api/buyer', {
+//       const userRes = await axios.get('https://upvc-backend-oh6m.onrender.com/api/buyer', {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //           'Content-Type': 'application/json',
@@ -1737,7 +1737,7 @@ export default QuoteRequestPage;
 //       };
 
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/seller/lead',
+//         'https://upvc-backend-oh6m.onrender.com/api/seller/lead',
 //         leadData,
 //         {
 //           headers: {
@@ -1749,7 +1749,7 @@ export default QuoteRequestPage;
 
 //       if (response.status === 201) {
 //         // Clear the cart after successful submission
-//         await axios.delete('http://10.7.10.49:9000/api/buyer/cart', {
+//         await axios.delete('https://upvc-backend-oh6m.onrender.com/api/buyer/cart', {
 //           headers: {
 //             Authorization: `Bearer ${token}`,
 //           },
@@ -1820,7 +1820,7 @@ export default QuoteRequestPage;
 
 //       // Update the item in the cart
 //       const response = await axios.put(
-//         `http://10.7.10.49:9000/api/buyer/cart/item/${updatedItem._id}`,
+//         `https://upvc-backend-oh6m.onrender.com/api/buyer/cart/item/${updatedItem._id}`,
 //         updatedItem,
 //         {
 //           headers: {
@@ -1847,7 +1847,7 @@ export default QuoteRequestPage;
 //     try {
 //       const token = await AsyncStorage.getItem('buyerToken');
 //       await axios.delete(
-//         `http://10.7.10.49:9000/api/buyer/cart/item/${itemId}`,
+//         `https://upvc-backend-oh6m.onrender.com/api/buyer/cart/item/${itemId}`,
 //         {
 //           headers: {
 //             Authorization: `Bearer ${token}`,

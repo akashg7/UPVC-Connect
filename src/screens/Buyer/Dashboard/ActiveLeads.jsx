@@ -23,7 +23,7 @@ import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
-const BASE_URL = 'http://10.7.10.49:9000';
+const BASE_URL = 'https://upvc-backend-oh6m.onrender.com';
 
 const LeadsHistory = () => {
   const [leadsData, setLeadsData] = useState([]);
@@ -130,7 +130,7 @@ const LeadsHistory = () => {
     console.log("item.quotes : " , item)
     const pdfUrl = 
     `${item.visitingCard}`
-    // item?.visitingCard ? `http://10.7.10.49:9000/
+    // item?.visitingCard ? `https://upvc-backend-oh6m.onrender.com/
       // : DUMMY_PDF;
 
     const openPDF = () => {

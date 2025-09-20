@@ -8,13 +8,13 @@ buildscript {
         kotlinVersion = "2.0.21"
     }
     repositories {
-        google()
         mavenCentral()
+        google()
     }
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin") 
     }
 }
 

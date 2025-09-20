@@ -20,6 +20,23 @@ export default function App() {
     )
   };
 
+  const SuccessToast = ({ text1, text2 }) => (
+    <View style={styles.successToast}>
+      <LottieView
+        // source={require('./assets/success.json')}
+        autoPlay
+        loop={false}
+        style={{ width: 80, height: 80 }}
+      />
+      <Text style={styles.successTitle}>{text1}</Text>
+      <Text style={styles.successMessage}>{text2}</Text>
+    </View>
+  );
+
+  // Toast.configure({
+  //   successFancy: (props) => <SuccessToast {...props} />
+  // });
+
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
@@ -79,4 +96,21 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 8,
   },
+  successToast: {
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  successTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2E7D32',
+    marginTop: 8
+  },
+  successMessage: {
+    fontSize: 14,
+    color: '#444'
+  }
 });

@@ -90,7 +90,7 @@ const OTPVerification = ({route, navigation}) => {
 
     try {
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/auth/verify-otp',
+        'https://upvc-backend-oh6m.onrender.com/api/auth/verify-otp',
         {
           mobileNumber,
           otp: submittedOtp,
@@ -142,7 +142,7 @@ const OTPVerification = ({route, navigation}) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/auth/login',
+        'https://upvc-backend-oh6m.onrender.com/api/auth/login',
         {
           name: userName,
           mobileNumber,
@@ -290,7 +290,7 @@ export default OTPVerification;
 //     setLoading(true);
 //     try {
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/auth/verify-otp',
+//         'https://upvc-backend-oh6m.onrender.com/api/auth/verify-otp',
 //         {mobileNumber, otp: submittedOtp},
 //         {
 //           headers: {
@@ -332,7 +332,7 @@ export default OTPVerification;
 //     try {
 //       setLoading(true);
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/auth/login',
+//         'https://upvc-backend-oh6m.onrender.com/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,
@@ -540,7 +540,7 @@ export default OTPVerification;
 //     setLoading(true);
 //     try {
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/auth/verify-otp',
+//         'https://upvc-backend-oh6m.onrender.com/api/auth/verify-otp',
 //         {mobileNumber, otp: submittedOtp},
 //         {
 //           headers: {
@@ -582,7 +582,7 @@ export default OTPVerification;
 //     try {
 //       setLoading(true);
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/auth/login',
+//         'https://upvc-backend-oh6m.onrender.com/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,
@@ -772,7 +772,7 @@ export default OTPVerification;
 //     setLoading(true);
 //     try {
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/auth/verify-otp',
+//         'https://upvc-backend-oh6m.onrender.com/api/auth/verify-otp',
 //         {mobileNumber, otp: submittedOtp},
 //         {
 //           headers: {
@@ -814,7 +814,7 @@ export default OTPVerification;
 //     try {
 //       setLoading(true);
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/auth/login',
+//         'https://upvc-backend-oh6m.onrender.com/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,

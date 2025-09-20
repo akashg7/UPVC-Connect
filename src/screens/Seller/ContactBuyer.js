@@ -1,300 +1,3 @@
-// import React, { useState } from 'react';
-// import {
-//   View, 
-//   TouchableOpacity,
-//   StyleSheet,
-//   ScrollView,
-//   Image,
-//   Linking,
-//   Share,
-//   Alert,
-//   Animated,
-// } from 'react-native';
-// import Icon from 'react-native-vector-icons/MaterialIcons'; 
-// import LinearGradient from 'react-native-linear-gradient';
-// import AppText from '../../components/AppText';
-// import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-// const ContactBuyer = ({ route, navigation }) => {
-//   console.log("rooute params: " , route.params)
-//   const insets = useSafeAreaInsets();
-
-//   const buyerDetails = {
-//     personal: {
-//       fullName: 'Rajesh Kumar',
-//       contactNumber: '+91 9876543210',
-//       whatsappNumber: '+91 9876543210',
-//       email: 'rajesh.kumar@example.com',
-//     },
-//     project: {
-//       name: 'Premium Towers',
-//       address: '123 Business District, Mumbai',
-//       pinCode: '400001',
-//       stage: 'New Construction',
-//       timeline: 'Within 4 weeks',
-//       totalSqFt: '1500 sq ft',
-//       category: 'ELITE CREST',
-//     },
-//   };
-
-//   const handleShare = async () => {
-//     try {
-//       const shareContent = {
-//         message: `Buyer Details:
-//         Name: ${buyerDetails.personal.fullName}
-//         Contact: ${buyerDetails.personal.contactNumber}
-//         Project: ${buyerDetails.project.name}
-//         Address: ${buyerDetails.project.address}, ${buyerDetails.project.pinCode}
-//         Timeline: ${buyerDetails.project.timeline}`,
-//       };
-//       await Share.share(shareContent);
-//     } catch (error) {
-//       Alert.alert('Error', 'Failed to share details');
-//     }
-//   };
-
-//   const handlePrint = () => {
-//     Alert.alert('Print', 'Print functionality would connect to a printer in production');
-//   };
-
-//   const handleDownload = () => {
-//     Alert.alert('Download', 'Details would be downloaded as PDF in production');
-//   };
-
-//   const openMap = () => {
-//     Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(buyerDetails.project.address)}`);
-//   };
-
-//   // Static data for selected items
-//   const selectedItems = [
-//     {
-//       id: 1,
-//       design: 'Sliding Window',
-//       color: 'White',
-//       size: '5ft x 4ft',
-//       where: 'Living Room',
-//       qty: 2,
-//       total: '40 sq ft',
-//       remarks: 'Frosted glass'
-//     },
-//     {
-//       id: 2,
-//       design: 'Casement Window',
-//       color: 'Wooden Finish',
-//       size: '3ft x 5ft',
-//       where: 'Bedroom',
-//       qty: 3,
-//       total: '45 sq ft',
-//       remarks: 'Double glazing'
-//     }, 
-//   ];
-
-//   const scaleAnim = useState(new Animated.Value(1))[0];
-  
-//   return (
-//     <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
-//       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
-//         {/* Logo Header */}
-//         <View style={styles.logoContainer}>
-//           <Image
-//             source={require('../../assets/logo.png')}
-//             style={styles.logo}
-//             resizeMode="contain"
-//           />
-//         </View>
-  
-//         {/* Header */}
-//         <View style={styles.header}>
-//           <AppText weight='Inter' style={styles.headline}>LEAD UNLOCKED</AppText>
-//           <AppText weight='Inter'style={styles.subheader}>Full buyer details now available</AppText>
-//             <AppText weight='Inter'style={styles.viewTitle} onPress={() => navigation.navigate("SellerMain", { screen: "SellerAccount" })}>View in History</AppText>
-//         </View>
-
-//                 <View style={styles.itemsContainer}>
-//                   {selectedItems.map((item) => (
-//                     <View key={item.id} style={styles.itemCard}>
-//                       <LinearGradient
-//                         colors={['#f5f5f5', '#ffffff']}
-//                         style={styles.cardGradient}
-//                         start={{ x: 0, y: 0 }}
-//                         end={{ x: 1, y: 1 }}
-//                       > 
-//                       <Animated.View style={[styles.serialBadge, { transform: [{ scale: scaleAnim }] }]}>
-//                         <AppText weight='Inter'style={styles.serialBadgeText}>{item.id}</AppText>
-//                       </Animated.View> 
-//                         <View style={styles.itemGrid}>
-//                           <View style={styles.itemColumn}>
-//                             <View style={styles.itemField}>
-//                               <AppText weight='Inter'style={styles.itemLabel}>COLOR</AppText>
-//                               <AppText weight='Inter'style={styles.itemValue}>{item.color}</AppText>
-//                             </View>
-//                             <View style={styles.itemField}>
-//                               <AppText weight='Inter'style={styles.itemLabel}>SIZE</AppText>
-//                               <AppText weight='Inter'style={styles.itemValue}>{item.size}</AppText>
-//                             </View>
-//                           </View>
-                          
-//                           <View style={styles.itemColumn}>
-//                             <View style={styles.itemField}>
-//                               <AppText weight='Inter'style={styles.itemLabel}>LOCATION</AppText>
-//                               <AppText weight='Inter'style={styles.itemValue}>{item.where}</AppText>
-//                             </View>
-//                             <View style={styles.itemField}>
-//                               <AppText weight='Inter'style={styles.itemLabel}>QUANTITY</AppText>
-//                               <AppText weight='Inter'style={styles.itemValue}>{item.qty}</AppText>
-//                             </View>
-//                           </View>
-//                         </View>
-                        
-//                         <View style={styles.totalContainer}>
-//                           <AppText weight='Inter'style={styles.totalLabel}>TOTAL</AppText>
-//                           <AppText weight='Inter'style={styles.totalValue}>{item.total}</AppText>
-//                         </View>
-                        
-//                         {item.remarks && (
-//                           <View style={styles.remarksContainer}>
-//                             <AppText weight='Inter'style={styles.remarksLabel}>REMARKS</AppText>
-//                             <AppText weight='Inter'style={styles.remarksValue}>{item.remarks}</AppText>
-//                           </View>
-//                         )}
-//                       </LinearGradient>
-//                     </View>
-//                   ))}
-//                   <View style={styles.summaryCard}>
-//                     <View style={styles.summaryItem}>
-//                       <Icon name="straighten" size={20} color="#000" style={styles.summaryIcon} />
-//                       <AppText weight='Inter'style={styles.summaryLabel}>TOTAL SQ FT</AppText>
-//                       <AppText weight='Inter'style={styles.summaryValue}>106</AppText>
-//                     </View>
-        
-//                     <View style={styles.summaryItem}>
-//                       <Icon name="format-list-numbered" size={20} color="#000" style={styles.summaryIcon} />
-//                       <AppText weight='Inter'style={styles.summaryLabel}>TOTAL QUANTITY</AppText>
-//                       <AppText weight='Inter'style={styles.summaryValue}>6</AppText>
-//                     </View>
-//                   </View>
-//                 </View>
-
-//         {/* Buyer Details Card */}
-//         <View style={styles.card}>
-//           {/* Personal Details Section */}
-//           <View style={styles.cardHeader}>
-//             <AppText weight='Inter'style={styles.sectionTitle}>PERSONAL DETAILS</AppText>
-//           </View>
-          
-//           <View style={styles.detailRow}>
-//             <Icon name="person" size={20} color="#000" style={styles.icon} />
-//             <View>
-//               <AppText weight='Inter'style={styles.detailLabel}>Full Name</AppText>
-//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.personal.fullName}</AppText>
-//             </View>
-//           </View>
-
-//           <View style={styles.detailRow}>
-//             <Icon name="phone" size={20} color="#000" style={styles.icon} />
-//             <View>
-//               <AppText weight='Inter'style={styles.detailLabel}>Contact Number</AppText>
-//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.personal.contactNumber}</AppText>
-//             </View>
-//           </View>
-
-//           <View style={styles.detailRow}>
-//             <Icon name="chat" size={20} color="#000" style={styles.icon} />
-//             <View>
-//               <AppText weight='Inter'style={styles.detailLabel}>WhatsApp Number</AppText>
-//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.personal.whatsappNumber}</AppText>
-//             </View>
-//           </View>
-
-//           <View style={styles.detailRow}>
-//             <Icon name="email" size={20} color="#000" style={styles.icon} />
-//             <View>
-//               <AppText weight='Inter'style={styles.detailLabel}>Email Address</AppText>
-//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.personal.email}</AppText>
-//             </View>
-//           </View>
-
-//           {/* Divider */}
-//           <View style={styles.divider} />
-
-//           {/* Project Details Section */}
-//           <AppText weight='Inter'style={styles.sectionTitle}>PROJECT DETAILS</AppText>
-          
-//           <View style={styles.detailRow}>
-//             <Icon name="business" size={20} color="#000" style={styles.icon} />
-//             <View>
-//               <AppText weight='Inter'style={styles.detailLabel}>Project Name</AppText>
-//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.name}</AppText>
-//             </View>
-//           </View>
-
-//           <View style={styles.detailRow}>
-//             <Icon name="location-on" size={20} color="#000" style={styles.icon} />
-//             <View>
-//               <AppText weight='Inter'style={styles.detailLabel}>Project Address</AppText>
-//               <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.address}</AppText>
-//             </View>
-//           </View>
-
-//           <View style={styles.detailRow}>
-//             <Icon name="map" size={20} color="#000" style={styles.icon} />
-//             <View>
-//               <AppText weight='Inter'style={styles.detailLabel}>Pin Code</AppText>
-//               <View style={styles.inlineContainer}>
-//                 <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.pinCode}</AppText>
-//                 <TouchableOpacity onPress={openMap} style={styles.mapLink}>
-//                   <AppText weight='Inter'style={styles.linkText}>View on Map</AppText>
-//                   <Icon name="open-in-new" size={16} color="#000" />
-//                 </TouchableOpacity>
-//               </View>
-//             </View>
-//           </View>
-
-//           <View style={styles.detailRow}>
-//             <Icon name="schedule" size={20} color="#000" style={styles.icon} />
-//             <View>
-//               <AppText weight='Inter'style={styles.detailLabel}>Project Stage</AppText>
-//               <View style={styles.inlineContainer}>
-//                 <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.stage}</AppText>
-//                 <AppText weight='Inter'style={styles.timeline}>{buyerDetails.project.timeline}</AppText>
-//               </View>
-//             </View>
-//           </View>
-
-//           <View style={styles.detailRow}>
-//             <Icon name="straighten" size={20} color="#000" style={styles.icon} />
-//             <View>
-//               <AppText weight='Inter'style={styles.detailLabel}>Total Sq. Feet</AppText>
-//               <View style={styles.inlineContainer}>
-//                 <AppText weight='Inter'style={styles.detailValue}>{buyerDetails.project.totalSqFt}</AppText>
-//                 <AppText weight='Inter'style={styles.category}>{buyerDetails.project.category}</AppText>
-//               </View>
-//             </View>
-//           </View>
-//         </View>
-
-//         {/* Action Buttons */}
-//         <View style={styles.actionRow}>
-//           <TouchableOpacity style={styles.actionButton} onPress={handleShare}>
-//             <Icon name="share" size={24} color="#000" />
-//             <AppText weight='Inter'style={styles.actionText}>Share</AppText>
-//           </TouchableOpacity>
-
-//           <TouchableOpacity style={styles.actionButton} onPress={handlePrint}>
-//             <Icon name="print" size={24} color="#000" />
-//             <AppText weight='Inter'style={styles.actionText}>Print</AppText>
-//           </TouchableOpacity>
-
-//           <TouchableOpacity style={styles.actionButton} onPress={handleDownload}>
-//             <Icon name="cloud-download" size={24} color="#000" />
-//             <AppText weight='Inter'style={styles.actionText}>Download</AppText>
-//           </TouchableOpacity>
-//         </View> 
-//       </ScrollView>
-//     </View>
-//   );
-// };
-
 import React, { useState, useEffect } from 'react';
 import {
   View, 
@@ -306,18 +9,18 @@ import {
   Share,
   Alert,
   Animated,
+  Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import IconFA from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import AppText from '../../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import RNHTMLtoPDF from 'react-native-html-to-pdf';
-// import { Share, Alert } from 'react-native';
+import RNHTMLtoPDF from 'react-native-html-to-pdf'; 
 
 const ContactBuyer = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
-  const { lead } = route.params;
-  // console.log("Lead : " , lead)
+  const { lead } = route.params; 
   
   const scaleAnim = useState(new Animated.Value(1))[0];
 
@@ -357,107 +60,197 @@ const ContactBuyer = ({ route, navigation }) => {
   const totalSqFt = lead.rawData.totalSqft;
   const totalQuantity = lead.rawData.totalQuantity;
 
-  const generatePDF = async () => {
-  try {
-    const htmlContent = `
-      <html>
-        <head>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 20px; color: #000; }
-            h2 { text-align: center; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
-          </style>
-        </head>
-        <body>
-          <h2>Buyer Details</h2>
-          <table>
-            <tr>
-              <th colspan="2">Personal Information</th>
-            </tr>
-            <tr><td>Full Name</td><td>${buyerDetails.personal.fullName}</td></tr>
-            <tr><td>Contact Number</td><td>${buyerDetails.personal.contactNumber}</td></tr>
-            <tr><td>Email</td><td>${buyerDetails.personal.email}</td></tr>
-            <tr><td>WhatsApp Number</td><td>${buyerDetails.personal.whatsappNumber}</td></tr>
-
-            <tr>
-              <th colspan="2">Project Information</th>
-            </tr>
-            <tr><td>Project Name</td><td>${buyerDetails.project.name}</td></tr>
-            <tr><td>Category</td><td>${buyerDetails.project.category}</td></tr>
-            <tr><td>Address</td><td>${buyerDetails.project.address}, ${buyerDetails.project.pinCode}</td></tr>
-            <tr><td>Google Map Link</td><td>${buyerDetails.project.googleMapLink}</td></tr>
-            <tr><td>Stage</td><td>${buyerDetails.project.stage}</td></tr>
-            <tr><td>Timeline</td><td>${buyerDetails.project.timeline}</td></tr>
-            <tr><td>Total Area</td><td>${buyerDetails.project.totalSqFt}</td></tr>
-          </table>
-        </body>
-      </html>
-    `;
-
-    const options = {
-      html: htmlContent,
-      fileName: `Buyer_Details_${buyerDetails.personal.fullName}`,
-      directory: 'Documents',
-    };
-
-    const file = await RNHTMLtoPDF.convert(options);
-    return file.filePath; // Path of the generated PDF
-  } catch (err) {
-    console.error(err);
-    Alert.alert('Error', 'Failed to generate PDF');
-  }
-};
-
-
-  // const handleShare = async () => {
-  //   try {
-  //     console.log("buyerDetails : " , buyerDetails)
-  //     const shareContent = {
-  //       message: `Buyer Details:
-  //       Name: ${buyerDetails.personal.fullName}
-  //       Contact: ${buyerDetails.personal.contactNumber}
-  //       Project: ${buyerDetails.project.name}
-  //       Address: ${buyerDetails.project.address}, ${buyerDetails.project.pinCode}
-  //       Timeline: ${buyerDetails.project.timeline}`,
-  //     };
-  //     await Share.share(shareContent);
-  //   } catch (error) {
-  //     Alert.alert('Error', 'Failed to share details');
-  //   }
-  // };
-
-  const handleSharePDF = async () => {
-  try {
-    const filePath = await generatePDF();
-    if (filePath) {
-      await Share.share({
-        url: `file://${filePath}`,
-        title: 'Buyer Details PDF',
-      });
-    }
-  } catch (err) {
-    Alert.alert('Error', 'Failed to share PDF');
-  }
-};
-
-
-  const handlePrint = () => {
-    Alert.alert('Print', 'Print functionality would connect to a printer in production');
+  // Function to make a phone call
+  const makePhoneCall = (phoneNumber) => {
+    Linking.openURL(`tel:${phoneNumber}`).catch(err => {
+      Alert.alert('Error', 'Unable to make a call');
+      console.error('Error making call:', err);
+    });
   };
 
-  const handleDownload = () => {
-    Alert.alert('Download', 'Details would be downloaded as PDF in production');
+  // Function to open WhatsApp
+  const openWhatsApp = (whatsappNumber) => {
+    // Remove any non-digit characters from the number
+    const cleanedNumber = whatsappNumber.replace(/\D/g, '');
+    const url = `whatsapp://send?phone=${cleanedNumber}`;
+    
+    Linking.canOpenURL(url)
+      .then(supported => {
+        if (supported) {
+          return Linking.openURL(url);
+        } else {
+          Alert.alert('Error', 'WhatsApp is not installed on your device');
+        }
+      })
+      .catch(err => {
+        Alert.alert('Error', 'Unable to open WhatsApp');
+        console.error('Error opening WhatsApp:', err);
+      });
+  };
+
+  const generatePDF = async () => {
+    try {
+      // Create HTML content for the PDF
+      const itemsHtml = selectedItems.map(item => `
+        <tr>
+          <td>${item.id}</td>
+          <td>${item.design}</td>
+          <td>${item.color}</td>
+          <td>${item.size}</td>
+          <td>${item.where}</td>
+          <td>${item.qty}</td>
+          <td>${item.total}</td>
+          <td>${item.remarks}</td>
+        </tr>
+      `).join('');
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <title>Buyer Details</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; color: #333; }
+              h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+              h2 { color: #34495e; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+              table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+              th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+              th { background-color: #f8f9fa; font-weight: bold; }
+              .section { margin-bottom: 30px; }
+              .contact-info { margin-bottom: 20px; }
+              .contact-info div { margin-bottom: 8px; }
+              .summary { background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+            </style>
+          </head>
+          <body>
+            <h1>Buyer Details Report</h1>
+            
+            <div class="section">
+              <h2>Personal Information</h2>
+              <div class="contact-info">
+                <div><strong>Full Name:</strong> ${buyerDetails.personal.fullName}</div>
+                <div><strong>Contact Number:</strong> ${buyerDetails.personal.contactNumber}</div>
+                <div><strong>WhatsApp Number:</strong> ${buyerDetails.personal.whatsappNumber}</div>
+                <div><strong>Email:</strong> ${buyerDetails.personal.email}</div>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Project Information</h2>
+              <div class="contact-info">
+                <div><strong>Project Name:</strong> ${buyerDetails.project.name}</div>
+                <div><strong>Category:</strong> ${buyerDetails.project.category}</div>
+                <div><strong>Address:</strong> ${buyerDetails.project.address}, ${buyerDetails.project.pinCode}</div>
+                <div><strong>Google Map Link:</strong> ${buyerDetails.project.googleMapLink}</div>
+                <div><strong>Stage:</strong> ${buyerDetails.project.stage}</div>
+                <div><strong>Timeline:</strong> ${buyerDetails.project.timeline}</div>
+                <div><strong>Total Area:</strong> ${buyerDetails.project.totalSqFt}</div>
+              </div>
+            </div>
+
+            <div class="section">
+              <h2>Selected Items</h2>
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Design</th>
+                    <th>Color</th>
+                    <th>Size</th>
+                    <th>Location</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${itemsHtml}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="summary">
+              <h2>Summary</h2>
+              <div><strong>Total Square Feet:</strong> ${totalSqFt}</div>
+              <div><strong>Total Quantity:</strong> ${totalQuantity}</div>
+            </div>
+
+            <div style="margin-top: 30px; text-align: center; color: #7f8c8d; font-size: 12px;">
+              Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
+            </div>
+          </body>
+        </html>
+      `;
+
+      // Convert HTML to PDF
+      const options = {
+        html: htmlContent,
+        fileName: `Buyer_Details_${buyerDetails.personal.fullName.replace(/\s+/g, '_')}_${Date.now()}`,
+        directory: 'Documents',
+      };
+
+      const file = await RNHTMLtoPDF.convert(options);
+      return file.filePath;
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      Alert.alert('Error', 'Failed to generate PDF');
+      return null;
+    }
+  };
+
+  const handleSharePDF = async () => {
+    try {
+      const filePath = await generatePDF();
+      if (filePath) {
+        // For iOS, we need to use a file URL, for Android we can use the file path
+        const shareOptions = {
+          title: 'Share Buyer Details',
+          url: Platform.OS === 'ios' ? `file://${filePath}` : filePath,
+          type: 'application/pdf',
+        };
+
+        await Share.share(shareOptions);
+      }
+    } catch (err) {
+      console.error('Error sharing PDF:', err);
+      Alert.alert('Error', 'Failed to share PDF');
+    }
+  };
+
+  const handlePrint = async () => {
+    try {
+      const filePath = await generatePDF();
+      if (filePath) {
+        // This would typically connect to a printing service
+        Alert.alert('Print', 'PDF generated successfully. Would connect to printer in production.');
+      }
+    } catch (err) {
+      console.error('Error printing:', err);
+      Alert.alert('Error', 'Failed to generate print document');
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      const filePath = await generatePDF();
+      if (filePath) {
+        Alert.alert('Download', 'PDF downloaded successfully to your documents folder.');
+      }
+    } catch (err) {
+      console.error('Error downloading:', err);
+      Alert.alert('Error', 'Failed to download PDF');
+    }
   };
 
   const openMap = () => {
     const mapUrl = buyerDetails.project.googleMapLink || 
                   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(buyerDetails.project.address)}`;
-    Linking.openURL(mapUrl);
+    Linking.openURL(mapUrl).catch(err => {
+      Alert.alert('Error', 'Unable to open maps');
+      console.error('Error opening maps:', err);
+    });
   };
-
-  // console.log("selectedItems : " , selectedItems)
 
   return (
     <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
@@ -475,10 +268,26 @@ const ContactBuyer = ({ route, navigation }) => {
         <View style={styles.header}>
           <AppText weight='Inter' style={styles.headline}>LEAD UNLOCKED</AppText>
           <AppText weight='Inter' style={styles.subheader}>Full buyer details now available</AppText>
-          {/* <AppText weight='Inter' style={styles.viewTitle} onPress={() => navigation.navigate("SellerMain", { screen: "SellerAccount" })}>
-            View in History
-          </AppText> */}
         </View>
+
+        {/* Contact Action Buttons */}
+        {/* <View style={styles.contactActions}>
+          <TouchableOpacity 
+            style={styles.contactButton} 
+            onPress={() => makePhoneCall(buyerDetails.personal.contactNumber)}
+          >
+            <Icon name="phone" size={24} color="#fff" />
+            <AppText weight='Inter' style={styles.contactButtonText}>Call</AppText>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={[styles.contactButton, styles.whatsappButton]} 
+            onPress={() => openWhatsApp(buyerDetails.personal.whatsappNumber)}
+          >
+            <IconFA name="whatsapp" size={24} color="#fff" />
+            <AppText weight='Inter' style={styles.contactButtonText}>WhatsApp</AppText>
+          </TouchableOpacity>
+        </View> */}
 
         {/* Selected Items */}
         <View style={styles.itemsContainer}>
@@ -500,8 +309,7 @@ const ContactBuyer = ({ route, navigation }) => {
                       <AppText weight='Inter' style={styles.itemValue}>{item.color}</AppText>
                     </View>
                     <View style={styles.itemField}>
-                      <AppText weight='Inter' style={styles.itemLabel}>SIZE</AppText>
-                      {/* <AppText weight='Inter' style={styles.itemValue}>{item.size}</AppText> */}
+                      <AppText weight='Inter' style={styles.itemLabel}>SIZE</AppText> 
                       <AppText weight='Inter' style={styles.itemValue}>
                         {(() => {
                           const [widthStr, heightStr] = item.size.split('x');
@@ -510,7 +318,6 @@ const ContactBuyer = ({ route, navigation }) => {
                           return `${width * height} sq ft`;
                         })()}
                       </AppText>
-
                     </View>
                   </View>
                   
@@ -529,9 +336,7 @@ const ContactBuyer = ({ route, navigation }) => {
                 <View style={styles.totalContainer}>
                   <AppText weight='Inter' style={styles.totalLabel}>TOTAL</AppText>
                   <AppText weight='Inter' style={styles.totalValue}>
-                   { parseFloat(item.qty)*parseFloat(item.total)} 
-                   {/* { } */}
-                    {/* {item.qty} x {item.total} */}
+                   { parseFloat(item.qty)*parseFloat(item.total)}  
                     </AppText>
                 </View>
                 
@@ -579,7 +384,11 @@ const ContactBuyer = ({ route, navigation }) => {
             <Icon name="phone" size={20} color="#000" style={styles.icon} />
             <View>
               <AppText weight='Inter' style={styles.detailLabel}>Contact Number</AppText>
-              <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.contactNumber}</AppText>
+              <TouchableOpacity onPress={() => makePhoneCall(buyerDetails.personal.contactNumber)}>
+                <AppText weight='Inter' style={[styles.detailValue, styles.linkText]}>
+                  {buyerDetails.personal.contactNumber}
+                </AppText>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -587,7 +396,11 @@ const ContactBuyer = ({ route, navigation }) => {
             <Icon name="chat" size={20} color="#000" style={styles.icon} />
             <View>
               <AppText weight='Inter' style={styles.detailLabel}>WhatsApp Number</AppText>
-              <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.whatsappNumber}</AppText>
+              <TouchableOpacity onPress={() => openWhatsApp(buyerDetails.personal.whatsappNumber)}>
+                <AppText weight='Inter' style={[styles.detailValue, styles.linkText]}>
+                  {buyerDetails.personal.whatsappNumber}
+                </AppText>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -617,7 +430,7 @@ const ContactBuyer = ({ route, navigation }) => {
             <Icon name="location-on" size={20} color="#000" style={styles.icon} />
             <View>
               <AppText weight='Inter' style={styles.detailLabel}>Project Address</AppText>
-              <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.address}</AppText>
+              <AppText weight='Inter' style={styles.detailValue1}>{buyerDetails.project.address}</AppText>
             </View>
           </View>
 
@@ -680,7 +493,393 @@ const ContactBuyer = ({ route, navigation }) => {
   );
 };
 
+
+// // import React, { useState, useEffect } from 'react';
+// import {
+//   View, 
+//   TouchableOpacity,
+//   StyleSheet,
+//   ScrollView,
+//   Image,
+//   Linking,
+//   Share,
+//   Alert,
+//   Animated,
+// } from 'react-native';
+// import Icon from 'react-native-vector-icons/MaterialIcons'; 
+// import LinearGradient from 'react-native-linear-gradient';
+// import AppText from '../../components/AppText';
+// import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// import RNHTMLtoPDF from 'react-native-html-to-pdf'; 
+
+// // const ContactBuyer = ({ route, navigation }) => {
+// //   const insets = useSafeAreaInsets();
+// //   const { lead } = route.params; 
+  
+// //   const scaleAnim = useState(new Animated.Value(1))[0];
+
+// //   // Extract buyer details from the lead data
+// //   const buyerDetails = {
+// //     personal: {
+// //       fullName: lead.rawData.contactInfo.name,
+// //       contactNumber: lead.rawData.contactInfo.contactNumber,
+// //       whatsappNumber: lead.rawData.contactInfo.whatsappNumber,
+// //       email: lead.rawData.contactInfo.email,
+// //     },
+// //     project: {
+// //       name: lead.rawData.projectInfo.name,
+// //       address: lead.rawData.projectInfo.address,
+// //       pinCode: lead.rawData.projectInfo.pincode,
+// //       stage: lead.rawData.projectInfo.stage,
+// //       timeline: lead.rawData.projectInfo.timeline,
+// //       totalSqFt: `${lead.rawData.totalSqft} sq ft`,
+// //       category: lead.rawData.category?.name || 'Window',
+// //       googleMapLink: lead.rawData.projectInfo.googleMapLink,
+// //     },
+// //   };
+
+// //   // Format quotes as selected items
+// //   const selectedItems = lead.rawData.quotes.map((quote, index) => ({
+// //     id: index + 1,
+// //     design: quote.product.title,
+// //     color: quote.color,
+// //     size: `${quote.width}ft x ${quote.height}ft`,
+// //     where: quote.installationLocation.replace(/_/g, ' '),
+// //     qty: quote.quantity,
+// //     total: `${quote.sqft} sq ft`,
+// //     remarks: quote.remark || 'No remarks',
+// //   }));
+
+// //   // Calculate totals
+// //   const totalSqFt = lead.rawData.totalSqft;
+// //   const totalQuantity = lead.rawData.totalQuantity;
+
+// //   const generatePDF = async () => {
+// //   try {
+// //     const htmlContent = `
+// //       <html>
+// //         <head>
+// //           <style>
+// //             body { font-family: Arial, sans-serif; padding: 20px; color: #000; }
+// //             h2 { text-align: center; }
+// //             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+// //             th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+// //             th { background-color: #f2f2f2; }
+// //           </style>
+// //         </head>
+// //         <body>
+// //           <h2>Buyer Details</h2>
+// //           <table>
+// //             <tr>
+// //               <th colspan="2">Personal Information</th>
+// //             </tr>
+// //             <tr><td>Full Name</td><td>${buyerDetails.personal.fullName}</td></tr>
+// //             <tr><td>Contact Number</td><td>${buyerDetails.personal.contactNumber}</td></tr>
+// //             <tr><td>Email</td><td>${buyerDetails.personal.email}</td></tr>
+// //             <tr><td>WhatsApp Number</td><td>${buyerDetails.personal.whatsappNumber}</td></tr>
+
+// //             <tr>
+// //               <th colspan="2">Project Information</th>
+// //             </tr>
+// //             <tr><td>Project Name</td><td>${buyerDetails.project.name}</td></tr>
+// //             <tr><td>Category</td><td>${buyerDetails.project.category}</td></tr>
+// //             <tr><td>Address</td><td>${buyerDetails.project.address}, ${buyerDetails.project.pinCode}</td></tr>
+// //             <tr><td>Google Map Link</td><td>${buyerDetails.project.googleMapLink}</td></tr>
+// //             <tr><td>Stage</td><td>${buyerDetails.project.stage}</td></tr>
+// //             <tr><td>Timeline</td><td>${buyerDetails.project.timeline}</td></tr>
+// //             <tr><td>Total Area</td><td>${buyerDetails.project.totalSqFt}</td></tr>
+// //           </table>
+// //         </body>
+// //       </html>
+// //     `;
+
+// //     const options = {
+// //       html: htmlContent,
+// //       fileName: `Buyer_Details_${buyerDetails.personal.fullName}`,
+// //       directory: 'Documents',
+// //     };
+
+// //     const file = await RNHTMLtoPDF.convert(options);
+// //     return file.filePath; // Path of the generated PDF
+// //   } catch (err) {
+// //     console.error(err);
+// //     Alert.alert('Error', 'Failed to generate PDF');
+// //   }
+// // };
+ 
+// //   const handleSharePDF = async () => {
+// //   try {
+// //     const filePath = await generatePDF();
+// //     if (filePath) {
+// //       await Share.share({
+// //         url: `file://${filePath}`,
+// //         title: 'Buyer Details PDF',
+// //       });
+// //     }
+// //   } catch (err) {
+// //     Alert.alert('Error', 'Failed to share PDF');
+// //   }
+// // };
+
+
+// //   const handlePrint = () => {
+// //     Alert.alert('Print', 'Print functionality would connect to a printer in production');
+// //   };
+
+// //   const handleDownload = () => {
+// //     Alert.alert('Download', 'Details would be downloaded as PDF in production');
+// //   };
+
+// //   const openMap = () => {
+// //     const mapUrl = buyerDetails.project.googleMapLink || 
+// //                   `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(buyerDetails.project.address)}`;
+// //     Linking.openURL(mapUrl);
+// //   };
+ 
+// //   return (
+// //     <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
+// //       <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent}>
+// //         {/* Logo Header */}
+// //         <View style={styles.logoContainer}>
+// //           <Image
+// //             source={require('../../assets/logo.png')}
+// //             style={styles.logo}
+// //             resizeMode="contain"
+// //           />
+// //         </View>
+  
+// //         {/* Header */}
+// //         <View style={styles.header}>
+// //           <AppText weight='Inter' style={styles.headline}>LEAD UNLOCKED</AppText>
+// //           <AppText weight='Inter' style={styles.subheader}>Full buyer details now available</AppText>
+       
+// //         </View>
+
+// //         {/* Selected Items */}
+// //         <View style={styles.itemsContainer}>
+// //           {selectedItems.map((item) => (
+// //             <View key={item.id} style={styles.itemCard}>
+// //               <LinearGradient
+// //                 colors={['#f5f5f5', '#ffffff']}
+// //                 style={styles.cardGradient}
+// //                 start={{ x: 0, y: 0 }}
+// //                 end={{ x: 1, y: 1 }}
+// //               > 
+// //                 <Animated.View style={[styles.serialBadge, { transform: [{ scale: scaleAnim }] }]}>
+// //                   <AppText weight='Inter' style={styles.serialBadgeText}>{item.id}</AppText>
+// //                 </Animated.View> 
+// //                 <View style={styles.itemGrid}>
+// //                   <View style={styles.itemColumn}>
+// //                     <View style={styles.itemField}>
+// //                       <AppText weight='Inter' style={styles.itemLabel}>COLOR</AppText>
+// //                       <AppText weight='Inter' style={styles.itemValue}>{item.color}</AppText>
+// //                     </View>
+// //                     <View style={styles.itemField}>
+// //                       <AppText weight='Inter' style={styles.itemLabel}>SIZE</AppText> 
+// //                       <AppText weight='Inter' style={styles.itemValue}>
+// //                         {(() => {
+// //                           const [widthStr, heightStr] = item.size.split('x');
+// //                           const width = parseFloat(widthStr);
+// //                           const height = parseFloat(heightStr);
+// //                           return `${width * height} sq ft`;
+// //                         })()}
+// //                       </AppText>
+
+// //                     </View>
+// //                   </View>
+                  
+// //                   <View style={styles.itemColumn}>
+// //                     <View style={styles.itemField}>
+// //                       <AppText weight='Inter' style={styles.itemLabel}>LOCATION</AppText>
+// //                       <AppText weight='Inter' style={styles.itemValue}>{item.where}</AppText>
+// //                     </View>
+// //                     <View style={styles.itemField}>
+// //                       <AppText weight='Inter' style={styles.itemLabel}>QUANTITY</AppText>
+// //                       <AppText weight='Inter' style={styles.itemValue}>{item.qty}</AppText>
+// //                     </View>
+// //                   </View>
+// //                 </View>
+                
+// //                 <View style={styles.totalContainer}>
+// //                   <AppText weight='Inter' style={styles.totalLabel}>TOTAL</AppText>
+// //                   <AppText weight='Inter' style={styles.totalValue}>
+// //                    { parseFloat(item.qty)*parseFloat(item.total)}  
+// //                     </AppText>
+// //                 </View>
+                
+// //                 {item.remarks && (
+// //                   <View style={styles.remarksContainer}>
+// //                     <AppText weight='Inter' style={styles.remarksLabel}>REMARKS</AppText>
+// //                     <AppText weight='Inter' style={styles.remarksValue}>{item.remarks}</AppText>
+// //                   </View>
+// //                 )}
+// //               </LinearGradient>
+// //             </View>
+// //           ))}
+          
+// //           <View style={styles.summaryCard}>
+// //             <View style={styles.summaryItem}>
+// //               <Icon name="straighten" size={20} color="#000" style={styles.summaryIcon} />
+// //               <AppText weight='Inter' style={styles.summaryLabel}>TOTAL SQ FT</AppText>
+// //               <AppText weight='Inter' style={styles.summaryValue}>{totalSqFt}</AppText>
+// //             </View>
+    
+// //             <View style={styles.summaryItem}>
+// //               <Icon name="format-list-numbered" size={20} color="#000" style={styles.summaryIcon} />
+// //               <AppText weight='Inter' style={styles.summaryLabel}>TOTAL QUANTITY</AppText>
+// //               <AppText weight='Inter' style={styles.summaryValue}>{totalQuantity}</AppText>
+// //             </View>
+// //           </View>
+// //         </View>
+
+// //         {/* Buyer Details Card */}
+// //         <View style={styles.card}>
+// //           {/* Personal Details Section */}
+// //           <View style={styles.cardHeader}>
+// //             <AppText weight='Inter' style={styles.sectionTitle}>PERSONAL DETAILS</AppText>
+// //           </View>
+          
+// //           <View style={styles.detailRow}>
+// //             <Icon name="person" size={20} color="#000" style={styles.icon} />
+// //             <View>
+// //               <AppText weight='Inter' style={styles.detailLabel}>Full Name</AppText>
+// //               <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.fullName}</AppText>
+// //             </View>
+// //           </View>
+
+// //           <View style={styles.detailRow}>
+// //             <Icon name="phone" size={20} color="#000" style={styles.icon} />
+// //             <View>
+// //               <AppText weight='Inter' style={styles.detailLabel}>Contact Number</AppText>
+// //               <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.contactNumber}</AppText>
+// //             </View>
+// //           </View>
+
+// //           <View style={styles.detailRow}>
+// //             <Icon name="chat" size={20} color="#000" style={styles.icon} />
+// //             <View>
+// //               <AppText weight='Inter' style={styles.detailLabel}>WhatsApp Number</AppText>
+// //               <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.whatsappNumber}</AppText>
+// //             </View>
+// //           </View>
+
+// //           <View style={styles.detailRow}>
+// //             <Icon name="email" size={20} color="#000" style={styles.icon} />
+// //             <View>
+// //               <AppText weight='Inter' style={styles.detailLabel}>Email Address</AppText>
+// //               <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.personal.email}</AppText>
+// //             </View>
+// //           </View>
+
+// //           {/* Divider */}
+// //           <View style={styles.divider} />
+
+// //           {/* Project Details Section */}
+// //           <AppText weight='Inter' style={styles.sectionTitle}>PROJECT DETAILS</AppText>
+          
+// //           <View style={styles.detailRow}>
+// //             <Icon name="business" size={20} color="#000" style={styles.icon} />
+// //             <View>
+// //               <AppText weight='Inter' style={styles.detailLabel}>Project Name</AppText>
+// //               <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.name}</AppText>
+// //             </View>
+// //           </View>
+
+// //           <View style={styles.detailRow}>
+// //             <Icon name="location-on" size={20} color="#000" style={styles.icon} />
+// //             <View>
+// //               <AppText weight='Inter' style={styles.detailLabel}>Project Address</AppText>
+// //               <AppText weight='Inter' style={styles.detailValue1}>{buyerDetails.project.address}</AppText>
+// //             </View>
+// //           </View>
+
+// //           <View style={styles.detailRow}>
+// //             <Icon name="map" size={20} color="#000" style={styles.icon} />
+// //             <View>
+// //               <AppText weight='Inter' style={styles.detailLabel}>Pin Code</AppText>
+// //               <View style={styles.inlineContainer}>
+// //                 <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.pinCode}</AppText>
+// //                 <TouchableOpacity onPress={openMap} style={styles.mapLink}>
+// //                   <AppText weight='Inter' style={styles.linkText}>View on Map</AppText>
+// //                   <Icon name="open-in-new" size={16} color="#000" />
+// //                 </TouchableOpacity>
+// //               </View>
+// //             </View>
+// //           </View>
+
+// //           <View style={styles.detailRow}>
+// //             <Icon name="schedule" size={20} color="#000" style={styles.icon} />
+// //             <View>
+// //               <AppText weight='Inter' style={styles.detailLabel}>Project Stage</AppText>
+// //               <View style={styles.inlineContainer}>
+// //                 <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.stage}</AppText>
+// //                 <AppText weight='Inter' style={styles.timeline}>{buyerDetails.project.timeline}</AppText>
+// //               </View>
+// //             </View>
+// //           </View>
+
+// //           <View style={styles.detailRow}>
+// //             <Icon name="straighten" size={20} color="#000" style={styles.icon} />
+// //             <View>
+// //               <AppText weight='Inter' style={styles.detailLabel}>Total Sq. Feet</AppText>
+// //               <View style={styles.inlineContainer}>
+// //                 <AppText weight='Inter' style={styles.detailValue}>{buyerDetails.project.totalSqFt}</AppText>
+// //                 <AppText weight='Inter' style={styles.category}>{buyerDetails.project.category}</AppText>
+// //               </View>
+// //             </View>
+// //           </View>
+// //         </View>
+
+// //         {/* Action Buttons */}
+// //         <View style={styles.actionRow}>
+// //           <TouchableOpacity style={styles.actionButton} onPress={handleSharePDF}>
+// //             <Icon name="share" size={24} color="#000" />
+// //             <AppText weight='Inter' style={styles.actionText}>Share</AppText>
+// //           </TouchableOpacity>
+
+// //           <TouchableOpacity style={styles.actionButton} onPress={handlePrint}>
+// //             <Icon name="print" size={24} color="#000" />
+// //             <AppText weight='Inter' style={styles.actionText}>Print</AppText>
+// //           </TouchableOpacity>
+
+// //           <TouchableOpacity style={styles.actionButton} onPress={handleDownload}>
+// //             <Icon name="cloud-download" size={24} color="#000" />
+// //             <AppText weight='Inter' style={styles.actionText}>Download</AppText>
+// //           </TouchableOpacity>
+// //         </View> 
+// //       </ScrollView>
+// //     </View>
+// //   );
+// // };
+
 const styles = StyleSheet.create({
+  contactActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 15,
+    paddingHorizontal: 20,
+  },
+  contactButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#007AFF',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginHorizontal: 10,
+  },
+  whatsappButton: {
+    backgroundColor: '#25D366',
+  },
+  contactButtonText: {
+    color: '#fff',
+    marginLeft: 8,
+    fontWeight: '600',
+  },
+  linkText: {
+    color: '#007AFF',
+    textDecorationLine: 'underline',
+  },
   container: {
     flex: 1,
     backgroundColor: '#fff', 
@@ -699,21 +898,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   header: {
-    alignItems: 'center',
-    // marginBottom: 20,
+    alignItems: 'center', 
     paddingHorizontal: 20,
   },
   headline: {
-    fontSize: 18,
-    // fontWeight: '900',
+    fontSize: 18, 
     color: '#000',
     letterSpacing: 1,
     marginBottom: 5,
   },
   subheader: {
     fontSize: 14,
-    color: '#666',
-    // fontWeight: '500',
+    color: '#666', 
   },
   cardHeader:{
     flexDirection:'row',
@@ -721,8 +917,7 @@ const styles = StyleSheet.create({
     justifyContent:"space-between"
   },
   cardTitle: {
-    fontSize: 16,
-    // fontWeight: '700',
+    fontSize: 16, 
     color: '#000',
     letterSpacing: 0.5,
   },
@@ -741,8 +936,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   itemLabel: {
-    fontSize: 10,
-    // fontWeight: '600',
+    fontSize: 10, 
     color: '#666',
     marginBottom: 2,
     letterSpacing: 0.5,
@@ -899,6 +1093,12 @@ summaryValue: {
     fontSize: 14,
     // fontWeight: '600',
     color: '#000',
+  },
+  detailValue1: {
+    fontSize: 14,
+    // fontWeight: '600',
+    color: '#000',
+    marginRight:30,
   },
   divider: {
     height: 1,

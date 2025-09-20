@@ -42,7 +42,7 @@ const WindowPrices = () => {
     const fetchHomepageData = async () => {
       try {
         const response = await axios.get(
-          'http://10.7.10.49:9000/api/homepage',
+          'https://upvc-backend-oh6m.onrender.com/api/homepage',
         );
         setHomepageData(response.data.data);
       } catch (error) {
@@ -55,7 +55,7 @@ const WindowPrices = () => {
     //  const fetchHomepageData = async () => {
     //   try {
     //     const response = await axios.get(
-    //       'http://10.7.10.49:9000/api/banner',
+    //       'https://upvc-backend-oh6m.onrender.com/api/banner',
     //     );
 
     //     console.log(response)
@@ -73,7 +73,7 @@ const WindowPrices = () => {
   // useEffect(() => {
   //   const fetchHomepageData = async () => {
   //     try {
-  //       const response = await axios.get('http://10.7.10.49:9000/api/banner');
+  //       const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/banner');
 
   //       if (Array.isArray(response.data) && response.data.length > 0) {
   //         // Sort banners by createdAt in descending order
@@ -188,7 +188,7 @@ const WindowPrices = () => {
           <View style={styles.sponsorContent}> 
             <Image
               source={{
-                uri: `http://10.7.10.49:9000/${homepageData.sponsorLogo}`,
+                uri: `https://upvc-backend-oh6m.onrender.com/${homepageData.sponsorLogo}`,
               }}
               style={styles.sponsorLogo}
               resizeMode="contain"
@@ -209,7 +209,7 @@ const WindowPrices = () => {
           <Video
             ref={videoRef}
             source={{
-              uri: `http://10.7.10.49:9000/${homepageData.videoUrl}`,
+              uri: `https://upvc-backend-oh6m.onrender.com/${homepageData.videoUrl}`,
             }}
             style={styles.videoPlayer}
             paused={paused} // controlled via state
@@ -253,7 +253,7 @@ const WindowPrices = () => {
                 <View style={styles.carouselContent}>
                   <Image
                     source={{
-                      uri: `http://10.7.10.49:9000/${item.thumbnail}`,
+                      uri: `https://upvc-backend-oh6m.onrender.com/${item.thumbnail}`,
                     }}
                     style={styles.thumbnailImage}
                     resizeMode="cover"

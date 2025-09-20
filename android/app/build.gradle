@@ -130,7 +130,9 @@ apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 react {
     autolinkLibrariesWithApp()
 }
-
+project.ext.react = [
+    enableHermes: false  // clean build after changing this
+]
 def enableProguardInReleaseBuilds = false
 
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
@@ -181,6 +183,8 @@ android {
 
 dependencies {
     implementation("com.facebook.react:react-android")
+    // implementation project(':react-native-sound')
+    implementation("io.github.react-native-community:jsc-android:250230.2.1")
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

@@ -32,14 +32,13 @@ const SellerOTPVerification = ({ route, navigation }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/sellers/verify-otp',
+        'https://upvc-backend-oh6m.onrender.com/api/sellers/verify-otp',
         {
           phoneNumber: mobileNumber,
           otp: submittedOtp
         }
       );
 
-      // im doing this becuase once seller is logged in buyer should be logged out
       await AsyncStorage.clear();
       if (response.data.token) {
 
@@ -54,20 +53,31 @@ const SellerOTPVerification = ({ route, navigation }) => {
         text2: response.data.message || 'OTP verified successfully',
         visibilityTime: 4000,
         onHide: () => {
+          // if (response.data.isNewUser) {
+          //   navigation.replace('WelcomeProfileSetup', { mobileNumber });
+          // } else { 
+          //   navigation.reset({
+          //     index: 0,
+          //     routes: [{ name: 'SellerMain' }],
+          //   });
+
+          // }
           if (response.data.isNewUser) {
-            navigation.replace('WelcomeProfileSetup', { mobileNumber });
+            // Clear stack and take to WelcomeProfileSetup
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'WelcomeProfileSetup', params: { mobileNumber } }],
+            });
           } else {
-            // navigation.replace('SellerMain');
+            // Clear stack and take to SellerMain
             navigation.reset({
               index: 0,
               routes: [{ name: 'SellerMain' }],
             });
-
           }
         }
       });
-      setShowresend(false)
-      // console.log("notify success")
+      setShowresend(false) 
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'OTP verification failed';
       Toast.show({
@@ -88,7 +98,7 @@ const SellerOTPVerification = ({ route, navigation }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/sellers/send-otp',
+        'https://upvc-backend-oh6m.onrender.com/api/sellers/send-otp',
         { phoneNumber: mobileNumber }
       );
 
@@ -158,19 +168,13 @@ const SellerOTPVerification = ({ route, navigation }) => {
           autoFocus={true}
           hideStick={false}
           disabled={loading}
-        />
-
-        {/* <ResendTimer
-          duration={30}
-          onResend={() => setCanResend(true)}
-          style={styles.resendTimer}
-        /> */}
+        /> 
         { showresend ? 
         <>
           <ResendTimer
             duration={30}
             canResend={canResend}
-            onTimeout={() => setCanResend(true)} // parent controls when resend is allowed
+            onTimeout={() => setCanResend(true)}
           />
    
           <PrimaryButton

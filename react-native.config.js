@@ -1,7 +1,16 @@
-// react-native.config.js
 // module.exports = {
-//   assets: ['./node_modules/react-native-vector-icons/Fonts'],
+//   assets: ['./src/assets/fonts/'],
 // };
+
 module.exports = {
   assets: ['./src/assets/fonts/'],
+  // dependencies: {
+  //   'react-native-sound': {
+  //     platforms: {
+  //       android: null, // disables auto linking for Android if needed
+  //     },
+  //   },
+  // },
 };
+
+

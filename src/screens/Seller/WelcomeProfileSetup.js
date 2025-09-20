@@ -128,7 +128,7 @@
 //         });
 //       }
 //       console.log("formDataToSend : " , formDataToSend)
-//       const response = await axios.post('http://10.7.10.49:9000/api/sellers/register', formDataToSend, {
+//       const response = await axios.post('https://upvc-backend-oh6m.onrender.com/api/sellers/register', formDataToSend, {
 //         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },
@@ -169,7 +169,7 @@
 
 //         <View style={styles.form}>
 //           {/* Business Info */}
-//           <AppText weight='Inter' style={styles.header}>BUSINESS INFORMATION</AppText>
+//           <AppText weight='Inter' style={styles.header}></AppText>
 //           <Input 
 //             label="Company Name*" 
 //             value={formData.companyName} 
@@ -513,7 +513,7 @@
 
 //       console.log('Submitting form data:', formDataToSend);
 
-//       const response = await axios.post('http://10.7.10.49:9000/api/sellers/register', formDataToSend, {
+//       const response = await axios.post('https://upvc-backend-oh6m.onrender.com/api/sellers/register', formDataToSend, {
 //         headers: {
 //           'Content-Type': 'multipart/form-data',
 //         },
@@ -562,7 +562,7 @@
 
 //         <View style={styles.form}>
 //           {/* Business Info */}
-//           <AppText weight='Inter' style={styles.header}>BUSINESS INFORMATION</AppText>
+//           <AppText weight='Inter' style={styles.header}></AppText>
 //           <Input
 //             label="Company Name*"
 //             value={formData.companyName}
@@ -976,7 +976,7 @@ const WelcomeProfileSetup = ({ navigation }) => {
 
       console.log('Submitting form data:', formDataToSend);
 
-      const response = await axios.post('http://10.7.10.49:9000/api/sellers/register', formDataToSend, {
+      const response = await axios.post('https://upvc-backend-oh6m.onrender.com/api/sellers/register', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -1025,7 +1025,7 @@ const WelcomeProfileSetup = ({ navigation }) => {
 
         <View style={styles.form}>
           {/* Business Info */}
-          <AppText weight='Inter' style={styles.header}>BUSINESS INFORMATION</AppText>
+          <AppText weight='Inter' style={styles.header}></AppText>
           <Input
             label="Company Name*"
             value={formData.companyName}

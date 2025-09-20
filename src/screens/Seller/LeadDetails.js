@@ -46,7 +46,7 @@
 //     const fetchQuota = async () => {
 //       try {
 //         const token = await AsyncStorage.getItem('sellerToken');
-//         const response = await axios.get('http://10.7.10.49:9000/api/seller/quota', {
+//         const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/seller/quota', {
 //           headers: { Authorization: `Bearer ${token}` }
 //         });
 //         setRemainingQuota(response.data.remainingQuota);
@@ -59,7 +59,7 @@
 
 //   const fetchLeads = async () => {
 //     try {
-//       const response = await axios.get('http://10.7.10.49:9000/api/seller/lead');
+//       const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/seller/lead');
 //       if (response.data.success) {
 //         const formattedLeads = response.data.leads.map(lead => ({
 //           id: lead._id,
@@ -176,7 +176,7 @@
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token) return;
 //       console.log("token : " , token)
-//       const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
+//       const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //         },
@@ -203,7 +203,7 @@
 //     if (!hasVideo) {
 //       setShowPremiumPopup(true);
 //     } else {
-//         const quotaCheck = await axios.get(`http://10.7.10.49:9000/api/seller/lead-quota-check/${lead.id}`, {
+//         const quotaCheck = await axios.get(`https://upvc-backend-oh6m.onrender.com/api/seller/lead-quota-check/${lead.id}`, {
 //         headers: { Authorization: `Bearer ${token}` }
 //       });
 
@@ -221,7 +221,7 @@
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token || !currentLead) return; 
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/seller/lead/purchase',
+//         'https://upvc-backend-oh6m.onrender.com/api/seller/lead/purchase',
 //         {
 //           leadId: currentLead.rawData._id, 
 //           slotsToBuy
@@ -664,6 +664,8 @@ import Toast from 'react-native-toast-message';
 import PremiumLoginModal from '../../components/PremiumLoginModal';
 import CountdownTimer from '../Buyer/components/CountdownTimer';
 import AppText from '../../components/AppText';
+// import Sound from 'react-native-sound';
+// import { Audio } from 'expo-av';
 
 const { width, height } = Dimensions.get('window');
 
@@ -690,7 +692,7 @@ const LeadDetails = ({ navigation }) => {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return;
 
-      const response = await axios.get('http://10.7.10.49:9000/api/seller/lead/quota', {
+      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/seller/lead/quota', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRemainingQuota(response.data.remainingQuota);
@@ -710,7 +712,7 @@ const LeadDetails = ({ navigation }) => {
 
   const fetchLeads = async () => {
     try {
-      const response = await axios.get('http://10.7.10.49:9000/api/seller/lead');
+      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/seller/lead');
 
       if (response.data.success) {
         // UPDATED LOGIC: Filter leads to be within the last 72 hours
@@ -751,6 +753,13 @@ const LeadDetails = ({ navigation }) => {
       setLoading(false);
     }
   };
+
+  // const playSuccessSound = async () => {
+  //   const { sound } = await Audio.Sound.createAsync(
+  //     require('../../assets/sounds/success.mp3') // put your file here
+  //   );
+  //   await sound.playAsync();
+  // };
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -841,7 +850,7 @@ const LeadDetails = ({ navigation }) => {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return false;
 
-      const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
+      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data.success && response.data.seller.businessProfileVideo;
@@ -869,7 +878,7 @@ const LeadDetails = ({ navigation }) => {
 
     try {
       const quotaCheck = await axios.get(
-        `http://10.7.10.49:9000/api/seller/lead/lead-quota-check/${lead.id}`,
+        `https://upvc-backend-oh6m.onrender.com/api/seller/lead/lead-quota-check/${lead.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (remainingQuota > 0 && !quotaCheck.data.alreadyUsed) {
@@ -908,10 +917,11 @@ const LeadDetails = ({ navigation }) => {
         leadId: currentLead.rawData._id,
         slotsToBuy,
         useFreeQuota,
-        freeSqftToUse
+        freeSqftToUse,
+        price : actualPrice
       };
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/seller/lead/purchase',
+        'https://upvc-backend-oh6m.onrender.com/api/seller/lead/purchase',
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -922,6 +932,8 @@ const LeadDetails = ({ navigation }) => {
 
         await Promise.all([fetchLeads(), fetchQuota()]);
 
+        // playSuccessSound();
+
         Toast.show({
           type: 'success',
           text1: 'Success',
@@ -929,7 +941,15 @@ const LeadDetails = ({ navigation }) => {
             ? `Used ${freeSqftToUse} sqft from your free quota `
             : 'Lead purchased successfully'
         });
-        // (${response.data.monthlyQuotaRemaining} remaining)`
+        
+        // show fancy toast
+        // Toast.show({
+        //   type: 'successFancy',
+        //   text1: 'Lead Purchased!',
+        //   text2: useFreeQuota
+        //     ? `Used ${freeSqftToUse} sqft from your free quota`
+        //     : `You successfully purchased this lead`
+        // });
 
         navigation.navigate('ContactBuyer', {
           lead: currentLead,
@@ -938,12 +958,8 @@ const LeadDetails = ({ navigation }) => {
             amountPaid: response.data.actualPricePaid
           }
         });
-      }
-      // else {
-      //   throw new Error(response.data.message || 'Purchase failed');
-      // }
+      } 
     } catch (error) {
-      // console.error('Purchase error:', error);
       Toast.show({
         type: 'error',
         text1: 'Error',

@@ -237,7 +237,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Share } from 'react-native'
 
 const { width } = Dimensions.get('window');
-const BASE_URL = 'http://10.7.10.49:9000/api/advertisments';
+const BASE_URL = 'https://upvc-backend-oh6m.onrender.com/api/advertisments';
 
 const MarketInsights = () => {
 
@@ -267,7 +267,7 @@ const MarketInsights = () => {
           },
         });
 
-        const sellerResponse = await axios.get('http://10.7.10.49:9000/api/sellers', {
+        const sellerResponse = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -320,8 +320,8 @@ const MarketInsights = () => {
     try {
       const shareOptions = {
         message: `${item.title}\n\n${item.description}\n\nCheck this out: ${item.type === 'video' 
-          ? `http://10.7.10.49:9000/${item.mediaUrl}`
-          : `http://10.7.10.49:9000/uploads/${item.mediaUrl}`
+          ? `https://upvc-backend-oh6m.onrender.com/${item.mediaUrl}`
+          : `https://upvc-backend-oh6m.onrender.com/uploads/${item.mediaUrl}`
         }`,
       };
       await Share.share(shareOptions);
@@ -341,10 +341,10 @@ const MarketInsights = () => {
       {item.type === 'video' ? (
         <View style={styles.videoContainer}>
           <Video
-            source={{ uri: `http://10.7.10.49:9000/${item.mediaUrl}` }}
+            source={{ uri: `https://upvc-backend-oh6m.onrender.com/${item.mediaUrl}` }}
             style={styles.video}
             resizeMode="cover"
-            poster={item.thumbnailUrl ? `http://10.7.10.49:9000/${item.thumbnailUrl}` : undefined}
+            poster={item.thumbnailUrl ? `https://upvc-backend-oh6m.onrender.com/${item.thumbnailUrl}` : undefined}
             posterResizeMode="cover"
             controls
             paused
@@ -352,7 +352,7 @@ const MarketInsights = () => {
         </View>
       ) : (
         <Image
-          source={{ uri: `http://10.7.10.49:9000/uploads/${item.mediaUrl}` }}
+          source={{ uri: `https://upvc-backend-oh6m.onrender.com/uploads/${item.mediaUrl}` }}
           style={styles.image}
           resizeMode="cover"
         />
