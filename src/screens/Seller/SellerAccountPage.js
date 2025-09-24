@@ -471,9 +471,9 @@ Karnataka
     UPVC Connect
   </AppText>
   <View style={{ marginLeft: 8, marginBottom: 4 }}>
-    <AppText style={styles.invoiceText}>13, K No 214, Bank Avenue</AppText>
-    <AppText style={styles.invoiceText}>1st Main Road, Babusapalya</AppText>
-    <AppText style={styles.invoiceText}>Bengaluru Urban, Karnataka - 560043</AppText>
+    <AppText style={styles.invoiceText}>14, 1st Main Road, Bank Avenue</AppText>
+    {/* <AppText style={styles.invoiceText}>, Babusapalya</AppText> */}
+    <AppText style={styles.invoiceText}>Bengaluru - 560043</AppText>
   </View>
   <AppText style={[styles.invoiceText, { marginBottom: 2 }]}>
     GST: 29AKWPS1667B1ZL
