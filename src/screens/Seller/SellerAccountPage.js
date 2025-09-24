@@ -57,7 +57,7 @@ const SellerAccountPage = ({ navigation }) => {
       if (!storedToken) {
         return;
       }
-      const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
+      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -154,7 +154,7 @@ const SellerAccountPage = ({ navigation }) => {
       setIsEditing(false);
       return;
       const response = await axios.put(
-        'http://10.7.10.49:9000/api/sellers',
+        'https://upvc-backend-oh6m.onrender.com/api/sellers',
         updateData,
         {
           headers: {

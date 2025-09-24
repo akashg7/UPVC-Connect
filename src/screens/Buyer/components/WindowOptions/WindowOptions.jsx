@@ -90,7 +90,7 @@ const WindowOptions = ({route}) => {
       if (token) {
         setBuyerId(token);
         const responseQuotes = await axios.get(
-          'http://10.7.10.49:9000/api/quotes/buyer',
+          'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -105,7 +105,7 @@ const WindowOptions = ({route}) => {
       }
 
       const response = await axios.get(
-        'http://10.7.10.49:9000/api/options',
+        'https://upvc-backend-oh6m.onrender.com/api/options',
       );
       const formattedData = response.data.map(item => ({
         id: item._id,
@@ -283,7 +283,7 @@ useFocusEffect(
   const submitQuote = async (quoteData, token) => {
     try {
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/quotes',
+        'https://upvc-backend-oh6m.onrender.com/api/quotes',
         quoteData,
         {
           headers: {
@@ -745,7 +745,7 @@ useFocusEffect(
 //           setBuyerId(token);
 //           // Only fetch quotes if logged in
 //           const responseQuotes = await axios.get(
-//             'http://10.7.10.49:9000/api/quotes/buyer',
+//             'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
 //             {
 //               headers: {
 //                 Authorization: `Bearer ${token}`,
@@ -757,7 +757,7 @@ useFocusEffect(
 //         }
 
 //         const response = await axios.get(
-//           'http://10.7.10.49:9000/api/options',
+//           'https://upvc-backend-oh6m.onrender.com/api/options',
 //         );
 //         const formattedData = response.data.map(item => ({
 //           id: item._id,
@@ -887,7 +887,7 @@ useFocusEffect(
 //   const submitQuote = async (quoteData, token) => {
 //     try {
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/quotes',
+//         'https://upvc-backend-oh6m.onrender.com/api/quotes',
 //         quoteData,
 //         {
 //           headers: {
@@ -1698,7 +1698,7 @@ export default WindowOptions;
 
 //         // Fetch window designs
 //         const response = await axios.get(
-//           'http://10.7.10.49:9000/api/options',
+//           'https://upvc-backend-oh6m.onrender.com/api/options',
 //         );
 //         setWindowDesigns(
 //           response.data.map(item => ({
@@ -1716,7 +1716,7 @@ export default WindowOptions;
 //         // Fetch quote count if logged in
 //         if (token) {
 //           const quotesResponse = await axios.get(
-//             'http://10.7.10.49:9000/api/quotes/buyer',
+//             'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
 //             {headers: {Authorization: `Bearer ${token}`}},
 //           );
 //           setQuoteCount(quotesResponse.data?.count || 0);
@@ -1757,7 +1757,7 @@ export default WindowOptions;
 
 //     try {
 //       await axios.post(
-//         'http://10.7.10.49:9000/api/quotes',
+//         'https://upvc-backend-oh6m.onrender.com/api/quotes',
 //         {
 //           product: selectedDesign.designs[currentDesignIndex].id,
 //           color: colorValue,

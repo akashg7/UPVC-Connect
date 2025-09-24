@@ -136,7 +136,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       }
 
       const responseQuotes = await axios.get(
-        'http://10.7.10.49:9000/api/quotes/buyer',
+        'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -145,7 +145,7 @@ const QuoteRequestPage = ({navigation, route}) => {
         },
       );
 
-      const userRes = await axios.get('http://10.7.10.49:9000/api/buyer', {
+      const userRes = await axios.get('https://upvc-backend-oh6m.onrender.com/api/buyer', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -378,7 +378,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       };
       
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/seller/lead',
+        'https://upvc-backend-oh6m.onrender.com/api/seller/lead',
         leadData,
         {
           headers: {
@@ -448,7 +448,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       const token = await AsyncStorage.getItem('buyerToken');
 
       const response = await axios.put(
-        `http://10.7.10.49:9000/api/quotes/${updatedQuote._id}`,
+        `https://upvc-backend-oh6m.onrender.com/api/quotes/${updatedQuote._id}`,
         updatedQuote,
         {
           headers: {
@@ -461,7 +461,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       if (response.status === 200) {
         setIsEditModalVisible(false);
         const updatedQuotes = await axios.get(
-          'http://10.7.10.49:9000/api/quotes/buyer',
+          'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -497,7 +497,7 @@ const QuoteRequestPage = ({navigation, route}) => {
   const handleDeleteItem = async quoteId => { 
     try {
       const token = await AsyncStorage.getItem('buyerToken');
-      await axios.delete(`http://10.7.10.49:9000/api/quotes/${quoteId}`, {
+      await axios.delete(`https://upvc-backend-oh6m.onrender.com/api/quotes/${quoteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -505,7 +505,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
       // Refresh quotes after deletion
       const response = await axios.get(
-        'http://10.7.10.49:9000/api/quotes/buyer',
+        'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,

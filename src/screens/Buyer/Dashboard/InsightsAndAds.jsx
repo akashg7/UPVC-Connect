@@ -40,7 +40,7 @@ const MarketInsights = ({navigation , route}) => {
         setBuyerId(token);
       }
       const categoryresponse = await axios.get(
-        'http://10.7.10.49:9000/api/categories',
+        'https://upvc-backend-oh6m.onrender.com/api/categories',
       );
       setCategories(categoryresponse?.data);
       setLoading(false);
@@ -82,7 +82,7 @@ const MarketInsights = ({navigation , route}) => {
           // setBuyerId(token);
           // Only fetch quotes if logged in
           const responseQuotes = await axios.get(
-            'http://10.7.10.49:9000/api/quotes/buyer',
+            'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -161,7 +161,7 @@ if (hasPendingQuotes) {
             <View style={styles.videoContainer}>
               <Video
                 source={{
-                  uri: `http://10.7.10.49:9000${category.videoUrl}`,
+                  uri: `https://upvc-backend-oh6m.onrender.com${category.videoUrl}`,
                 }}
                 style={styles.video}
                 resizeMode="cover"
@@ -184,7 +184,7 @@ if (hasPendingQuotes) {
             <View style={styles.sponsorContent}>
               {category.sponsorLogo ? (
                 <Image
-                  source={{ uri: `http://10.7.10.49:9000/${category.sponsorLogo}` }}
+                  source={{ uri: `https://upvc-backend-oh6m.onrender.com/${category.sponsorLogo}` }}
                   style={styles.sponsorLogo}
                   resizeMode="contain"
                 />

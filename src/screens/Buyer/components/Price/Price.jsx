@@ -42,14 +42,14 @@
 //       try {
 //         setLoading(true);
 //         const videoResponse = await axios.get(
-//           'http://10.7.10.49:9000/api/pricing/video',
+//           'https://upvc-backend-oh6m.onrender.com/api/pricing/video',
 //         );
 //         if (videoResponse.data && videoResponse.data.length > 0) {
 //           setVideoData(videoResponse.data[0]);
 //         }
 
 //         const headingResponse = await axios.get(
-//           'http://10.7.10.49:9000/api/pricing/heading',
+//           'https://upvc-backend-oh6m.onrender.com/api/pricing/heading',
 //         );
 //         if (headingResponse.data) {
 //           setHeadingData(headingResponse.data);
@@ -226,7 +226,7 @@
 //               {videoData?.video ? (
 //                 <Video
 //                   source={{
-//                     uri: `http://10.7.10.49:9000/${videoData.video}`,
+//                     uri: `https://upvc-backend-oh6m.onrender.com/${videoData.video}`,
 //                   }}
 //                   style={styles.video}
 //                   resizeMode="cover"
@@ -245,7 +245,7 @@
 //                   <View style={styles.sponsorContent}>
 //                     <Image
 //                       source={{
-//                         uri: `http://10.7.10.49:9000/${videoData.sponsorLogo}`,
+//                         uri: `https://upvc-backend-oh6m.onrender.com/${videoData.sponsorLogo}`,
 //                       }}
 //                       style={styles.sponsorLogo}
 //                       resizeMode="contain"
@@ -675,14 +675,14 @@ const Price = () => {
     try {
       setLoading(true);
       const videoResponse = await axios.get(
-        'http://10.7.10.49:9000/api/pricing/video',
+        'https://upvc-backend-oh6m.onrender.com/api/pricing/video',
       );
       if (videoResponse.data && videoResponse.data.length > 0) {
         setVideoData(videoResponse.data[0]);
       }
 
       const headingResponse = await axios.get(
-        'http://10.7.10.49:9000/api/pricing/heading',
+        'https://upvc-backend-oh6m.onrender.com/api/pricing/heading',
       );
       if (headingResponse.data) {
         setHeadingData(headingResponse.data);
@@ -890,7 +890,7 @@ const Price = () => {
               {videoData?.video ? (
                 <Video
                   source={{
-                    uri: `http://10.7.10.49:9000/${videoData.video}`,
+                    uri: `https://upvc-backend-oh6m.onrender.com/${videoData.video}`,
                   }}
                   style={styles.video}
                   resizeMode="cover"
@@ -909,7 +909,7 @@ const Price = () => {
                   <View style={styles.sponsorContent}>
                     <Image
                       source={{
-                        uri: `http://10.7.10.49:9000/${videoData.sponsorLogo}`,
+                        uri: `https://upvc-backend-oh6m.onrender.com/${videoData.sponsorLogo}`,
                       }}
                       style={styles.sponsorLogo}
                       resizeMode="contain"

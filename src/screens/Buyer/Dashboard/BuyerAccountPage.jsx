@@ -55,7 +55,7 @@ const UserAccount = () => {
       setLoading(true);
       // Fetch video data
       const userResponse = await axios.get(
-        'http://10.7.10.49:9000/api/buyer',
+        'https://upvc-backend-oh6m.onrender.com/api/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -93,7 +93,7 @@ const UserAccount = () => {
       setLoading(true);
 
       const response = await axios.patch(
-        `http://10.7.10.49:9000/api/buyer/update`,
+        `https://upvc-backend-oh6m.onrender.com/api/buyer/update`,
         {name, mobileNumber: phone},
         {
           headers: {
@@ -133,7 +133,7 @@ const UserAccount = () => {
       setLoading(true);
 
       await axios.post(
-        'http://10.7.10.49:9000/api/feedback',
+        'https://upvc-backend-oh6m.onrender.com/api/feedback',
         {
           name: userData?.name,
           phone: userData?.mobileNumber,

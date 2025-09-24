@@ -36,7 +36,7 @@ const LoginScreen = ({ navigation }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/sellers/send-otp',
+        'https://upvc-backend-oh6m.onrender.com/api/sellers/send-otp',
         { phoneNumber: mobileNumber },
       );
 

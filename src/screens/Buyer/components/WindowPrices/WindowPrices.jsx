@@ -37,7 +37,7 @@ const WindowPrices = () => {
 
   const fetchHomepageData = async () => {
     try {
-      const response = await axios.get('http://10.7.10.49:9000/api/homepage');
+      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/homepage');
       setHomepageData(response.data.data);
     } catch (error) {
       console.error('Error fetching homepage data:', error);
@@ -100,7 +100,7 @@ const WindowPrices = () => {
         <View style={styles.sponsorContainer}>
           <View style={styles.sponsorContent}> 
             <Image
-              source={{uri: `http://10.7.10.49:9000/${homepageData.sponsorLogo}`}}
+              source={{uri: `https://upvc-backend-oh6m.onrender.com/${homepageData.sponsorLogo}`}}
               style={styles.sponsorLogo}
               resizeMode="contain"
             />
@@ -118,7 +118,7 @@ const WindowPrices = () => {
         {!videoError ? (
           <Video
             ref={videoRef}
-            source={{uri: `http://10.7.10.49:9000/${homepageData.videoUrl}`}}
+            source={{uri: `https://upvc-backend-oh6m.onrender.com/${homepageData.videoUrl}`}}
             style={styles.videoPlayer}
             paused={paused}
             resizeMode="contain"
@@ -153,7 +153,7 @@ const WindowPrices = () => {
                 onPress={() => handleMomentPress(item.timestamp)}>
                 <View style={styles.carouselContent}>
                   <Image
-                    source={{uri: `http://10.7.10.49:9000/${item.thumbnail}`}}
+                    source={{uri: `https://upvc-backend-oh6m.onrender.com/${item.thumbnail}`}}
                     style={styles.thumbnailImage}
                     resizeMode="cover"
                   />

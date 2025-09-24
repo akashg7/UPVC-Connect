@@ -89,7 +89,7 @@ const SellerHome = () => {
         return;
       }
 
-      const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
+      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -97,7 +97,7 @@ const SellerHome = () => {
       
       if (response.data.success && response.data.seller.businessProfileVideo) {
         setHasVideo(true);
-        setVideoUri(`http://10.7.10.49:9000${response.data.seller.businessProfileVideo}`);
+        setVideoUri(`https://upvc-backend-oh6m.onrender.com${response.data.seller.businessProfileVideo}`);
       } else {
         setHasVideo(false);
         setVideoUri(null);
@@ -166,7 +166,7 @@ const SellerHome = () => {
       });
 
       const response = await axios.post(
-        'http://10.7.10.49:9000/api/sellers/business-video',
+        'https://upvc-backend-oh6m.onrender.com/api/sellers/business-video',
         formData,
         {
           headers: {
@@ -186,7 +186,7 @@ const SellerHome = () => {
 
       if (response.data.success) {
         setHasVideo(true);
-        setVideoUri(`http://10.7.10.49:9000${response.data.videoUrl}`);
+        setVideoUri(`https://upvc-backend-oh6m.onrender.com${response.data.videoUrl}`);
         Alert.alert('Success', 'Video uploaded successfully!');
       } else {
         throw new Error(response.data.message || 'Failed to upload video');
@@ -590,7 +590,7 @@ export default SellerHome;
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token) return;
 
-//       const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
+//       const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //         },
@@ -598,7 +598,7 @@ export default SellerHome;
 //       console.log("response data : ", response.data)
 //       if (response.data.success && response.data.seller.businessProfileVideo) {
 //         setHasVideo(true);
-//         setVideoUri(`http://10.7.10.49:9000${response.data.seller.businessProfileVideo}`);
+//         setVideoUri(`https://upvc-backend-oh6m.onrender.com${response.data.seller.businessProfileVideo}`);
 //       }
 //     } catch (error) {
 //       console.error('Error checking existing video:', error);
@@ -654,7 +654,7 @@ export default SellerHome;
 //       });
 
 //       const response = await axios.post(
-//         'http://10.7.10.49:9000/api/sellers/business-video',
+//         'https://upvc-backend-oh6m.onrender.com/api/sellers/business-video',
 //         formData,
 //         {
 //           headers: {
@@ -672,7 +672,7 @@ export default SellerHome;
 
 //       if (response.data.success) {
 //         setHasVideo(true);
-//         setVideoUri(`http://10.7.10.49:9000${response.data.videoUrl}`);
+//         setVideoUri(`https://upvc-backend-oh6m.onrender.com${response.data.videoUrl}`);
 //         Alert.alert('Success', 'Video uploaded successfully!');
 //       } else {
 //         throw new Error(response.data.message || 'Failed to upload video');
