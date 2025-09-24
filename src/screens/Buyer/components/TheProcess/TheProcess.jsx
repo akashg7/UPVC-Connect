@@ -24,7 +24,7 @@ import HamburgerMenu from '../HamburgerMenu';
 import LinearGradient from 'react-native-linear-gradient';
 
 const {width, height} = Dimensions.get('window');
-const BASE_URL = 'https://upvc-backend-oh6m.onrender.com/api/buyer/advertisments';
+const BASE_URL = 'http://10.7.10.49:9000/api/buyer/advertisments';
 
 const TheProcess = () => {
   const insets = useSafeAreaInsets();
@@ -59,7 +59,7 @@ const TheProcess = () => {
             Authorization: `Bearer ${token}`,
           },
         }),
-        axios.get('https://upvc-backend-oh6m.onrender.com/api/buyer', {
+        axios.get('http://10.7.10.49:9000/api/buyer', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -122,8 +122,8 @@ const TheProcess = () => {
       try {
         const shareOptions = {
           message: `${item.title}\n\n${item.description}\n\nCheck this out: ${item.type === 'video' 
-            ? `https://upvc-backend-oh6m.onrender.com/${item.mediaUrl}`
-            : `https://upvc-backend-oh6m.onrender.com/uploads/${item.mediaUrl}`
+            ? `http://10.7.10.49:9000/${item.mediaUrl}`
+            : `http://10.7.10.49:9000/uploads/${item.mediaUrl}`
           }`,
         };
         await Share.share(shareOptions);
@@ -150,7 +150,7 @@ const renderItem = ({ item }) => {
           onPress={() => setPaused(!paused)}
           style={styles.videoContainer}>
           <Video
-            source={{ uri: `https://upvc-backend-oh6m.onrender.com/uploads/${item.mediaUrl}` }}
+            source={{ uri: `http://10.7.10.49:9000/uploads/${item.mediaUrl}` }}
             style={styles.video}
             resizeMode="cover"
             paused={paused}
@@ -168,7 +168,7 @@ const renderItem = ({ item }) => {
         </TouchableOpacity>
       ) : (
         <Image
-          source={{ uri: `https://upvc-backend-oh6m.onrender.com/uploads/${item.mediaUrl}` }}
+          source={{ uri: `http://10.7.10.49:9000/uploads/${item.mediaUrl}` }}
           style={styles.image}
           resizeMode="cover"
         />
@@ -184,7 +184,7 @@ const renderItem = ({ item }) => {
             <View style={styles.sponsorContent}>
               {item.sponsorLogo ? (
                 <Image
-                  source={{ uri: `https://upvc-backend-oh6m.onrender.com/${item.sponsorLogo}` }}
+                  source={{ uri: `http://10.7.10.49:9000/${item.sponsorLogo}` }}
                   style={styles.sponsorLogo}
                   resizeMode="contain"
                 />

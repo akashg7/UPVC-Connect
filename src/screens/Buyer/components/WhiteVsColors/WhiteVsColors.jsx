@@ -31,8 +31,8 @@
 //     const fetchData = async () => {
 //       try {
 //         const [videoResponse, differenceResponse] = await Promise.all([
-//           axios.get('https://upvc-backend-oh6m.onrender.com/api/color/video'),
-//           axios.get('https://upvc-backend-oh6m.onrender.com/api/color/comparisons'),
+//           axios.get('http://10.7.10.49:9000/api/color/video'),
+//           axios.get('http://10.7.10.49:9000/api/color/comparisons'),
 //         ]);
 
 //         if (videoResponse.data.length > 0) {
@@ -111,7 +111,7 @@
 //               <View style={styles.videoContainer}>
 //                 <Video
 //                   source={{
-//                     uri: `https://upvc-backend-oh6m.onrender.com${video.src}`,
+//                     uri: `http://10.7.10.49:9000${video.src}`,
 //                   }}
 //                   style={styles.video}
 //                   resizeMode="cover"
@@ -128,7 +128,7 @@
 //                   <View style={styles.sponsorDivider} />
 //                   <Image
 //                     source={{
-//                       uri: `https://upvc-backend-oh6m.onrender.com/${video.sponsorLogo}`,
+//                       uri: `http://10.7.10.49:9000/${video.sponsorLogo}`,
 //                     }}
 //                     style={styles.premiumSponsorLogo}
 //                     resizeMode="contain"
@@ -351,8 +351,8 @@
 //     const fetchData = async () => {
 //       try {
 //         const [videoResponse, differenceResponse] = await Promise.all([
-//           axios.get('https://upvc-backend-oh6m.onrender.com/api/color/video'),
-//           axios.get('https://upvc-backend-oh6m.onrender.com/api/color/comparisons'),
+//           axios.get('http://10.7.10.49:9000/api/color/video'),
+//           axios.get('http://10.7.10.49:9000/api/color/comparisons'),
 //         ]);
 
 //         if (videoResponse.data.length > 0) {
@@ -431,7 +431,7 @@
 //               <View style={styles.videoContainer}>
 //                 <Video
 //                   source={{
-//                     uri: `https://upvc-backend-oh6m.onrender.com${video.src}`,
+//                     uri: `http://10.7.10.49:9000${video.src}`,
 //                   }}
 //                   style={styles.video}
 //                   resizeMode="cover"
@@ -449,7 +449,7 @@
 //                     <View style={styles.sponsorContent}>
 //                       <Image
 //                         source={{
-//                           uri: `https://upvc-backend-oh6m.onrender.com/${video.sponsorLogo}`,
+//                           uri: `http://10.7.10.49:9000/${video.sponsorLogo}`,
 //                         }}
 //                         style={styles.sponsorLogo}
 //                         resizeMode="contain"
@@ -659,6 +659,7 @@ import {
   ActivityIndicator,
   Modal,
   Animated,
+  RefreshControl,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Video from 'react-native-video';
@@ -682,31 +683,39 @@ const WhiteVsColor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const slideAnim = useState(new Animated.Value(-300))[0];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [videoResponse, differenceResponse] = await Promise.all([
-          axios.get('https://upvc-backend-oh6m.onrender.com/api/color/video'),
-          axios.get('https://upvc-backend-oh6m.onrender.com/api/color/comparisons'),
-        ]);
+  const fetchData = async () => {
+    try {
+      const [videoResponse, differenceResponse] = await Promise.all([
+        axios.get('http://10.7.10.49:9000/api/color/video'),
+        axios.get('http://10.7.10.49:9000/api/color/comparisons'),
+      ]);
 
-        if (videoResponse.data.length > 0) {
-          setVideo(videoResponse.data[0]);
-        }
-        setDifference(differenceResponse.data);
-      } catch (err) {
-        console.error('Error fetching White vs Color Data:', err);
-        setError('Failed to load data. Please try again later.');
-      } finally {
-        setLoading(false);
+      if (videoResponse.data.length > 0) {
+        setVideo(videoResponse.data[0]);
       }
-    };
+      setDifference(differenceResponse.data);
+    } catch (err) {
+      console.error('Error fetching White vs Color Data:', err);
+      setError('Failed to load data. Please try again later.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
 const [token, setToken] = useState(null);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -826,14 +835,7 @@ const [token, setToken] = useState(null);
               style={styles.logo}
             />
           </View>
-          <HamburgerMenu/>
-{/*           
-          <TouchableOpacity 
-            style={styles.menuButton}
-            onPress={toggleMenu}
-          >
-            <Icon name="menu" size={30} color="#000" />
-          </TouchableOpacity> */}
+          <HamburgerMenu/> 
         </View>
          
         <TopTabBar />
@@ -848,7 +850,16 @@ const [token, setToken] = useState(null);
             <Text style={{color: 'red'}}>{error}</Text>
           </View>
         ) : (
-          <ScrollView contentContainerStyle={styles.scrollContent}>
+          <ScrollView contentContainerStyle={styles.scrollContent}
+          refreshControl={
+                      <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                        colors={['#000000']}
+                        tintColor={'#000000'}
+                      />
+                    }
+                    >
             <View style={styles.header}>
               <AppText weight="Inter" style={styles.headerTitle}>
                 WHITE VS COLOR
@@ -856,11 +867,10 @@ const [token, setToken] = useState(null);
               <View style={styles.videoContainer}>
                 <Video
                   source={{
-                    uri: `https://upvc-backend-oh6m.onrender.com${video.src}`,
+                    uri: `http://10.7.10.49:9000${video.src}`,
                   }}
                   style={styles.video}
-                  resizeMode="cover"
-                  // repeat
+                  resizeMode="cover" 
                   muted
                   paused={false}
                   controls={false}
@@ -874,7 +884,7 @@ const [token, setToken] = useState(null);
                     <View style={styles.sponsorContent}>
                       <Image
                         source={{
-                          uri: `https://upvc-backend-oh6m.onrender.com/${video.sponsorLogo}`,
+                          uri: `http://10.7.10.49:9000/${video.sponsorLogo}`,
                         }}
                         style={styles.sponsorLogo}
                         resizeMode="contain"

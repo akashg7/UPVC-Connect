@@ -11,6 +11,7 @@ import {
   Platform,
   Image,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../../components/AppText';
@@ -38,47 +39,53 @@ const UserAccount = () => {
   const [error, setError] = useState(false);
   const [token, setToken] = useState(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
-
+  const [refreshing, setRefreshing] = useState(false);
   // console.log("userData : " , userData)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = await AsyncStorage.getItem('buyerToken');
-      setToken(token);
-      if (!token) {
-        setShowLoginModal(true);
-        // Alert.alert('Login Required', 'Please login to Select a Category');
-        // setShowQuoteForm(false);
-        return;
-      }
-      try {
-        setLoading(true);
-        // Fetch video data
-        const userResponse = await axios.get(
-          'https://upvc-backend-oh6m.onrender.com/api/buyer',
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
+  const fetchData = async () => {
+    const token = await AsyncStorage.getItem('buyerToken');
+    setToken(token);
+    if (!token) {
+      setShowLoginModal(true);
+      // Alert.alert('Login Required', 'Please login to Select a Category');
+      // setShowQuoteForm(false);
+      return;
+    }
+    try {
+      setLoading(true);
+      // Fetch video data
+      const userResponse = await axios.get(
+        'http://10.7.10.49:9000/api/buyer',
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
           },
-        );
-        // console.log("userResponse : " , userResponse.data.user)
-        if (userResponse.data) {
-          setUserData(userResponse.data?.user);
-          setName(userResponse.data?.user?.name);
-          setPhone(userResponse.data?.user?.mobileNumber);
-        }
-      } catch (err) {
-        setError(err.message);
-        console.error('Error fetching User data:', err);
-      } finally {
-        setLoading(false);
+        },
+      );
+      // console.log("userResponse : " , userResponse.data.user)
+      if (userResponse.data) {
+        setUserData(userResponse.data?.user);
+        setName(userResponse.data?.user?.name);
+        setPhone(userResponse.data?.user?.mobileNumber);
       }
-    };
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching User data:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
 
   const handleUpdateProfile = async () => {
     try {
@@ -86,7 +93,7 @@ const UserAccount = () => {
       setLoading(true);
 
       const response = await axios.patch(
-        `https://upvc-backend-oh6m.onrender.com/api/buyer/update`,
+        `http://10.7.10.49:9000/api/buyer/update`,
         {name, mobileNumber: phone},
         {
           headers: {
@@ -126,7 +133,7 @@ const UserAccount = () => {
       setLoading(true);
 
       await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/feedback',
+        'http://10.7.10.49:9000/api/feedback',
         {
           name: userData?.name,
           phone: userData?.mobileNumber,
@@ -161,7 +168,7 @@ const UserAccount = () => {
         visibilityTime: 3000,
       });
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
   };
 
@@ -239,7 +246,16 @@ const UserAccount = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}>
       <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}
+        refreshControl={
+                              <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={onRefresh}
+                                colors={['#000000']}
+                                tintColor={'#000000'}
+                              />
+                            }
+        >
           {/* User Profile Section */}
           <Image
             source={require('../../../assets/logo.png')}

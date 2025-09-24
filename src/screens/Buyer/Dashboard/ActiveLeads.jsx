@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Linking,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -23,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
-const BASE_URL = 'https://upvc-backend-oh6m.onrender.com';
+const BASE_URL = 'http://10.7.10.49:9000';
 
 const LeadsHistory = () => {
   const [leadsData, setLeadsData] = useState([]);
@@ -33,6 +34,8 @@ const LeadsHistory = () => {
   const [activeVideo, setActiveVideo] = useState(null);
   const [cardLoading, setCardLoading] = useState({});
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [videoErrors, setVideoErrors] = useState({});
 
   const flatListRefs = useRef({});
   const scrollX = useRef(new Animated.Value(0)).current;
@@ -40,47 +43,41 @@ const LeadsHistory = () => {
   const videoRefs = useRef({});
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const fetchLeads = async () => {
-      try {
-        const token = await AsyncStorage.getItem('buyerToken');
-        if (!token) {
-          setShowLoginModal(true);
-          // Alert.alert('Error', 'Please login to view leads');
-          return;
-        }
-        // console.log("token : " , token)
-        const response = await axios.get(`${BASE_URL}/api/buyer/leads`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (response.data.success) {
-          // console.log("response.data.leads : " , response.data.leads[0])
-          setLeadsData(response.data.leads);
-        }
-      } catch (error) {
-        console.error('Error fetching leads:', error);
-        Alert.alert('Error', 'Failed to fetch leads');
-      } finally {
-        setLoading(false);
+  const fetchLeads = async () => {
+    try {
+      const token = await AsyncStorage.getItem('buyerToken');
+      if (!token) {
+        setShowLoginModal(true);
+        return;
       }
-    };
+      
+      const response = await axios.get(`${BASE_URL}/api/buyer/leads`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
+      if (response.data.success) {
+        setLeadsData(response.data.leads);
+      }
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+      Alert.alert('Error', 'Failed to fetch leads');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
     fetchLeads();
   }, []);
 
-  // const toggleLead = leadId => {
-  //   setExpandedLead(expandedLead === leadId ? null : leadId);
-  //   if (!activeSellerIndices[leadId]) {
-  //     setActiveSellerIndices(prev => ({ ...prev, [leadId]: 0 }));
-  //   }
-  //   // Pause any playing video when collapsing
-  //   if (expandedLead === leadId) {
-  //     setActiveVideo(null);
-  //   }
-  // };
+  const onRefresh = () => {
+    setRefreshing(true);
+    setVideoErrors({}); // Reset video errors on refresh
+    fetchLeads();
+  };
 
   const toggleLead = leadId => {
     const isExpanding = expandedLead !== leadId;
@@ -90,7 +87,7 @@ const LeadsHistory = () => {
       setExpandedLead(leadId);
       setTimeout(() => {
         setCardLoading(prev => ({ ...prev, [leadId]: false }));
-      }, 600); // Simulate loading delay
+      }, 600);
     } else {
       setExpandedLead(null);
       setActiveVideo(null);
@@ -107,15 +104,24 @@ const LeadsHistory = () => {
 
   const handleVideoPress = videoId => {
     if (activeVideo === videoId) {
-      // Pause if already active
       setActiveVideo(null);
       if (videoRefs.current[videoId]) {
         videoRefs.current[videoId].presentFullscreenPlayer();
       }
     } else {
-      // Play new video and pause others
       setActiveVideo(videoId);
     }
+  };
+
+  const handleVideoError = (error, videoId) => {
+    console.log(`Video error for ${videoId}:`, error);
+    setVideoErrors(prev => ({ ...prev, [videoId]: true }));
+  };
+
+  const isValidVideoUrl = (url) => {
+    if (!url) return false;
+    // Check if URL is properly formatted
+    return url.startsWith('http') && (url.includes('.mp4') || url.includes('.m3u8') || url.includes('.mov'));
   };
 
   const handleCall = phoneNumber => {
@@ -127,20 +133,18 @@ const LeadsHistory = () => {
   };
 
   const renderSellerItem = ({ item, leadId }) => {
-    console.log("item.quotes : " , item)
-    const pdfUrl = 
-    `${item.visitingCard}`
-    // item?.visitingCard ? `https://upvc-backend-oh6m.onrender.com/
-      // : DUMMY_PDF;
+    console.log("item.quotes : ", item);
+    const pdfUrl = `${item.visitingCard}`;
+    const videoId = `${leadId}-${item.id}`;
+    const isVideoActive = activeVideo === videoId;
+    const hasVideoError = videoErrors[videoId];
+    const hasValidVideo = isValidVideoUrl(item.video) && !hasVideoError;
 
     const openPDF = () => {
       Linking.openURL(pdfUrl).catch(err =>
         console.error("Failed to open PDF:", err)
       );
     };
-
-    const videoId = `${leadId}-${item.id}`;
-    const isVideoActive = activeVideo === videoId;
 
     return (
       <View style={styles.sellerCard}>
@@ -150,28 +154,40 @@ const LeadsHistory = () => {
           </AppText>
         </View>
 
-        <TouchableOpacity
-          style={styles.videoContainer}
-          onPress={() => handleVideoPress(videoId)}
-          activeOpacity={0.9}>
-          <Video
-            ref={ref => handleVideoRef(ref, videoId)}
-            source={{ uri: item.video }}
-            style={styles.video}
-            resizeMode="cover"
-            paused={!isVideoActive}
-            onError={e => console.error('Video error:', e.error)}
-          />
-          {!isVideoActive && (
-            <View style={styles.videoPlaceholder}>
-              <Icon
-                name="play-circle-filled"
-                size={50}
-                color="rgba(255,255,255,0.8)"
-              />
-            </View>
-          )}
-        </TouchableOpacity>
+        {/* Video Container - Show only if valid video exists */}
+        {hasValidVideo ? (
+          <TouchableOpacity
+            style={styles.videoContainer}
+            onPress={() => handleVideoPress(videoId)}
+            activeOpacity={0.9}>
+            <Video
+              ref={ref => handleVideoRef(ref, videoId)}
+              source={{ uri: item.video }}
+              style={styles.video}
+              resizeMode="cover"
+              paused={!isVideoActive}
+              onError={(error) => handleVideoError(error, videoId)}
+            />
+            {!isVideoActive && (
+              <View style={styles.videoPlaceholder}>
+                <Icon
+                  name="play-circle-filled"
+                  size={50}
+                  color="rgba(255,255,255,0.8)"
+                />
+              </View>
+            )}
+          </TouchableOpacity>
+        ) : (
+          // No Video Placeholder
+          <View style={styles.noVideoContainer}>
+            <Icon name="videocam-off" size={60} color="#ccc" />
+            <AppText weight="Inter" style={styles.noVideoText}>
+              No video available
+            </AppText>
+          </View>
+        )}
+
         <View style={styles.sellerDetails}>
           <DetailRow icon="person" text={item.name} />
 
@@ -265,19 +281,8 @@ const LeadsHistory = () => {
               );
             })}
           </View>
- 
-          {/* <View style={styles.visitingCardContainer}>
-            <AppText weight="Inter" style={styles.detailLabel}>
-              Visiting Card
-            </AppText>
-            <Image
-              source={{ uri: item.visitingCard }}
-              style={styles.visitingCard}
-              resizeMode="contain"
-            />
-          </View> */}
-
         </View>
+
         <LinearGradient
           colors={['#000000', '#1a1a1a']}
           style={styles.pdfCard}
@@ -299,7 +304,7 @@ const LeadsHistory = () => {
   const renderLeadCard = ({ item }) => {
     const currentSellerIndex = activeSellerIndices[item.id] || 0;
     const hasMultipleSellers = item.sellers.length > 1;
-    // console.log("item : " , item.quotes)
+    
     return (
       <View style={styles.leadCard}>
         <TouchableOpacity
@@ -343,67 +348,64 @@ const LeadsHistory = () => {
                 <ActivityIndicator size="large" color="black" />
               </View>
             ) : item.sellers.length === 0 ? (
-              
-                <View style={{ padding: 20, alignItems: 'center' }}>
-                  <Icon name="info" size={40} color="#ccc" />
-                  <AppText
-                    weight="Inter"
-                    style={{ fontSize: 14, color: '#777', marginTop: 10 }}>
-                    No seller responses yet. Please check back later!
-                  </AppText>
-                  {/* Quotes Section */}
-                  <View style={styles.quotesContainer}>
-                    <AppText weight="Inter" style={styles.sectionTitle}>
-                      Your Selections
-                    </AppText>
-                    {(() => {
-              let totalSqFt = 0;
-
-              item.quotes.forEach((quote) => {
-                if (quote.size) {
-                  const match = quote.size.match(/(\d+(?:\.\d+)?)ft\s*x\s*(\d+(?:\.\d+)?)ft/i);
-                  if (match) {
-                    const width = parseFloat(match[1]);
-                    const height = parseFloat(match[2]);
-                    totalSqFt += (width * height) * (quote.quantity || 1);
-                  }
-                }
-              });
-
-              return (
-                <AppText weight="Inter" style={[styles.quoteDetail, { marginVertical: 8, fontSize: 14, }]}>
-                  <AppText weight="Bold">Total : {totalSqFt} sq ft</AppText> 
+              <View style={{ padding: 20, alignItems: 'center' }}>
+                <Icon name="info" size={40} color="#ccc" />
+                <AppText
+                  weight="Inter"
+                  style={{ fontSize: 14, color: '#777', marginTop: 10 }}>
+                  No seller responses yet. Please check back later!
                 </AppText>
-              );
-            })()}
-                    {item?.quotes?.map((quote, index) => {
-                      let sqFt = "";
+                {/* Quotes Section */}
+                <View style={styles.quotesContainer}>
+                  <AppText weight="Inter" style={styles.sectionTitle}>
+                    Your Selections
+                  </AppText>
+                  {(() => {
+                    let totalSqFt = 0;
+
+                    item.quotes.forEach((quote) => {
                       if (quote.size) {
                         const match = quote.size.match(/(\d+(?:\.\d+)?)ft\s*x\s*(\d+(?:\.\d+)?)ft/i);
                         if (match) {
                           const width = parseFloat(match[1]);
                           const height = parseFloat(match[2]);
-                          sqFt = (width * height) + " sq ft";
-                        } else {
-                          sqFt = quote.size;
+                          totalSqFt += (width * height) * (quote.quantity || 1);
                         }
                       }
+                    });
 
-                      return (
-                        <View key={index} style={styles.quoteItem}>
-                          <AppText weight="Inter" style={styles.quoteTitle}>
-                            {quote.productTitle} ({quote.color})
-                          </AppText>
-                          <AppText weight="Inter" style={styles.quoteDetail}>
-                            Size: {sqFt} | Qty: {quote.quantity}
-                          </AppText>
-                        </View>
-                      );
-                    })}
+                    return (
+                      <AppText weight="Inter" style={[styles.quoteDetail, { marginVertical: 8, fontSize: 14, }]}>
+                        <AppText weight="Bold">Total : {totalSqFt} sq ft</AppText> 
+                      </AppText>
+                    );
+                  })()}
+                  {item?.quotes?.map((quote, index) => {
+                    let sqFt = "";
+                    if (quote.size) {
+                      const match = quote.size.match(/(\d+(?:\.\d+)?)ft\s*x\s*(\d+(?:\.\d+)?)ft/i);
+                      if (match) {
+                        const width = parseFloat(match[1]);
+                        const height = parseFloat(match[2]);
+                        sqFt = (width * height) + " sq ft";
+                      } else {
+                        sqFt = quote.size;
+                      }
+                    }
 
-                  </View>
+                    return (
+                      <View key={index} style={styles.quoteItem}>
+                        <AppText weight="Inter" style={styles.quoteTitle}>
+                          {quote.productTitle} ({quote.color})
+                        </AppText>
+                        <AppText weight="Inter" style={styles.quoteDetail}>
+                          Size: {sqFt} | Qty: {quote.quantity}
+                        </AppText>
+                      </View>
+                    );
+                  })}
                 </View>
-                
+              </View>
             ) : (
               <>
                {hasMultipleSellers && (
@@ -440,7 +442,7 @@ const LeadsHistory = () => {
                     })}
                   </View>
                 )}
-                {/* EXISTING FlatList + Dots code goes here */}
+                
                 <Animated.FlatList
                   ref={ref => (flatListRefs.current[item.id] = ref)}
                   data={item.sellers}
@@ -473,7 +475,6 @@ const LeadsHistory = () => {
                     index,
                   })}
                 />
-               
               </>
             )}
           </View>
@@ -492,7 +493,6 @@ const LeadsHistory = () => {
 
   return (
     <View style={{ paddingTop: insets.top, flex: 1, backgroundColor: 'white' }}>
-      {/* Removed ScrollView wrapper since FlatList is scrollable by itself */}
       <View style={styles.container}>
         <Image
           source={require('../../../assets/logo.png')}
@@ -512,6 +512,14 @@ const LeadsHistory = () => {
                   No leads found
                 </AppText>
               </View>
+            }
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={['#000000']}
+                tintColor={'#000000'}
+              />
             }
           />
         ) : (
@@ -649,6 +657,25 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  // New no video container styles
+  noVideoContainer: {
+    width: '100%',
+    height: width * 0.6, // Smaller height for no video
+    borderRadius: 8,
+    marginBottom: 15,
+    backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderStyle: 'dashed',
+  },
+  noVideoText: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 10,
+    textAlign: 'center',
+  },
   videoOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.03)',
@@ -726,7 +753,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eee',
   },
-  //new
   pdfCard: {
     backgroundColor: '#000',
     padding: 20,

@@ -10,6 +10,7 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import Video from 'react-native-video';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -29,28 +30,35 @@ const MarketInsights = ({navigation , route}) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const token = await AsyncStorage.getItem('buyerToken');
-        if (token) {
-          setBuyerId(token);
-        }
-        const categoryresponse = await axios.get(
-          'https://upvc-backend-oh6m.onrender.com/api/categories',
-        );
-        setCategories(categoryresponse?.data);
-        setLoading(false);
-      } catch (err) {
-        setError(err.message);
-        console.error('Error fetching categories:', err);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const token = await AsyncStorage.getItem('buyerToken');
+      if (token) {
+        setBuyerId(token);
       }
-    };
-
+      const categoryresponse = await axios.get(
+        'http://10.7.10.49:9000/api/categories',
+      );
+      setCategories(categoryresponse?.data);
+      setLoading(false);
+      setRefreshing(false);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching categories:', err);
+    }
+  };
+  
+  useEffect(() => {
     fetchData();
   }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
 
   // Define sections for the FlatList
   const sections = [
@@ -74,7 +82,7 @@ const MarketInsights = ({navigation , route}) => {
           // setBuyerId(token);
           // Only fetch quotes if logged in
           const responseQuotes = await axios.get(
-            'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
+            'http://10.7.10.49:9000/api/quotes/buyer',
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -153,7 +161,7 @@ if (hasPendingQuotes) {
             <View style={styles.videoContainer}>
               <Video
                 source={{
-                  uri: `https://upvc-backend-oh6m.onrender.com${category.videoUrl}`,
+                  uri: `http://10.7.10.49:9000${category.videoUrl}`,
                 }}
                 style={styles.video}
                 resizeMode="cover"
@@ -176,7 +184,7 @@ if (hasPendingQuotes) {
             <View style={styles.sponsorContent}>
               {category.sponsorLogo ? (
                 <Image
-                  source={{ uri: `https://upvc-backend-oh6m.onrender.com/${category.sponsorLogo}` }}
+                  source={{ uri: `http://10.7.10.49:9000/${category.sponsorLogo}` }}
                   style={styles.sponsorLogo}
                   resizeMode="contain"
                 />
@@ -237,6 +245,14 @@ if (hasPendingQuotes) {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.container}
           style={styles.flatList}
+            refreshControl={
+                                <RefreshControl
+                                  refreshing={refreshing}
+                                  onRefresh={onRefresh}
+                                  colors={['#000000']}
+                                  tintColor={'#000000'}
+                                />
+                              }
         />
       </View>
       <PremiumLoginModal
@@ -543,13 +559,11 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   counterText: {
-    fontSize: 14,
-    // fontWeight: '600',
+    fontSize: 14, 
     color: '#000',
   },
   headerTitle: {
-    fontSize: 18,
-    // fontWeight: 'bold',
+    fontSize: 18, 
     color: 'black',
     letterSpacing: 1,
   },
@@ -569,8 +583,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'black',
   },
   tabText: {
-    fontSize: 12,
-    // fontWeight: '600',
+    fontSize: 12, 
     color: '#888',
     letterSpacing: 1,
   },

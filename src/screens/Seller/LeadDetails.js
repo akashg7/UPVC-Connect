@@ -46,7 +46,7 @@
 //     const fetchQuota = async () => {
 //       try {
 //         const token = await AsyncStorage.getItem('sellerToken');
-//         const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/seller/quota', {
+//         const response = await axios.get('http://10.7.10.49:9000/api/seller/quota', {
 //           headers: { Authorization: `Bearer ${token}` }
 //         });
 //         setRemainingQuota(response.data.remainingQuota);
@@ -59,7 +59,7 @@
 
 //   const fetchLeads = async () => {
 //     try {
-//       const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/seller/lead');
+//       const response = await axios.get('http://10.7.10.49:9000/api/seller/lead');
 //       if (response.data.success) {
 //         const formattedLeads = response.data.leads.map(lead => ({
 //           id: lead._id,
@@ -176,7 +176,7 @@
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token) return;
 //       console.log("token : " , token)
-//       const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
+//       const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //         },
@@ -203,7 +203,7 @@
 //     if (!hasVideo) {
 //       setShowPremiumPopup(true);
 //     } else {
-//         const quotaCheck = await axios.get(`https://upvc-backend-oh6m.onrender.com/api/seller/lead-quota-check/${lead.id}`, {
+//         const quotaCheck = await axios.get(`http://10.7.10.49:9000/api/seller/lead-quota-check/${lead.id}`, {
 //         headers: { Authorization: `Bearer ${token}` }
 //       });
 
@@ -221,7 +221,7 @@
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token || !currentLead) return; 
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/seller/lead/purchase',
+//         'http://10.7.10.49:9000/api/seller/lead/purchase',
 //         {
 //           leadId: currentLead.rawData._id, 
 //           slotsToBuy
@@ -653,7 +653,7 @@
 // };
 
 import React, { useState, useEffect } from 'react';
-import { View, Animated, ScrollView, Modal, TouchableOpacity, Image, FlatList, Switch, Alert, StyleSheet, Dimensions } from 'react-native';
+import { View, Animated, ScrollView, Modal, TouchableOpacity, Image, FlatList, Switch, Alert, StyleSheet, Dimensions, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Calendar } from 'react-native-calendars';
 import { format } from 'date-fns';
@@ -687,12 +687,15 @@ const LeadDetails = ({ navigation }) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [freeSqftToUse, setFreeSqftToUse] = useState(0);
 
+  const [refreshing, setRefreshing] = useState(false);
+
+
   const fetchQuota = async () => {
     try {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return;
 
-      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/seller/lead/quota', {
+      const response = await axios.get('http://10.7.10.49:9000/api/seller/lead/quota', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRemainingQuota(response.data.remainingQuota);
@@ -710,9 +713,14 @@ const LeadDetails = ({ navigation }) => {
     fetchQuota();
   }, []);
 
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchLeads();
+  };
+
   const fetchLeads = async () => {
     try {
-      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/seller/lead');
+      const response = await axios.get('http://10.7.10.49:9000/api/seller/lead');
 
       if (response.data.success) {
         // UPDATED LOGIC: Filter leads to be within the last 72 hours
@@ -751,6 +759,7 @@ const LeadDetails = ({ navigation }) => {
       });
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -850,7 +859,7 @@ const LeadDetails = ({ navigation }) => {
       const token = await AsyncStorage.getItem('sellerToken');
       if (!token) return false;
 
-      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
+      const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data.success && response.data.seller.businessProfileVideo;
@@ -878,7 +887,7 @@ const LeadDetails = ({ navigation }) => {
 
     try {
       const quotaCheck = await axios.get(
-        `https://upvc-backend-oh6m.onrender.com/api/seller/lead/lead-quota-check/${lead.id}`,
+        `http://10.7.10.49:9000/api/seller/lead/lead-quota-check/${lead.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (remainingQuota > 0 && !quotaCheck.data.alreadyUsed) {
@@ -921,7 +930,7 @@ const LeadDetails = ({ navigation }) => {
         price : actualPrice
       };
       const response = await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/seller/lead/purchase',
+        'http://10.7.10.49:9000/api/seller/lead/purchase',
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -1219,6 +1228,14 @@ const LeadDetails = ({ navigation }) => {
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+           refreshControl={
+                      <RefreshControl
+                        refreshing={refreshing} 
+                        onRefresh={onRefresh}
+                        colors={['#000000']}
+                        tintColor={'#000000'}
+                      />
+                    }
         >
           {/* UI REWORK: Header and Subheader section */}
           <View style={styles.header}>

@@ -25,6 +25,7 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import PremiumLoginModal from '../../../components/PremiumLoginModal';
 
 const {width, height} = Dimensions.get('window');
+const FORM_STORAGE_KEY = 'quoteRequestFormData';
 
 const QuoteRequestPage = ({navigation, route}) => {
   const [quotes, setQuotes] = useState([]);
@@ -37,20 +38,105 @@ const QuoteRequestPage = ({navigation, route}) => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [SelectedCategory, setSelectedCategoryl] = useState(selectedCategory?.name);
   const [showCategorySelection, setShowCategorySelection] = useState(false); 
-  
-  const fetchData = async () => { 
-    setSelectMore(true) 
-    if (selectedCategory?.name) setSelectedCategoryl(selectedCategory?.name)
+
+  // Default form structure
+  const getDefaultFormData = () => ({
+    name: '',
+    contact: '',
+    whatsapp: '',
+    email: '',
+    projectName: '',
+    projectAddress: '',
+    projectArea: '',
+    pincode: '',
+    gmapLocation: '',
+    projectStage: '',
+    timeline: '',
+    totalSqft: '', 
+    category: selectedCategory?.name || 'Please select category',
+  });
+
+  const [formData, setFormData] = useState(getDefaultFormData());
+
+  // Load form data from storage on component mount
+  const loadFormFromStorage = async () => {
+    try {
+      const storedForm = await AsyncStorage.getItem(FORM_STORAGE_KEY);
+      if (storedForm) {
+        const parsedForm = JSON.parse(storedForm);
+        
+        // Merge with default form data
+        let finalFormData = { ...getDefaultFormData(), ...parsedForm };
+        
+        // Override with route params if available (highest priority)
+        if (route.params?.formData) {
+          finalFormData = { ...finalFormData, ...route.params.formData };
+        }
+        
+        // Override category if passed via route params
+        if (route.params?.selectedCategory?.name) {
+          finalFormData.category = route.params.selectedCategory.name;
+          setSelectedCategoryl(route.params.selectedCategory.name);
+        }
+        
+        setFormData(finalFormData);
+        
+        // Set dropdown values from stored data
+        if (finalFormData.projectStage) {
+          setStageValue(finalFormData.projectStage);
+        }
+        if (finalFormData.timeline) {
+          setTimelineValue(finalFormData.timeline);
+        }
+        
+        return finalFormData;
+      } else if (route.params?.formData) {
+        // If no stored data but form data exists in params
+        const finalFormData = { ...getDefaultFormData(), ...route.params.formData };
+        setFormData(finalFormData);
+        return finalFormData;
+      }
+    } catch (error) {
+      console.error('Error loading form from storage:', error);
+    }
+    return getDefaultFormData();
+  };
+
+  // Save form data to storage
+  const saveFormToStorage = async (newFormData) => {
+    try {
+      await AsyncStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(newFormData));
+    } catch (error) {
+      console.error('Error saving form to storage:', error);
+    }
+  };
+
+  // Clear form data from storage
+  const clearFormFromStorage = async () => {
+    try {
+      await AsyncStorage.removeItem(FORM_STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing form from storage:', error);
+    }
+  };
+
+  const fetchData = async (currentFormData) => { 
+    // Only show selectMore modal if there are no quotes
+    if (!quotes?.quotes || quotes.quotes.length === 0) {
+      setSelectMore(true);
+    }
+    
+    if (selectedCategory?.name) setSelectedCategoryl(selectedCategory?.name);
+    
     try {
       const token = await AsyncStorage.getItem('buyerToken');
-      console.log("token : " , token)
       if (!token) {
         setShowLoginModal(true);
         return;
       }
 
       const responseQuotes = await axios.get(
-        'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
+        'http://10.7.10.49:9000/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -59,67 +145,79 @@ const QuoteRequestPage = ({navigation, route}) => {
         },
       );
 
-      const userRes = await axios.get('https://upvc-backend-oh6m.onrender.com/api/buyer', {
+      const userRes = await axios.get('http://10.7.10.49:9000/api/buyer', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       }); 
+      
       const filtered = responseQuotes?.data?.quotes?.filter(item => !item.isGenerated);
-      setQuotes({
+      const quotesData = {
         ...responseQuotes?.data,
         quotes: filtered
-      });
+      };
+      
+      setQuotes(quotesData);
       setUser(userRes?.data?.user);
-      console.log('user : ', user);
+      
       const filteredTotalSqft = filtered?.reduce((sum, item) => sum + (item.sqft || 0), 0);
-      setFormData(prev => ({
-        ...prev,
+      
+      // Update form data with calculated values and save to storage
+      const updatedFormData = {
+        ...currentFormData,
         totalSqft: filteredTotalSqft,
-        contact: userRes?.data?.user?.mobileNumber,
-      }));
+        contact: userRes?.data?.user?.mobileNumber || currentFormData.contact,
+      };
+      
+      setFormData(updatedFormData);
+      await saveFormToStorage(updatedFormData);
     } catch (err) {
       console.error('Error fetching data:', err);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    let isMounted = true;
+    
+    const initializeData = async () => {
+      const loadedFormData = await loadFormFromStorage();
+      if (isMounted) {
+        await fetchData(loadedFormData);
+      }
+    };
 
-  const [formData, setFormData] = useState(
-    initialFormData || {
-      name: '',
-      contact: '',
-      whatsapp: '',
-      email: '',
-      projectName: '',
-      projectAddress: '',
-      projectArea: '',
-      pincode: '',
-      gmapLocation: '',
-      projectStage: '',
-      timeline: '',
-      totalSqft: '', 
-      category: selectedCategory?.name || 'Please select category',
-    }
-  );
+    initializeData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Add a focus listener to handle when returning to this screen
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      // Check if we have form data in params (passed back from category selection)
-      if (route.params?.formData) {
-        setFormData(route.params.formData);
-      }
+    const unsubscribe = navigation.addListener('focus', async () => {
+      // Always reload the form data when screen comes into focus
+      const loadedFormData = await loadFormFromStorage();
       
-      // Check if we have a selected category in params
-      if (route.params?.selectedCategory) {
-        setSelectedCategoryl(route.params.selectedCategory.name);
-        setFormData(prev => ({
-          ...prev,
-          category: route.params.selectedCategory.name
-        }));
+      // Only update if we have new data from params
+      if (route.params?.formData || route.params?.selectedCategory) {
+        let updatedFormData = { ...loadedFormData };
+        
+        if (route.params?.formData) {
+          updatedFormData = { ...updatedFormData, ...route.params.formData };
+        }
+        
+        if (route.params?.selectedCategory) {
+          updatedFormData.category = route.params.selectedCategory.name;
+          setSelectedCategoryl(route.params.selectedCategory.name);
+        }
+        
+        setFormData(updatedFormData);
+        await saveFormToStorage(updatedFormData);
+        
+        // Refresh quotes data
+        await fetchData(updatedFormData);
       }
     });
 
@@ -127,7 +225,10 @@ const QuoteRequestPage = ({navigation, route}) => {
   }, [navigation, route.params]);
   
   // Update the category selection handler to preserve form data
-  const handleSelectCategory = () => {
+  const handleSelectCategory = async () => {
+    // Save current form data before navigating
+    await saveFormToStorage(formData);
+    
     // Navigate to category screen with current form data
     navigation.navigate('BuyerMain', {
       screen: 'BuyerInsights',
@@ -138,8 +239,15 @@ const QuoteRequestPage = ({navigation, route}) => {
     });
   };
 
-  const handleAddMore = () => {
+  const handleAddMore = async () => {
+    // Save form data before navigating
+    await saveFormToStorage(formData);
+    setSelectMore(false);
     navigation.navigate('BuyNowScreen', {});
+  };
+
+  const handleCancelAddMore = () => {
+    setSelectMore(false);
   };
  
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -148,7 +256,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
   // State for dropdowns
   const [stageOpen, setStageOpen] = useState(false);
-  const [stageValue, setStageValue] = useState(formData.projectStage || null);
+  const [stageValue, setStageValue] = useState(null);
   const [stageItems, setStageItems] = useState([
     {label: 'Planning', value: 'planning'},
     {label: 'Under Construction', value: 'under construction'},
@@ -157,26 +265,44 @@ const QuoteRequestPage = ({navigation, route}) => {
   ]);
 
   const [timelineOpen, setTimelineOpen] = useState(false);
-  const [timelineValue, setTimelineValue] = useState(formData.timeline || null);
+  const [timelineValue, setTimelineValue] = useState(null);
   const [timelineItems, setTimelineItems] = useState([
     {label: '0-30 days', value: '0-30 days'},
     {label: '31-60 days', value: '31-60 days'},
     {label: 'above 60 days', value: 'above 60 days'}, 
   ]);
 
+  // Initialize dropdown values from formData when component mounts
   useEffect(() => {
-    setFormData(prev => ({
-      ...prev,
-      projectStage: stageValue,
-      timeline: timelineValue,
-    }));
+    if (formData.projectStage) {
+      setStageValue(formData.projectStage);
+    }
+    if (formData.timeline) {
+      setTimelineValue(formData.timeline);
+    }
+  }, [formData.projectStage, formData.timeline]);
+
+  useEffect(() => {
+    if (stageValue !== null || timelineValue !== null) {
+      const updatedFormData = {
+        ...formData,
+        projectStage: stageValue,
+        timeline: timelineValue,
+      };
+      setFormData(updatedFormData);
+      saveFormToStorage(updatedFormData);
+    }
   }, [stageValue, timelineValue]);
 
-  const handleInputChange = (name, value) => {
-    setFormData({
+  const handleInputChange = async (name, value) => {
+    const updatedFormData = {
       ...formData,
       [name]: value,
-    });
+    };
+    setFormData(updatedFormData);
+    
+    // Save to storage on every input change
+    await saveFormToStorage(updatedFormData);
   };
 
   const handleSubmit = async () => {
@@ -192,27 +318,27 @@ const QuoteRequestPage = ({navigation, route}) => {
       'whatsapp',
     ];
 
-    // console.log("11111111111")
     for (const field of requiredFields) {
       if (!formData[field] || formData[field].trim() === '') {
         Alert.alert( `Please fill in the ${field} field`); 
         return;
       }
     }
+    
     if (!quotes?.quotes || quotes.quotes.length === 0) { 
-       Alert.alert(
-    'No products added',
-    'Please add at least one product to your quote',
-    [{ text: 'OK' }]
-  );
+      Alert.alert(
+        'No products added',
+        'Please add at least one product to your quote',
+        [{ text: 'OK' }]
+      );
       return;
     }
 
-    const filteredQuotes = quotes?.quotes?.filter(item => item.isGenerated === false)
+    const filteredQuotes = quotes?.quotes?.filter(item => item.isGenerated === false);
     
     if(filteredQuotes?.length === 0){
-     Alert.alert('Error','Please add at least one product to your quote'); 
-      return
+      Alert.alert('Error','Please add at least one product to your quote'); 
+      return;
     }
 
     try {
@@ -250,9 +376,9 @@ const QuoteRequestPage = ({navigation, route}) => {
         totalSqft: parseFloat(formData.totalSqft),
         categoryId: selectedCategory?._id,
       };
-      console.log("leadData : " , leadData) 
+      
       const response = await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/seller/lead',
+        'http://10.7.10.49:9000/api/seller/lead',
         leadData,
         {
           headers: {
@@ -266,22 +392,13 @@ const QuoteRequestPage = ({navigation, route}) => {
         // Clear the quotes after successful submission
         setQuotes({quotes: [], totalSqft: 0, totalQuantity: 0});
 
-        // Reset form data (optional)
-        setFormData({
-          name: '',
-          contact: user?.mobileNumber || '',
-          whatsapp: '',
-          email: '',
-          projectName: '',
-          projectAddress: '',
-          projectArea: '',
-          pincode: '',
-          gmapLocation: '',
-          projectStage: '',
-          timeline: '',
-          totalSqft: '0',
-          category: selectedCategory?.name || 'Please select category',
-        });
+        // Reset form data and clear from storage
+        const resetFormData = getDefaultFormData();
+        
+        setFormData(resetFormData);
+        await clearFormFromStorage();
+        setStageValue(null);
+        setTimelineValue(null);
 
         setIsSubmitted(true);
         Animated.timing(fadeAnim, {
@@ -305,7 +422,7 @@ const QuoteRequestPage = ({navigation, route}) => {
     }
   };
 
-  const handleCloseSuccess = () => {
+  const handleCloseSuccess = async () => {
     Animated.timing(fadeAnim, {
       toValue: 0,
       duration: 500,
@@ -313,8 +430,6 @@ const QuoteRequestPage = ({navigation, route}) => {
     }).start(() => {
       setIsSubmitted(false);
       navigation.navigate('BuyerMain');
- 
-      fetchData();
     });
   };
 
@@ -323,7 +438,7 @@ const QuoteRequestPage = ({navigation, route}) => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleEditItem = quote => {
-    setCurrentQuote(JSON.parse(JSON.stringify(quote))); // Deep copy to avoid reference issues
+    setCurrentQuote(JSON.parse(JSON.stringify(quote)));
     setIsEditModalVisible(true);
   };
 
@@ -333,7 +448,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       const token = await AsyncStorage.getItem('buyerToken');
 
       const response = await axios.put(
-        `https://upvc-backend-oh6m.onrender.com/api/quotes/${updatedQuote._id}`,
+        `http://10.7.10.49:9000/api/quotes/${updatedQuote._id}`,
         updatedQuote,
         {
           headers: {
@@ -346,7 +461,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       if (response.status === 200) {
         setIsEditModalVisible(false);
         const updatedQuotes = await axios.get(
-          'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
+          'http://10.7.10.49:9000/api/quotes/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -354,7 +469,8 @@ const QuoteRequestPage = ({navigation, route}) => {
           },
         );
         setQuotes(updatedQuotes?.data);
-        fetchData();
+        // Refresh the data to update totals
+        await fetchData(formData);
         Alert.alert('Success', 'Quote updated successfully');
       }
     } catch (error) {
@@ -373,15 +489,15 @@ const QuoteRequestPage = ({navigation, route}) => {
     setShowConfirm(true);
   };
 
-  const handleDeleteConfirmed = () => {
+  const handleDeleteConfirmed = async () => {
     setShowConfirm(false);
-    handleDeleteItem(selectedQuoteId);
+    await handleDeleteItem(selectedQuoteId);
   };
 
   const handleDeleteItem = async quoteId => { 
     try {
       const token = await AsyncStorage.getItem('buyerToken');
-      await axios.delete(`https://upvc-backend-oh6m.onrender.com/api/quotes/${quoteId}`, {
+      await axios.delete(`http://10.7.10.49:9000/api/quotes/${quoteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -389,7 +505,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
       // Refresh quotes after deletion
       const response = await axios.get(
-        'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
+        'http://10.7.10.49:9000/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -397,8 +513,8 @@ const QuoteRequestPage = ({navigation, route}) => {
         },
       );
       setQuotes(response?.data);
-      fetchData()
-
+      // Refresh the data to update totals
+      await fetchData(formData);
       Alert.alert('Success', 'Quote deleted successfully');
     } catch (error) {
       console.error('Error deleting quote:', error);
@@ -411,14 +527,15 @@ const QuoteRequestPage = ({navigation, route}) => {
     return (
       <View style={styles.sectionContainer}>
         <View>
-          {/* Back Button */}
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => navigation.goBack()}>
+            onPress={async () => {
+              await saveFormToStorage(formData);
+              navigation.goBack();
+            }}>
             <Icon name="arrow-back" size={30} color="#000" />
           </TouchableOpacity>
 
-          {/* Centered Logo */}
           <View style={styles.logoContainer}>
             <Image
               source={require('../../../assets/logo.png')}
@@ -433,7 +550,6 @@ const QuoteRequestPage = ({navigation, route}) => {
           {quotes?.quotes
           ?.filter(item => item.isGenerated === false)
           .map((item, ind) => (
-
             <View key={ind} style={styles.itemCard}>
               <LinearGradient
                 colors={['#f5f5f5', '#ffffff']}
@@ -454,8 +570,7 @@ const QuoteRequestPage = ({navigation, route}) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.deleteButton} 
-                      onPress={() => confirmDeleteItem(item._id)}
-                      >
+                      onPress={() => confirmDeleteItem(item._id)}>
                       <Icon name="delete" size={18} color="#ff0000" />
                     </TouchableOpacity>
                   </View>
@@ -530,21 +645,10 @@ const QuoteRequestPage = ({navigation, route}) => {
                     {item.sqft} sqft
                   </AppText>
                 </View>
-
-                {item.remarks && (
-                  <View style={styles.remarksContainer}>
-                    <AppText weight="Inter" style={styles.remarksLabel}>
-                      REMARKS
-                    </AppText>
-                    <AppText weight="Inter" style={styles.remarksValue}>
-                      {item.remark}
-                    </AppText>
-                  </View>
-                )}
               </LinearGradient>
             </View>
-            
           ))}
+          
           <View style={styles.summaryCard}>
             <View style={styles.summaryItem}>
               <Icon
@@ -573,46 +677,42 @@ const QuoteRequestPage = ({navigation, route}) => {
               </AppText>
               <AppText weight="Inter" style={styles.summaryValue}>
                 {quotes?.quotes
-                  ?.filter(item => item.isGenerated === false) // only false
-                  .reduce((sum, item) => sum + (item.quantity || 0), 0) // sum quantity
+                  ?.filter(item => item.isGenerated === false)
+                  .reduce((sum, item) => sum + (item.quantity || 0), 0)
                 }
               </AppText>
             </View>
-
-          </View>
-        </View> 
-      <Modal
-        transparent
-        visible={showConfirm}
-        animationType="fade"
-        onRequestClose={() => setShowConfirm(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <AppText weight="Inter" style={styles.modalTitle}>
-              Confirm Deletion
-            </AppText>
-            <AppText weight="Inter" style={styles.modalMessage}>
-              Are you sure you want to delete this item from your cart?
-            </AppText>
-
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setShowConfirm(false)}
-              >
-                <AppText weight="Inter" style={styles.cancelText}>Cancel</AppText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteConfirmButton}
-                onPress={handleDeleteConfirmed}
-              >
-                <AppText weight="Inter" style={styles.deleteText}>Delete</AppText>
-              </TouchableOpacity>
-            </View>
           </View>
         </View>
-      </Modal>
+        
+        <Modal
+          transparent
+          visible={showConfirm}
+          animationType="fade"
+          onRequestClose={() => setShowConfirm(false)}>
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <AppText weight="Inter" style={styles.modalTitle}>
+                Confirm Deletion
+              </AppText>
+              <AppText weight="Inter" style={styles.modalMessage}>
+                Are you sure you want to delete this item from your cart?
+              </AppText>
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setShowConfirm(false)}>
+                  <AppText weight="Inter" style={styles.cancelText}>Cancel</AppText>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteConfirmButton}
+                  onPress={handleDeleteConfirmed}>
+                  <AppText weight="Inter" style={styles.deleteText}>Delete</AppText>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   };
@@ -624,14 +724,10 @@ const QuoteRequestPage = ({navigation, route}) => {
           <AppText weight="Inter" style={styles.sectionHeader}>
             PERSONAL DETAILS
           </AppText>
+          
           <View style={styles.inputRow}>
             <View style={[styles.inputContainer, styles.inputWithIcon]}>
-              <Icon
-                name="person"
-                size={20}
-                color="#000"
-                style={styles.inputIcon}
-              />
+              <Icon name="person" size={20} color="#000" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Full Name"
@@ -644,29 +740,19 @@ const QuoteRequestPage = ({navigation, route}) => {
 
           <View style={styles.inputRow}>
             <View style={[styles.inputContainer, styles.inputWithIcon]}>
-              <Icon
-                name="phone"
-                size={20}
-                color="#000"
-                style={styles.inputIcon}
-              />
+              <Icon name="phone" size={20} color="#000" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Contact Number"
                 placeholderTextColor="#999"
                 keyboardType="phone-pad"
-                value={formData.contact} 
+                value={formData.contact}
+                onChangeText={text => handleInputChange('contact', text)}
               />
             </View>
 
             <View style={[styles.inputContainer, styles.inputWithIcon]}>
-              <Icon
-                name="chat"
-                type="font-awesome"
-                size={20}
-                color="#000"
-                style={styles.inputIcon}
-              />
+              <Icon name="chat" size={20} color="#000" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="WhatsApp"
@@ -680,12 +766,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
           <View style={styles.inputRow}>
             <View style={[styles.inputContainer, styles.inputWithIcon]}>
-              <Icon
-                name="email"
-                size={20}
-                color="#000"
-                style={styles.inputIcon}
-              />
+              <Icon name="email" size={20} color="#000" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Email Address"
@@ -700,14 +781,10 @@ const QuoteRequestPage = ({navigation, route}) => {
           <AppText weight="Inter" style={styles.sectionHeader}>
             PROJECT DETAILS
           </AppText>
+          
           <View style={styles.inputRow}>
             <View style={[styles.inputContainer, styles.inputWithIcon]}>
-              <Icon
-                name="business"
-                size={20}
-                color="#000"
-                style={styles.inputIcon}
-              />
+              <Icon name="business" size={20} color="#000" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Project Name"
@@ -720,12 +797,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
           <View style={styles.inputRow}>
             <View style={[styles.inputContainer, styles.inputWithIcon]}>
-              <Icon
-                name="location-on"
-                size={20}
-                color="#000"
-                style={styles.inputIcon}
-              />
+              <Icon name="location-on" size={20} color="#000" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Project Address"
@@ -736,14 +808,10 @@ const QuoteRequestPage = ({navigation, route}) => {
               />
             </View>
           </View>
+          
           <View style={styles.inputRow}>
             <View style={[styles.inputContainer, styles.inputWithIcon]}>
-              <Icon
-                name="location-on"
-                size={20}
-                color="#000"
-                style={styles.inputIcon}
-              />
+              <Icon name="location-on" size={20} color="#000" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
                 placeholder="Project Area"
@@ -838,8 +906,7 @@ const QuoteRequestPage = ({navigation, route}) => {
               {formData.category === 'Please select category' ?
                <TouchableOpacity
                 style={styles.deleteConfirmButton}
-                 onPress={handleSelectCategory}
-              >
+                 onPress={handleSelectCategory}>
                 <AppText weight="Inter" style={styles.deleteText}>Select category</AppText>
               </TouchableOpacity>
                :
@@ -848,6 +915,7 @@ const QuoteRequestPage = ({navigation, route}) => {
                 placeholder="Category"
                 placeholderTextColor="#999"
                 value={formData.category}
+                editable={false}
               />
               }
             </View>
@@ -943,42 +1011,12 @@ const QuoteRequestPage = ({navigation, route}) => {
           />
         )}
       </View>
-      <Modal
-        transparent
-        visible={showCategorySelection}
-        animationType="fade"
-        onRequestClose={() => setShowCategorySelection(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <AppText weight="Inter" style={styles.modalTitle}>
-              Please select Category
-            </AppText>
-            <AppText weight="Inter" style={styles.modalMessage}>
-            </AppText> 
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setShowCategorySelection(false)}
-              >
-                <AppText weight="Inter" style={styles.cancelText}>Cancel</AppText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteConfirmButton} 
-                onPress={handleSelectCategory} 
-               >
-                <AppText weight="Inter" style={styles.deleteText}>Selects</AppText>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+
       <Modal
         transparent
         visible={selectMore}
         animationType="fade"
-        onRequestClose={() => setSelectMore(false)}
-      >
+        onRequestClose={handleCancelAddMore}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <AppText weight="Inter" style={styles.modalTitle}>
@@ -987,20 +1025,19 @@ const QuoteRequestPage = ({navigation, route}) => {
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={styles.cancelButton}
-                onPress={() => setSelectMore(false)}
-              >
+                onPress={handleCancelAddMore}>
                 <AppText weight="Inter" style={styles.cancelText}>Cancel</AppText>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteConfirmButton} 
-                onPress={handleAddMore} 
-               >
+                onPress={handleAddMore}>
                 <AppText weight="Inter" style={styles.deleteText}>Add</AppText>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
+      
       <PremiumLoginModal
         visible={showLoginModal}
         onClose={() => setShowLoginModal(false)}
@@ -1009,7 +1046,7 @@ const QuoteRequestPage = ({navigation, route}) => {
     </View>
   );
 };
-
+ 
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,

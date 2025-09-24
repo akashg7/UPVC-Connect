@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Text,
 } from 'react-native';
 import Video from 'react-native-video';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -15,14 +14,12 @@ import AppText from '../../../../components/AppText';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {useFocusEffect} from '@react-navigation/native';
-import LinearGradient from 'react-native-linear-gradient';
 
 const {width} = Dimensions.get('window');
 
 const WindowPrices = () => {
   const videoRef = useRef(null);
   const [videoError, setVideoError] = useState(false);
-  const [videoReady, setVideoReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [homepageData, setHomepageData] = useState(null);
   const [activeMoment, setActiveMoment] = useState(null);
@@ -31,101 +28,32 @@ const WindowPrices = () => {
 
   useFocusEffect(
     React.useCallback(() => {
-      setPaused(false); // Resume when this screen is focused
+      setPaused(false);
       return () => {
-        setPaused(true); // Pause when screen is unfocused
+        setPaused(true);
       };
     }, []),
   );
 
+  const fetchHomepageData = async () => {
+    try {
+      const response = await axios.get('http://10.7.10.49:9000/api/homepage');
+      setHomepageData(response.data.data);
+    } catch (error) {
+      console.error('Error fetching homepage data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchHomepageData = async () => {
-      try {
-        const response = await axios.get(
-          'https://upvc-backend-oh6m.onrender.com/api/homepage',
-        );
-        setHomepageData(response.data.data);
-      } catch (error) {
-        console.error('Error fetching homepage data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    //  const fetchHomepageData = async () => {
-    //   try {
-    //     const response = await axios.get(
-    //       'https://upvc-backend-oh6m.onrender.com/api/banner',
-    //     );
-
-    //     console.log(response)
-    //     setHomepageData(response.data);
-    //   } catch (error) {
-    //     console.error('Error fetching homepage data:', error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-
     fetchHomepageData();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchHomepageData = async () => {
-  //     try {
-  //       const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/banner');
-
-  //       if (Array.isArray(response.data) && response.data.length > 0) {
-  //         // Sort banners by createdAt in descending order
-  //         const sorted = response.data.sort(
-  //           (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
-  //         );
-
-  //         const latest = sorted[0];
-
-  //         // Format for your UI
-  //         const formatted = {
-  //           title: latest.title,
-  //           subtitle: latest.description,
-  //           videoUrl: latest.filepath,
-  //           sponsorLogo: null, // add if you have
-  //           sponsorText: null, // add if you have
-  //           keyMoments: latest.chapters.map(chapter => ({
-  //             _id: chapter._id,
-  //             title: chapter.title,
-  //             timestamp: '00.00', // default since all chapters are time 0
-  //             thumbnail: chapter.thumbnailFilepath,
-  //           })),
-  //         };
-
-  //         setHomepageData(formatted);
-  //       } else {
-  //         setHomepageData(null);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error fetching homepage data:', error);
-  //       setHomepageData(null);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchHomepageData();
-  // }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setVideoReady(true);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-
   const handleMomentPress = timestamp => {
-    if (videoRef.current) {
-      // Convert "00.00" format to seconds
+    if (videoRef.current) { 
       const [minutes, seconds] = timestamp.split('.').map(Number);
       const seekTime = minutes * 60 + seconds;
-
       videoRef.current.seek(seekTime);
       setActiveMoment(timestamp);
     }
@@ -142,11 +70,7 @@ const WindowPrices = () => {
 
   if (loading) {
     return (
-      <View
-        style={[
-          styles.container,
-          {justifyContent: 'center', alignItems: 'center'},
-        ]}>
+      <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
         <ActivityIndicator size="large" color="#000000" />
       </View>
     );
@@ -154,15 +78,9 @@ const WindowPrices = () => {
 
   if (!homepageData) {
     return (
-      <View
-        style={[
-          styles.container,
-          {justifyContent: 'center', alignItems: 'center'},
-        ]}>
+      <View style={[styles.container, {justifyContent: 'center', alignItems: 'center'}]}>
         <MaterialIcons name="error-outline" size={50} color="#000000" />
-        <AppText weight="Inter" style={{marginTop: 10}}>
-          Failed to load data
-        </AppText>
+        <AppText weight="Inter" style={{marginTop: 10}}>Failed to load data</AppText>
       </View>
     );
   }
@@ -180,16 +98,9 @@ const WindowPrices = () => {
 
       {homepageData?.sponsorLogo && (
         <View style={styles.sponsorContainer}>
-          <LinearGradient
-                              colors={['white', 'white']}
-                              style={styles.sponsorGradient}>
-
-                              </LinearGradient>
           <View style={styles.sponsorContent}> 
             <Image
-              source={{
-                uri: `https://upvc-backend-oh6m.onrender.com/${homepageData.sponsorLogo}`,
-              }}
+              source={{uri: `http://10.7.10.49:9000/${homepageData.sponsorLogo}`}}
               style={styles.sponsorLogo}
               resizeMode="contain"
             />
@@ -198,7 +109,6 @@ const WindowPrices = () => {
                 SPONSORED BY {homepageData.sponsorText.toUpperCase()}
               </AppText>
             )}
-            
           </View>
         </View>
       )}
@@ -208,21 +118,12 @@ const WindowPrices = () => {
         {!videoError ? (
           <Video
             ref={videoRef}
-            source={{
-              uri: `https://upvc-backend-oh6m.onrender.com/${homepageData.videoUrl}`,
-            }}
+            source={{uri: `http://10.7.10.49:9000/${homepageData.videoUrl}`}}
             style={styles.videoPlayer}
-            paused={paused} // controlled via state
-            // repeat={true}
+            paused={paused}
             resizeMode="contain"
             controls={true}
             onError={() => setVideoError(true)}
-            bufferConfig={{
-              minBufferMs: 15000,
-              maxBufferMs: 30000,
-              bufferForPlaybackMs: 2500,
-              bufferForPlaybackAfterRebufferMs: 5000,
-            }}
           />
         ) : (
           <View style={styles.videoFallback}>
@@ -252,9 +153,7 @@ const WindowPrices = () => {
                 onPress={() => handleMomentPress(item.timestamp)}>
                 <View style={styles.carouselContent}>
                   <Image
-                    source={{
-                      uri: `https://upvc-backend-oh6m.onrender.com/${item.thumbnail}`,
-                    }}
+                    source={{uri: `http://10.7.10.49:9000/${item.thumbnail}`}}
                     style={styles.thumbnailImage}
                     resizeMode="cover"
                   />
@@ -263,8 +162,7 @@ const WindowPrices = () => {
                       weight="Inter"
                       style={[
                         styles.carouselText,
-                        isMomentActive(item.timestamp) &&
-                          styles.activeCarouselText,
+                        isMomentActive(item.timestamp) && styles.activeCarouselText,
                       ]}>
                       {item.title}
                     </AppText>
@@ -272,23 +170,16 @@ const WindowPrices = () => {
                       weight="Inter"
                       style={[
                         styles.carouselTimestamp,
-                        isMomentActive(item.timestamp) &&
-                          styles.activeCarouselTimestamp,
+                        isMomentActive(item.timestamp) && styles.activeCarouselTimestamp,
                       ]}>
                       {formatTimestamp(item.timestamp)}
                     </AppText>
                   </View>
                   <View style={styles.playIconContainer}>
                     <MaterialIcons
-                      name={
-                        isMomentActive(item.timestamp)
-                          ? 'play-circle'
-                          : 'play-circle-outline'
-                      }
+                      name={isMomentActive(item.timestamp) ? 'play-circle' : 'play-circle-outline'}
                       size={24}
-                      color={
-                        isMomentActive(item.timestamp) ? '#000000' : '#000000'
-                      }
+                      color={isMomentActive(item.timestamp) ? '#000000' : '#000000'}
                     />
                   </View>
                 </View>
@@ -309,7 +200,7 @@ const WindowPrices = () => {
           style={styles.buyNowButton}
           onPress={() => {
             if (videoRef.current) {
-              videoRef.current.pause?.(); // Safely pause video
+              videoRef.current.pause?.();
             }
             navigation.navigate('BuyNowScreen');
           }}>

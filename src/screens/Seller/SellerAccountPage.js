@@ -1,434 +1,3 @@
-// import React, { useState } from 'react';
-// import {
-//   View,
-//   Text,
-//   TouchableOpacity,
-//   StyleSheet,
-//   ScrollView,
-//   Image,
-//   Modal,
-//   TextInput,
-// } from 'react-native';
-// import Icon from 'react-native-vector-icons/MaterialIcons';
-// import AppText from '../../components/AppText';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
-// import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-// const SellerAccountPage = ({ navigation }) => {
-
-//   const insets = useSafeAreaInsets();
-
-//   const [activeTab, setActiveTab] = useState('personal');
-//   const [isEditing, setIsEditing] = useState(false);
-//   const [invoiceVisible, setInvoiceVisible] = useState(false);
-
-//   // Seller information
-//   const [sellerInfo, setSellerInfo] = useState({
-//     company: 'Premium UPVC Solutions',
-//     address: '123 Industrial Area',
-//     city: 'Mumbai',
-//     pinCode: '400001',
-//     email: 'contact@premiumupvc.com',
-//     gst: '22AAAAA0000A1Z5',
-//     contactPerson: 'Rahul Sharma',
-//     contactNumber: '+91 9876543210',
-//     brandProfile: 'Veka, Aluplast'
-//   });
-
-//   // Purchase history
-//   const purchaseHistory = [
-//     {
-//       id: '1',
-//       date: '2023-06-15',
-//       customerName: 'Rajesh Kumar',
-//       amount: '₹350',
-//       details: {
-//         personal: {
-//           fullName: 'Rajesh Kumar',
-//           contactNumber: '+91 9876543210',
-//           whatsappNumber: '+91 9876543210',
-//           email: 'rajesh.kumar@example.com',
-//         },
-//         project: {
-//           name: 'Premium Towers',
-//           address: '123 Business District, Mumbai',
-//           pinCode: '400001',
-//           stage: 'New Construction',
-//           timeline: 'Within 4 weeks',
-//           totalSqFt: '1500 sq ft',
-//           category: 'ELITE CREST',
-//         },
-//       }
-//     },
-//     {
-//       id: '2',
-//       date: '2023-06-10',
-//       customerName: 'Neha Patel',
-//       amount: '₹350',
-//       details: {
-//         personal: {
-//           fullName: 'Neha Patel',
-//           contactNumber: '+91 8765432109',
-//           whatsappNumber: '+91 8765432109',
-//           email: 'neha.patel@example.com',
-//         },
-//         project: {
-//           name: 'Luxury Apartments',
-//           address: '456 High Street, Delhi',
-//           pinCode: '110001',
-//           stage: 'Renovation',
-//           timeline: 'Within 2 weeks',
-//           totalSqFt: '1200 sq ft',
-//           category: 'LUXE FRAME',
-//         },
-//       }
-//     }
-//   ];
-
-//   const handleInputChange = (field, value) => {
-//     setSellerInfo(prev => ({ ...prev, [field]: value }));
-//   };
-
-//   const renderPersonalDetails = () => (
-//     <View style={styles.section}>
-//       <AppText weight='Inter' style={styles.sectionTitle}>BUSINESS INFORMATION</AppText>
-
-//       <View style={styles.inputGroup}>
-//         <AppText weight='Inter' style={styles.label}>Company*</AppText>
-//         <View style={styles.inputContainer}>
-//           {isEditing ? (
-//             <TextInput
-//               style={styles.input}
-//               value={sellerInfo.company}
-//               onChangeText={(text) => handleInputChange('company', text)}
-//             />
-//           ) : (
-//             <AppText weight='Inter' style={styles.valueText}>{sellerInfo.company}</AppText>
-//           )}
-//         </View>
-//       </View>
-
-//       <View style={styles.inputGroup}>
-//         <AppText weight='Inter' style={styles.label}>Address*</AppText>
-//         <View style={styles.inputContainer}>
-//           {isEditing ? (
-//             <TextInput
-//               style={styles.input}
-//               value={sellerInfo.address}
-//               onChangeText={(text) => handleInputChange('address', text)}
-//             />
-//           ) : (
-//             <AppText weight='Inter' style={styles.valueText}>{sellerInfo.address}</AppText>
-//           )}
-//         </View>
-//       </View>
-
-//       <View style={styles.inputRow}>
-//         <View style={[styles.inputGroup, { flex: 0.7 }]}>
-//           <AppText weight='Inter' style={styles.label}>City*</AppText>
-//           <View style={styles.inputContainer}>
-//             {isEditing ? (
-//               <TextInput
-//                 style={styles.input}
-//                 value={sellerInfo.city}
-//                 onChangeText={(text) => handleInputChange('city', text)}
-//               />
-//             ) : (
-//               <AppText weight='Inter' style={styles.valueText}>{sellerInfo.city}</AppText>
-//             )}
-//           </View>
-//         </View>
-//         <View style={[styles.inputGroup, { flex: 0.3, marginLeft: 10 }]}>
-//           <AppText weight='Inter' style={styles.label}>PIN Code*</AppText>
-//           <View style={styles.inputContainer}>
-//             {isEditing ? (
-//               <TextInput
-//                 style={styles.input}
-//                 value={sellerInfo.pinCode}
-//                 onChangeText={(text) => handleInputChange('pinCode', text)}
-//                 keyboardType="number-pad"
-//                 maxLength={6}
-//               />
-//             ) : (
-//               <AppText weight='Inter' style={styles.valueText}>{sellerInfo.pinCode}</AppText>
-//             )}
-//           </View>
-//         </View>
-//       </View>
-
-//       <AppText weight='Inter' style={styles.sectionTitle}>CONTACT INFORMATION</AppText>
-
-//       <View style={styles.inputGroup}>
-//         <AppText weight='Inter' style={styles.label}>Email*</AppText>
-//         <View style={styles.inputContainer}>
-//           {isEditing ? (
-//             <TextInput
-//               style={styles.input}
-//               value={sellerInfo.email}
-//               onChangeText={(text) => handleInputChange('email', text)}
-//               keyboardType="email-address"
-//             />
-//           ) : (
-//             <AppText weight='Inter' style={styles.valueText}>{sellerInfo.email}</AppText>
-//           )}
-//         </View>
-//       </View>
-
-//       <View style={styles.inputGroup}>
-//         <AppText weight='Inter' style={styles.label}>GST Number*</AppText>
-//         <View style={styles.inputContainer}>
-//           {isEditing ? (
-//             <TextInput
-//               style={styles.input}
-//               value={sellerInfo.gst}
-//               onChangeText={(text) => handleInputChange('gst', text)}
-//             />
-//           ) : (
-//             <AppText weight='Inter' style={styles.valueText}>{sellerInfo.gst}</AppText>
-//           )}
-//         </View>
-//       </View>
-
-//       <View style={styles.inputGroup}>
-//         <AppText weight='Inter' style={styles.label}>Contact Person*</AppText>
-//         <View style={styles.inputContainer}>
-//           {isEditing ? (
-//             <TextInput
-//               style={styles.input}
-//               value={sellerInfo.contactPerson}
-//               onChangeText={(text) => handleInputChange('contactPerson', text)}
-//             />
-//           ) : (
-//             <AppText weight='Inter' style={styles.valueText}>{sellerInfo.contactPerson}</AppText>
-//           )}
-//         </View>
-//       </View>
-
-//       <View style={styles.inputGroup}>
-//         <AppText weight='Inter' style={styles.label}>Contact Number*</AppText>
-//         <View style={styles.inputContainer}>
-//           {isEditing ? (
-//             <TextInput
-//               style={styles.input}
-//               value={sellerInfo.contactNumber}
-//               onChangeText={(text) => handleInputChange('contactNumber', text)}
-//               keyboardType="phone-pad"
-//               maxLength={10}
-//             />
-//           ) : (
-//             <AppText weight='Inter' style={styles.valueText}>{sellerInfo.contactNumber}</AppText>
-//           )}
-//         </View>
-//       </View>
-
-//       <View style={styles.inputGroup}>
-//         <AppText weight='Inter' style={styles.label}>Brand of Profile Used</AppText>
-//         <View style={styles.inputContainer}>
-//           {isEditing ? (
-//             <TextInput
-//               style={styles.input}
-//               value={sellerInfo.brandProfile}
-//               onChangeText={(text) => handleInputChange('brandProfile', text)}
-//               placeholder="e.g., Veka, Aluplast"
-//             />
-//           ) : (
-//             <AppText weight='Inter' style={styles.valueText}>{sellerInfo.brandProfile || 'Not specified'}</AppText>
-//           )}
-//         </View>
-//       </View>
-
-//       <TouchableOpacity
-//         style={styles.editButton}
-//         onPress={() => setIsEditing(!isEditing)}
-//       >
-//         <AppText weight='Inter' style={styles.editButtonText}>
-//           {isEditing ? 'SAVE CHANGES' : 'EDIT DETAILS'}
-//         </AppText>
-//         <Icon 
-//           name={isEditing ? 'save' : 'edit'} 
-//           size={20} 
-//           color="#000" 
-//           style={styles.editIcon} 
-//         />
-//       </TouchableOpacity>
-//     </View>
-//   );
-
-//   const renderPurchaseHistory = () => (
-//     <View style={styles.section}>
-//       {purchaseHistory.map((purchase) => (
-//         <View key={purchase.id} style={styles.purchaseCard}>
-//           <View style={styles.purchaseHeader}>
-//             <AppText weight='Inter' style={styles.purchaseDate}>{purchase.date}</AppText>
-//             <AppText weight='Inter' style={styles.purchaseAmount}>{purchase.amount}</AppText>
-//           </View>
-//           <AppText  weight='Inter'style={styles.purchaseCustomer}>{purchase.customerName}</AppText>
-
-//           <View style={styles.purchaseDetails}>
-//             <AppText weight='Inter' style={styles.detailLabel}>Project: {purchase.details.project.name}</AppText>
-//             <AppText weight='Inter' style={styles.detailLabel}>Location: {purchase.details.project.address}</AppText>
-//             <AppText weight='Inter' style={styles.detailLabel}>Area: {purchase.details.project.totalSqFt}</AppText>
-//           </View>
-
-//           <TouchableOpacity 
-//             style={styles.invoiceButton}
-//             onPress={() => setInvoiceVisible(true)}
-//           >
-//             <AppText  weight='Inter' style={styles.invoiceButtonText}>VIEW INVOICE</AppText>
-//             <Icon name="receipt" size={20} color="#000" />
-//           </TouchableOpacity>
-//           <TouchableOpacity 
-//             style={styles.detailsButton} 
-//             onPress={() => navigation.navigate('ContactBuyer')}
-//           >
-//             <AppText  weight='Inter' style={styles.invoiceButtonText}>VIEW DETAILS</AppText> 
-//           </TouchableOpacity>
-//         </View>
-//       ))}
-//     </View>
-//   );
-
-//   const renderInvoiceModal = () => (
-//     <Modal
-//       visible={invoiceVisible}
-//       animationType="slide"
-//       transparent={true}
-//       onRequestClose={() => setInvoiceVisible(false)}
-//     >
-//       <View style={styles.modalOverlay}>
-//         <View style={styles.invoiceContainer}>
-//           <View style={styles.invoiceHeader}>
-//             <AppText weight='Inter'  style={styles.invoiceTitle}>INVOICE</AppText>
-//             <TouchableOpacity onPress={() => setInvoiceVisible(false)}>
-//               <Icon name="close" size={24} color="#000" />
-//             </TouchableOpacity>
-//           </View>
-
-//           <View style={styles.invoiceSection}>
-//             <AppText weight='Inter' style={styles.invoiceSectionTitle}>Seller Information</AppText>
-//             <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.company}</AppText>
-//             <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.address}, {sellerInfo.city}</AppText>
-//             <AppText weight='Inter' style={styles.invoiceText}>GST: {sellerInfo.gst}</AppText>
-//           </View>
-
-//           <View style={styles.invoiceSection}>
-//             <AppText weight='Inter' style={styles.invoiceSectionTitle}>Invoice Details</AppText>
-//             <View style={styles.invoiceRow}>
-//               <AppText weight='Inter' style={styles.invoiceLabel}>Invoice #:</AppText>
-//               <AppText weight='Inter' style={styles.invoiceValue}>INV-2023-001</AppText>
-//             </View>
-//             <View style={styles.invoiceRow}>
-//               <AppText weight='Inter' style={styles.invoiceLabel}>Date:</AppText>
-//               <AppText weight='Inter' style={styles.invoiceValue}>2023-06-15</AppText>
-//             </View>
-//           </View>
-
-//           <View style={styles.invoiceSection}>
-//             <AppText weight='Inter' style={styles.invoiceSectionTitle}>Lead Purchase</AppText>
-//             <View style={styles.invoiceRow}>
-//               <AppText weight='Inter' style={styles.invoiceLabel}>Customer:</AppText>
-//               <AppText weight='Inter' style={styles.invoiceValue}>Rajesh Kumar</AppText>
-//             </View>
-//             <View style={styles.invoiceRow}>
-//               <AppText weight='Inter' style={styles.invoiceLabel}>Project:</AppText>
-//               <AppText weight='Inter' style={styles.invoiceValue}>Premium Towers</AppText>
-//             </View>
-//             <View style={styles.invoiceRow}>
-//               <AppText weight='Inter' style={styles.invoiceLabel}>Lead Price:</AppText>
-//               <AppText weight='Inter' style={styles.invoiceValue}>₹350</AppText>
-//             </View>
-//           </View>
-
-//           <View style={styles.invoiceTotal}>
-//             <AppText weight='Inter' style={styles.invoiceTotalLabel}>TOTAL</AppText>
-//             <AppText weight='Inter' style={styles.invoiceTotalValue}>₹350</AppText>
-//           </View>
-
-//           <View style={styles.invoiceFooter}>
-//             <AppText weight='Inter'style={styles.invoiceFooterText}>Thank you for your business!</AppText>
-//           </View>
-//         </View>
-//       </View>
-//     </Modal>
-//   );
-
-//   const handleLogout = async () => {
-//     await AsyncStorage.clear()
-//     navigation.navigate("UserTypeSelection")
-//   }
-
-//   return (
-//     <View style={{paddingTop: insets.top, flex: 1, backgroundColor: 'white'}}>
-//       <View style={styles.container}>
-//         {/* Header */}
-//         <View style={styles.header}>
-//           <Image
-//             source={require('../../assets/logo.png')}
-//             style={styles.logo}
-//             resizeMode="contain"
-//           /> 
-//         </View>
-
-//         {/* Tabs */}
-//         <View style={styles.tabContainer}>
-//           <TouchableOpacity
-//             style={[styles.tabButton, activeTab === 'personal' && styles.activeTab]}
-//             onPress={() => setActiveTab('personal')}
-//           >
-//             <AppText weight='Inter' style={[styles.tabText, activeTab === 'personal' && styles.activeTabText]}>
-//               PERSONAL DETAILS
-//             </AppText>
-//           </TouchableOpacity>
-
-//           <TouchableOpacity
-//             style={[styles.tabButton, activeTab === 'purchase' && styles.activeTab]}
-//             onPress={() => setActiveTab('purchase')}
-//           >
-//             <AppText weight='Inter' style={[styles.tabText, activeTab === 'purchase' && styles.activeTabText]}>
-//               PURCHASE HISTORY
-//             </AppText>
-//           </TouchableOpacity>
-//         </View>
-
-//         {/* Content */}
-//         <ScrollView style={styles.contentContainer}>
-//           {activeTab === 'personal' ? renderPersonalDetails() : renderPurchaseHistory()}
-
-//           {/* Additional Sections */}
-//           {activeTab === 'personal' && (
-//             <>
-//               <TouchableOpacity style={styles.menuItem}>
-//                 <AppText weight='Inter' style={styles.menuText}>TERMS & CONDITIONS</AppText>
-//                 <Icon name="chevron-right" size={24} color="#000" />
-//               </TouchableOpacity>
-
-//               <TouchableOpacity style={styles.menuItem}>
-//                 <AppText weight='Inter' style={styles.menuText}>ABOUT US</AppText>
-//                 <Icon name="chevron-right" size={24} color="#000" />
-//               </TouchableOpacity>
-
-//               <TouchableOpacity style={styles.menuItem}>
-//                 <AppText weight='Inter' style={styles.menuText}>CONTACT US</AppText>
-//                 <Icon name="chevron-right" size={24} color="#000" />
-//               </TouchableOpacity>
-
-//               <TouchableOpacity 
-//                 style={[styles.menuItem, styles.logoutItem]} 
-//                 onPress={handleLogout}
-//               >
-//                 <AppText weight='Inter' style={[styles.menuText, styles.logoutText]}>LOGOUT</AppText>
-//                 <Icon name="exit-to-app" size={24} color="#f44336" />
-//               </TouchableOpacity>
-//             </>
-//           )}
-//         </ScrollView>
-
-//         {renderInvoiceModal()}
-//       </View>
-//     </View>
-//   );
-// };
-
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -440,6 +9,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../components/AppText';
@@ -449,11 +19,13 @@ import axios from 'axios';
 import Toast from 'react-native-toast-message';
 
 const SellerAccountPage = ({ navigation }) => {
-  const insets = useSafeAreaInsets(); 
+  const insets = useSafeAreaInsets();
   const [activeTab, setActiveTab] = useState('purchase');
   const [isEditing, setIsEditing] = useState(false);
   const [invoiceVisible, setInvoiceVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedPurchase, setSelectedPurchase] = useState(null);
 
   // Seller information
   const [sellerInfo, setSellerInfo] = useState({
@@ -474,48 +46,48 @@ const SellerAccountPage = ({ navigation }) => {
   const [purchaseHistory, setPurchaseHistory] = useState([]);
   const [token, setToken] = useState(null);
 
-  console.log("token : " , token)
   useEffect(() => {
-    const fetchSellerData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('sellerToken');
-        setToken(token)
-        if (!token) { 
-          return;
-        }
-        const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    fetchSellerData();
+  }, []);
+
+  const fetchSellerData = async () => {
+    try {
+      const storedToken = await AsyncStorage.getItem('sellerToken');
+      setToken(storedToken);
+      if (!storedToken) {
+        return;
+      }
+      const response = await axios.get('http://10.7.10.49:9000/api/sellers', {
+        headers: {
+          Authorization: `Bearer ${storedToken}`,
+        },
+      });
+      if (response.data.success) {
+        const seller = response.data.seller;
+        setSellerInfo({
+          company: seller.companyName || '',
+          address: seller.address || '',
+          city: seller.city || '',
+          pinCode: seller.pinCode || '',
+          email: seller.email || '',
+          gst: seller.gstNumber || '',
+          contactPerson: seller.contactPerson || '',
+          contactNumber: seller.phoneNumber || '',
+          brandProfile: seller.brandOfProfileUsed || '',
+          yearsInBusiness: seller.yearsInBusiness?.toString() || '',
+          website: seller.website || ''
         });
 
-        if (response.data.success) {
-          const seller = response.data.seller;
-          setSellerInfo({
-            company: seller.companyName || '',
-            address: seller.address || '',
-            city: seller.city || '',
-            pinCode: seller.pinCode || '',
-            email: seller.email || '',
-            gst: seller.gstNumber || '',
-            contactPerson: seller.contactPerson || '',
-            contactNumber: seller.phoneNumber || '',
-            brandProfile: seller.brandOfProfileUsed || '',
-            yearsInBusiness: seller.yearsInBusiness?.toString() || '',
-            website: seller.website || ''
-          });
-
-          // Format purchase history from leads
-          if (seller.leads && seller.leads.length > 0) {
-            const formattedPurchases = seller.leads
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // recent first
-              .map(lead => ({
-
+        // Format purchase history from leads
+        if (seller.leads && seller.leads.length > 0) {
+          const formattedPurchases = seller.leads
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .map(lead => ({
               id: lead._id,
               rawData: lead,
               date: new Date(lead.createdAt).toISOString().split('T')[0],
               customerName: lead.contactInfo.name,
-              amount: `₹${(lead.totalSqft * lead.pricePerSqft).toFixed(2)}`,
+              amount: lead.price,
               details: {
                 personal: {
                   fullName: lead.contactInfo.name,
@@ -534,20 +106,23 @@ const SellerAccountPage = ({ navigation }) => {
                 },
               }
             }));
-            console.log("formattedPurchases : ", formattedPurchases)
-            setPurchaseHistory(formattedPurchases);
-          }
+          setPurchaseHistory(formattedPurchases);
         }
-      } catch (error) {
-        console.error('Error fetching seller data:', error);
-        Alert.alert('Error', 'Failed to fetch seller data');
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching seller data:', error);
+      Alert.alert('Error', 'Failed to fetch seller data');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    fetchSellerData();
-  }, []);
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setIsLoading(true);
+    await fetchSellerData();
+    setRefreshing(false);
+  };
 
   const handleInputChange = (field, value) => {
     setSellerInfo(prev => ({ ...prev, [field]: value }));
@@ -557,8 +132,8 @@ const SellerAccountPage = ({ navigation }) => {
     try {
       setIsLoading(true);
       const token = await AsyncStorage.getItem('sellerToken');
-      if (!token) { 
-        Alert.alert("Please Login")
+      if (!token) {
+        Alert.alert("Please Login");
         return;
       }
 
@@ -575,13 +150,11 @@ const SellerAccountPage = ({ navigation }) => {
         yearsInBusiness: parseInt(sellerInfo.yearsInBusiness) || 0,
         website: sellerInfo.website
       };
-      alert("Your request for verification has been submited") 
-      setIsEditing(false)
-      return 
-      console.log("updateData : " , updateData)
-
+      alert("Your request for verification has been submited");
+      setIsEditing(false);
+      return;
       const response = await axios.put(
-        'https://upvc-backend-oh6m.onrender.com/api/sellers',
+        'http://10.7.10.49:9000/api/sellers',
         updateData,
         {
           headers: {
@@ -589,13 +162,10 @@ const SellerAccountPage = ({ navigation }) => {
           },
         }
       );
-     
-      console.log("response : ", response.data)
       if (response.data.success) {
         Alert.alert('Success', 'Profile updated successfully');
         setIsEditing(false);
       } else {
-        console.log("response.data.message : " , response.data.message)
         throw new Error(response.data.message || 'Failed to update profile');
       }
     } catch (error) {
@@ -606,428 +176,371 @@ const SellerAccountPage = ({ navigation }) => {
     }
   };
 
-  const renderPersonalDetails = () => (
-    <View style={styles.section}>
-      <AppText weight='Inter' style={styles.sectionTitle}>BUSINESS INFORMATION</AppText>
+  const hasBusinessInfo = Object.values(sellerInfo).some(val => val !== '');
 
-      <View style={styles.inputGroup}>
-        <AppText weight='Inter' style={styles.label}>Company*</AppText>
-        <View style={styles.inputContainer}>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={sellerInfo.company}
-              onChangeText={(text) => handleInputChange('company', text)}
-            />
-          ) : (
-            <AppText weight='Inter' style={styles.valueText}>{sellerInfo.company}</AppText>
-          )}
-        </View>
-      </View>
+  const renderPersonalDetails = () => {
+    if (!hasBusinessInfo) {
+      return <AppText style={styles.noPurchasesText}>No business information available</AppText>;
+    }
+    return (
+      <View style={styles.section}>
+        <AppText style={styles.sectionTitle}>BUSINESS INFORMATION</AppText>
 
-      <View style={styles.inputGroup}>
-        <AppText weight='Inter' style={styles.label}>Address*</AppText>
-        <View style={styles.inputContainer}>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={sellerInfo.address}
-              onChangeText={(text) => handleInputChange('address', text)}
-            />
-          ) : (
-            <AppText weight='Inter' style={styles.valueText}>{sellerInfo.address}</AppText>
-          )}
-        </View>
-      </View>
-
-      <View style={styles.inputRow}>
-        <View style={[styles.inputGroup, { flex: 0.7 }]}>
-          <AppText weight='Inter' style={styles.label}>City*</AppText>
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Company*</AppText>
           <View style={styles.inputContainer}>
             {isEditing ? (
               <TextInput
                 style={styles.input}
-                value={sellerInfo.city}
-                onChangeText={(text) => handleInputChange('city', text)}
+                value={sellerInfo.company}
+                onChangeText={(text) => handleInputChange('company', text)}
               />
             ) : (
-              <AppText weight='Inter' style={styles.valueText}>{sellerInfo.city}</AppText>
+              <AppText style={styles.valueText}>{sellerInfo.company}</AppText>
             )}
           </View>
         </View>
-        <View style={[styles.inputGroup, { flex: 0.3, marginLeft: 10 }]}>
-          <AppText weight='Inter' style={styles.label}>PIN Code*</AppText>
+
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Address*</AppText>
           <View style={styles.inputContainer}>
             {isEditing ? (
               <TextInput
                 style={styles.input}
-                value={sellerInfo.pinCode}
-                onChangeText={(text) => handleInputChange('pinCode', text)}
+                value={sellerInfo.address}
+                onChangeText={(text) => handleInputChange('address', text)}
+              />
+            ) : (
+              <AppText style={styles.valueText}>{sellerInfo.address}</AppText>
+            )}
+          </View>
+        </View>
+
+        <View style={styles.inputRow}>
+          <View style={[styles.inputGroup, { flex: 0.7 }]}>
+            <AppText style={styles.label}>City*</AppText>
+            <View style={styles.inputContainer}>
+              {isEditing ? (
+                <TextInput
+                  style={styles.input}
+                  value={sellerInfo.city}
+                  onChangeText={(text) => handleInputChange('city', text)}
+                />
+              ) : (
+                <AppText style={styles.valueText}>{sellerInfo.city}</AppText>
+              )}
+            </View>
+          </View>
+          <View style={[styles.inputGroup, { flex: 0.3, marginLeft: 10 }]}>
+            <AppText style={styles.label}>PIN Code*</AppText>
+            <View style={styles.inputContainer}>
+              {isEditing ? (
+                <TextInput
+                  style={styles.input}
+                  value={sellerInfo.pinCode}
+                  onChangeText={(text) => handleInputChange('pinCode', text)}
+                  keyboardType="number-pad"
+                  maxLength={6}
+                />
+              ) : (
+                <AppText style={styles.valueText}>{sellerInfo.pinCode}</AppText>
+              )}
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Years in Business</AppText>
+          <View style={styles.inputContainer}>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={sellerInfo.yearsInBusiness}
+                onChangeText={(text) => handleInputChange('yearsInBusiness', text)}
                 keyboardType="number-pad"
-                maxLength={6}
               />
             ) : (
-              <AppText weight='Inter' style={styles.valueText}>{sellerInfo.pinCode}</AppText>
+              <AppText style={styles.valueText}>{sellerInfo.yearsInBusiness}</AppText>
             )}
           </View>
         </View>
-      </View>
 
-      <View style={styles.inputGroup}>
-        <AppText weight='Inter' style={styles.label}>Years in Business</AppText>
-        <View style={styles.inputContainer}>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={sellerInfo.yearsInBusiness}
-              onChangeText={(text) => handleInputChange('yearsInBusiness', text)}
-              keyboardType="number-pad"
-            />
-          ) : (
-            <AppText weight='Inter' style={styles.valueText}>{sellerInfo.yearsInBusiness}</AppText>
-          )}
+        <AppText style={styles.sectionTitle}>CONTACT INFORMATION</AppText>
+
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Email*</AppText>
+          <View style={styles.inputContainer}>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={sellerInfo.email}
+                onChangeText={(text) => handleInputChange('email', text)}
+                keyboardType="email-address"
+              />
+            ) : (
+              <AppText style={styles.valueText}>{sellerInfo.email}</AppText>
+            )}
+          </View>
         </View>
-      </View>
 
-      <AppText weight='Inter' style={styles.sectionTitle}>CONTACT INFORMATION</AppText>
-
-      <View style={styles.inputGroup}>
-        <AppText weight='Inter' style={styles.label}>Email*</AppText>
-        <View style={styles.inputContainer}>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={sellerInfo.email}
-              onChangeText={(text) => handleInputChange('email', text)}
-              keyboardType="email-address"
-            />
-          ) : (
-            <AppText weight='Inter' style={styles.valueText}>{sellerInfo.email}</AppText>
-          )}
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Website</AppText>
+          <View style={styles.inputContainer}>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={sellerInfo.website}
+                onChangeText={(text) => handleInputChange('website', text)}
+              />
+            ) : (
+              <AppText style={styles.valueText}>{sellerInfo.website || 'Not specified'}</AppText>
+            )}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.inputGroup}>
-        <AppText weight='Inter' style={styles.label}>Website</AppText>
-        <View style={styles.inputContainer}>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={sellerInfo.website}
-              onChangeText={(text) => handleInputChange('website', text)}
-            />
-          ) : (
-            <AppText weight='Inter' style={styles.valueText}>{sellerInfo.website || 'Not specified'}</AppText>
-          )}
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>GST Number*</AppText>
+          <View style={styles.inputContainer}>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={sellerInfo.gst}
+                onChangeText={(text) => handleInputChange('gst', text)}
+              />
+            ) : (
+              <AppText style={styles.valueText}>{sellerInfo.gst}</AppText>
+            )}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.inputGroup}>
-        <AppText weight='Inter' style={styles.label}>GST Number*</AppText>
-        <View style={styles.inputContainer}>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={sellerInfo.gst}
-              onChangeText={(text) => handleInputChange('gst', text)}
-            />
-          ) : (
-            <AppText weight='Inter' style={styles.valueText}>{sellerInfo.gst}</AppText>
-          )}
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Contact Person*</AppText>
+          <View style={styles.inputContainer}>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={sellerInfo.contactPerson}
+                onChangeText={(text) => handleInputChange('contactPerson', text)}
+              />
+            ) : (
+              <AppText style={styles.valueText}>{sellerInfo.contactPerson}</AppText>
+            )}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.inputGroup}>
-        <AppText weight='Inter' style={styles.label}>Contact Person*</AppText>
-        <View style={styles.inputContainer}>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={sellerInfo.contactPerson}
-              onChangeText={(text) => handleInputChange('contactPerson', text)}
-            />
-          ) : (
-            <AppText weight='Inter' style={styles.valueText}>{sellerInfo.contactPerson}</AppText>
-          )}
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Contact Number*</AppText>
+          <View style={styles.inputContainer}>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={sellerInfo.contactNumber}
+                onChangeText={(text) => handleInputChange('contactNumber', text)}
+                keyboardType="phone-pad"
+                maxLength={10}
+              />
+            ) : (
+              <AppText style={styles.valueText}>{sellerInfo.contactNumber}</AppText>
+            )}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.inputGroup}>
-        <AppText weight='Inter' style={styles.label}>Contact Number*</AppText>
-        <View style={styles.inputContainer}>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={sellerInfo.contactNumber}
-              onChangeText={(text) => handleInputChange('contactNumber', text)}
-              keyboardType="phone-pad"
-              maxLength={10}
-            />
-          ) : (
-            <AppText weight='Inter' style={styles.valueText}>{sellerInfo.contactNumber}</AppText>
-          )}
+        <View style={styles.inputGroup}>
+          <AppText style={styles.label}>Brand of Profile Used</AppText>
+          <View style={styles.inputContainer}>
+            {isEditing ? (
+              <TextInput
+                style={styles.input}
+                value={sellerInfo.brandProfile}
+                editable={false}
+                placeholder="e.g., Veka, Aluplast"
+              />
+            ) : (
+              <AppText style={styles.valueText}>{sellerInfo.brandProfile || 'Not specified'}</AppText>
+            )}
+          </View>
         </View>
-      </View>
 
-      <View style={styles.inputGroup}>
-        <AppText weight='Inter' style={styles.label}>Brand of Profile Used</AppText>
-        <View style={styles.inputContainer}>
-          {isEditing ? (
-            <TextInput
-              style={styles.input}
-              value={sellerInfo.brandProfile}
-              editable={false}
-              // onChangeText={(text) => handleInputChange('brandProfile', text)}
-              placeholder="e.g., Veka, Aluplast"
-            />
-          ) : (
-            <AppText weight='Inter' style={styles.valueText}>{sellerInfo.brandProfile || 'Not specified'}</AppText>
-          )}
-        </View>
-        {/* <RNPickerSelect
-            placeholder={{ label: 'Select a brand...', value: null }}
-            // value={formData.brandOfProfileUsed}
-            value={sellerInfo.brandProfile}
-            onValueChange={(val) =>{
-              return
-            }
-            //  handleChange('brandOfProfileUsed', val)
-            }
-            items={[
-              { label: 'Fenesta', value: 'fenesta' },
-              { label: 'Aparna Venster', value: 'aparna' },
-              { label: 'LG Hausys', value: 'lg' },
-            ]}
-            style={{
-              inputIOS: styles.pickerInput,
-              inputAndroid: styles.pickerInput,
-              iconContainer: styles.pickerIcon,
-            }}
-            Icon={() => <Icon name="arrow-drop-down" size={24} color="#000" />}
-          /> */}
+        <TouchableOpacity
+          style={styles.editButton}
+          onPress={() => isEditing ? handleSaveChanges() : setIsEditing(true)}
+          disabled={isLoading}
+        >
+          <AppText style={styles.editButtonText}>
+            {isEditing ? 'SAVE CHANGES' : 'EDIT DETAILS'}
+          </AppText>
+          <Icon
+            name={isEditing ? 'save' : 'edit'}
+            size={20}
+            color="#000"
+            style={styles.editIcon}
+          />
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity
-        style={styles.editButton}
-        onPress={() => isEditing ? handleSaveChanges() : setIsEditing(true)}
-        disabled={isLoading}
-      >
-        <AppText weight='Inter' style={styles.editButtonText}>
-          {isEditing ? 'SAVE CHANGES' : 'EDIT DETAILS'}
-        </AppText>
-        <Icon
-          name={isEditing ? 'save' : 'edit'}
-          size={20}
-          color="#000"
-          style={styles.editIcon}
-        />
-      </TouchableOpacity>
-    </View>
-  );
+    );
+  };
 
   const renderPurchaseHistory = () => (
     <View style={styles.section}>
       {purchaseHistory.length > 0 ? (
         purchaseHistory.map((purchase) => (
-          // <View key={purchase.id} style={styles.purchaseCard}>
-          <View key={`${purchase.id}-${purchase.date}`} style={styles.purchaseCard}>
+          <View key={purchase.id} style={styles.purchaseCard}>
             <View style={styles.purchaseHeader}>
-              <AppText weight='Inter' style={styles.purchaseDate}>{purchase.date}</AppText>
-              {/* <AppText weight='Inter' style={styles.purchaseAmount}>{purchase.amount}</AppText> */}
+              <AppText style={styles.purchaseDate}>{purchase.date}</AppText>
             </View>
-            <AppText weight='Inter' style={styles.purchaseCustomer}>{purchase.customerName}</AppText>
+            <AppText style={styles.purchaseCustomer}>{purchase.customerName}</AppText>
 
             <View style={styles.purchaseDetails}>
-              <AppText weight='Inter' style={styles.detailLabel}>Project: {purchase.details.project.name}</AppText>
-              <AppText weight='Inter' style={styles.detailLabel}>Location: {purchase.details.project.address}</AppText>
-              <AppText weight='Inter' style={styles.detailLabel}>Area: {purchase.details.project.totalSqFt}</AppText>
+              <AppText style={styles.detailLabel}>Project: {purchase.details.project.name}</AppText>
+              <AppText style={styles.detailLabel}>Location: {purchase.details.project.address}</AppText>
+              <AppText style={styles.detailLabel}>Area: {purchase.details.project.totalSqFt}</AppText>
             </View>
 
             <TouchableOpacity
               style={styles.invoiceButton}
-              onPress={() => setInvoiceVisible(true)}
+              onPress={() => {
+                setSelectedPurchase(purchase);
+                setInvoiceVisible(true);
+              }}
             >
-              <AppText weight='Inter' style={styles.invoiceButtonText}>VIEW INVOICE</AppText>
+              <AppText style={styles.invoiceButtonText}>VIEW INVOICE</AppText>
               <Icon name="receipt" size={20} color="#000" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.detailsButton}
               onPress={() => navigation.navigate('ContactBuyer', { lead: purchase })}
             >
-              <AppText weight='Inter' style={styles.invoiceButtonText}>VIEW DETAILS</AppText>
+              <AppText style={styles.invoiceButtonText}>VIEW DETAILS</AppText>
             </TouchableOpacity>
           </View>
         ))
       ) : (
-        <AppText weight='Inter' style={styles.noPurchasesText}>No purchase history available</AppText>
+        <AppText style={styles.noPurchasesText}>No purchase history available</AppText>
       )}
     </View>
   );
 
   const renderInvoiceModal = () => (
-    // <Modal
-    //   visible={invoiceVisible}
-    //   animationType="slide"
-    //   transparent={true}
-    //   onRequestClose={() => setInvoiceVisible(false)}
-    // >
-    //   <View style={styles.modalOverlay}>
-    //     <View style={styles.invoiceContainer}>
-    //       <View style={styles.invoiceHeader}>
-    //         <AppText weight='Inter' style={styles.invoiceTitle}>INVOICE</AppText>
-    //         <TouchableOpacity onPress={() => setInvoiceVisible(false)}>
-    //           <Icon name="close" size={24} color="#000" />
-    //         </TouchableOpacity>
-    //       </View>
-
-    //       <View style={styles.invoiceSection}>
-    //         <AppText weight='Inter' style={styles.invoiceSectionTitle}>Seller Information</AppText>
-    //         <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.company}</AppText>
-    //         <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.address}, {sellerInfo.city}</AppText>
-    //         <AppText weight='Inter' style={styles.invoiceText}>GST: {sellerInfo.gst}</AppText>
-    //       </View>
-
-    //       <View style={styles.invoiceSection}>
-    //         <AppText weight='Inter' style={styles.invoiceSectionTitle}>Invoice Details</AppText>
-    //         <View style={styles.invoiceRow}>
-    //           <AppText weight='Inter' style={styles.invoiceLabel}>Invoice #:</AppText>
-    //           <AppText weight='Inter' style={styles.invoiceValue}>INV-{new Date().getFullYear()}-{Math.floor(1000 + Math.random() * 9000)}</AppText>
-    //         </View>
-    //         <View style={styles.invoiceRow}>
-    //           <AppText weight='Inter' style={styles.invoiceLabel}>Date:</AppText>
-    //           <AppText weight='Inter' style={styles.invoiceValue}>{new Date().toISOString().split('T')[0]}</AppText>
-    //         </View>
-    //       </View>
-
-    //       <View style={styles.invoiceSection}>
-    //         <AppText weight='Inter' style={styles.invoiceSectionTitle}>Lead Purchase</AppText>
-    //         {purchaseHistory.length > 0 && (
-    //           <>
-    //             <View style={styles.invoiceRow}>
-    //               <AppText weight='Inter' style={styles.invoiceLabel}>Customer:</AppText>
-    //               <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].customerName}</AppText>
-    //             </View>
-    //             <View style={styles.invoiceRow}>
-    //               <AppText weight='Inter' style={styles.invoiceLabel}>Project:</AppText>
-    //               <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].details.project.name}</AppText>
-    //             </View>
-    //             <View style={styles.invoiceRow}>
-    //               <AppText weight='Inter' style={styles.invoiceLabel}>Lead Price:</AppText>
-    //               <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].amount}</AppText>
-    //             </View>
-    //           </>
-    //         )}
-    //       </View>
-
-    //       <View style={styles.invoiceTotal}>
-    //         <AppText weight='Inter' style={styles.invoiceTotalLabel}>TOTAL</AppText>
-    //         {purchaseHistory.length > 0 && (
-    //           <AppText weight='Inter' style={styles.invoiceTotalValue}>{purchaseHistory[0].amount}</AppText>
-    //         )}
-    //       </View>
-
-    //       <View style={styles.invoiceFooter}>
-    //         <AppText weight='Inter' style={styles.invoiceFooterText}>Thank you for your business!</AppText>
-    //       </View>
-    //     </View>
-    //   </View>
-    // </Modal> 
-  <Modal
-    visible={invoiceVisible}
-    animationType="slide"
-    transparent={true}
-    onRequestClose={() => setInvoiceVisible(false)}
-  >
-    <View style={styles.modalOverlay}>
-      <View style={styles.invoiceContainer}>
-
-        {/* Logo */}
-        <View style={styles.logoContainer}>
-          <Image
-            source={require('../../assets/logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </View>
-
-        {/* Header */}
-        <View style={styles.invoiceHeader}>
-          <AppText weight='Inter' style={styles.invoiceTitle}>INVOICE</AppText>
-          <TouchableOpacity onPress={() => setInvoiceVisible(false)}>
-            <Icon name="close" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Seller Information */}
-        <View style={styles.invoiceSection}>
-          <AppText weight='Inter' style={styles.invoiceSectionTitle}>Seller Information</AppText>
-          <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.company}</AppText>
-          <AppText weight='Inter' style={styles.invoiceText}>{sellerInfo.address}, {sellerInfo.city}</AppText>
-          <AppText weight='Inter' style={styles.invoiceText}>GST: {sellerInfo.gst}</AppText>
-        </View>
-
-        {/* Invoice Details */}
-        <View style={styles.invoiceSection}>
-          <AppText weight='Inter' style={styles.invoiceSectionTitle}>Invoice Details</AppText>
-          <View style={styles.invoiceRow}>
-            <AppText weight='Inter' style={styles.invoiceLabel}>Invoice #:</AppText>
-            <AppText weight='Inter' style={styles.invoiceValue}>
-              INV-{new Date().getFullYear()}-{Math.floor(1000 + Math.random() * 9000)}
-            </AppText>
+    <Modal
+      visible={invoiceVisible}
+      animationType="slide"
+      transparent={true}
+      onRequestClose={() => setInvoiceVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.invoiceContainer}>
+          {/* Header */}
+          <View style={styles.invoiceHeader}>
+            <AppText style={styles.invoiceTitle}>INVOICE</AppText>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../../assets/logo.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </View>
+            <View style={styles.headerActions}>
+              <TouchableOpacity onPress={() => alert('Downloading invoice...')}>
+                <Icon name="get-app" size={24} color="#000" style={{ marginRight: 16 }} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => setInvoiceVisible(false)}>
+                <Icon name="close" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
           </View>
-          <View style={styles.invoiceRow}>
-            <AppText weight='Inter' style={styles.invoiceLabel}>Date:</AppText>
-            <AppText weight='Inter' style={styles.invoiceValue}>
-              {new Date().toISOString().split('T')[0]}
-            </AppText>
+
+          {/* From: UPVC Connect */}
+          {/* <View style={styles.invoiceSection}>
+            <AppText style={styles.invoiceSectionTitle}>From</AppText>
+            <AppText style={styles.invoiceText}>UPVC Connect</AppText>
+            <AppText style={styles.invoiceText}>13,
+K No 214, Bank Avenue
+1st Main Road,
+Babusapalya
+Bengaluru
+Bengaluru Urban
+Karnataka
+560043 </AppText>
+            <AppText style={styles.invoiceText}>GST: 29AKWPS1667B1ZL</AppText>
+            <AppText style={styles.invoiceText}>Email: contact@upvcconnect.com</AppText>
+          </View> */}
+{/* From: UPVC Connect */}
+<View style={styles.invoiceSection}>
+  <AppText style={styles.invoiceSectionTitle}>From</AppText>
+  <AppText style={[styles.invoiceText, { fontWeight: 'bold', marginBottom: 4 }]}>
+    UPVC Connect
+  </AppText>
+  <View style={{ marginLeft: 8, marginBottom: 4 }}>
+    <AppText style={styles.invoiceText}>13, K No 214, Bank Avenue</AppText>
+    <AppText style={styles.invoiceText}>1st Main Road, Babusapalya</AppText>
+    <AppText style={styles.invoiceText}>Bengaluru Urban, Karnataka - 560043</AppText>
+  </View>
+  <AppText style={[styles.invoiceText, { marginBottom: 2 }]}>
+    GST: 29AKWPS1667B1ZL
+  </AppText>
+  <AppText style={styles.invoiceText}>
+    Email: contact@upvcconnect.com
+  </AppText>
+</View>
+
+          {/* Billed To */}
+          <View style={styles.invoiceSection}>
+            <AppText style={styles.invoiceSectionTitle}>Billed To</AppText>
+            <AppText style={styles.invoiceText}>{sellerInfo.company}</AppText>
+            <AppText style={styles.invoiceText}>{sellerInfo.address}, {sellerInfo.city}</AppText>
+            <AppText style={styles.invoiceText}>GST: {sellerInfo.gst}</AppText>
+          </View>
+
+          {/* Invoice Details */}
+          <View style={styles.invoiceSection}>
+            <AppText style={styles.invoiceSectionTitle}>Invoice Details</AppText>
+            <View style={styles.invoiceRow}>
+              <AppText style={styles.invoiceLabel}>Invoice #:</AppText>
+              <AppText style={styles.invoiceValue}>
+                INV-{new Date().getFullYear()}-{Math.floor(1000 + Math.random() * 9000)}
+              </AppText>
+            </View>
+            <View style={styles.invoiceRow}>
+              <AppText style={styles.invoiceLabel}>Date:</AppText>
+              <AppText style={styles.invoiceValue}>{selectedPurchase?.date || new Date().toISOString().split('T')[0]}</AppText>
+            </View>
+          </View>
+
+          {/* Item Details */}
+          {/* <View style={styles.invoiceSection}>
+            <AppText style={styles.invoiceSectionTitle}>Item Details</AppText>
+            <View style={styles.invoiceRow}>
+              <AppText style={styles.invoiceLabel}>Lead for Project:</AppText>
+              <AppText style={styles.invoiceValue}>{selectedPurchase?.details.project.name}</AppText>
+            </View>
+            <View style={styles.invoiceRow}>
+              <AppText style={styles.invoiceLabel}>Customer:</AppText>
+              <AppText style={styles.invoiceValue}>{selectedPurchase?.customerName}</AppText>
+            </View>
+            <View style={styles.invoiceRow}>
+              <AppText style={styles.invoiceLabel}>Amount (Inclusive of 18% GST):</AppText>
+              <AppText style={styles.invoiceValue}>₹{selectedPurchase?.amount?.toFixed(2) || '0.00'}</AppText>
+            </View>
+          </View> */}
+
+          {/* Total */}
+          <View style={styles.invoiceTotal}>
+            <AppText style={styles.invoiceTotalLabel}>TOTAL</AppText>
+            <AppText style={styles.invoiceTotalValue}>₹{selectedPurchase?.amount?.toFixed(2) || '0.00'}</AppText>
+          </View>
+
+          {/* Footer */}
+          <View style={styles.invoiceFooter}>
+            <AppText style={styles.invoiceFooterText}>Thank you for your business!</AppText>
           </View>
         </View>
-
-        {/* Lead Purchase */}
-        <View style={styles.invoiceSection}>
-          <AppText weight='Inter' style={styles.invoiceSectionTitle}>Lead Purchase</AppText>
-          {purchaseHistory.length > 0 && (
-            <>
-              <View style={styles.invoiceRow}>
-                <AppText weight='Inter' style={styles.invoiceLabel}>Customer:</AppText>
-                <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].customerName}</AppText>
-              </View>
-              <View style={styles.invoiceRow}>
-                <AppText weight='Inter' style={styles.invoiceLabel}>Project:</AppText>
-                <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].details.project.name}</AppText>
-              </View>
-              <View style={styles.invoiceRow}>
-                <AppText weight='Inter' style={styles.invoiceLabel}>Lead Price:</AppText>
-                <AppText weight='Inter' style={styles.invoiceValue}>{purchaseHistory[0].amount}</AppText>
-              </View>
-            </>
-          )}
-        </View>
-
-        {/* Total */}
-        <View style={styles.invoiceTotal}>
-          <AppText weight='Inter' style={styles.invoiceTotalLabel}>TOTAL</AppText>
-          {purchaseHistory.length > 0 && (
-            <AppText weight='Inter' style={styles.invoiceTotalValue}>{purchaseHistory[0].amount}</AppText>
-          )}
-        </View>
-
-        {/* Footer */}
-        <View style={styles.invoiceFooter}>
-          <AppText weight='Inter' style={styles.invoiceFooterText}>Thank you for your business!</AppText>
-        </View>
-
       </View>
-    </View>
-  </Modal>
- 
-
+    </Modal>
   );
- 
+
   const handleLogout = async () => {
     try {
       await AsyncStorage.clear();
-
       Toast.show({
         type: 'success',
         position: 'top',
@@ -1038,10 +551,8 @@ const SellerAccountPage = ({ navigation }) => {
           navigation.replace('SellerMain');
         }
       });
-
     } catch (error) {
       console.error('Error during logout:', error);
-
       Toast.show({
         type: 'error',
         position: 'top',
@@ -1051,11 +562,11 @@ const SellerAccountPage = ({ navigation }) => {
       });
     }
   };
- 
-  if (isLoading && activeTab === 'personal') {
+
+  if (isLoading) {
     return (
       <View style={{ paddingTop: insets.top, flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
-        <AppText weight='Inter'>Loading...</AppText>
+        <AppText>Loading...</AppText>
       </View>
     );
   }
@@ -1065,17 +576,17 @@ const SellerAccountPage = ({ navigation }) => {
       <View style={styles.loginPromptContainer}>
         <View style={styles.loginCard}>
           <Icon name="lock" size={40} color="#333" style={{ marginBottom: 10 }} />
-          <AppText weight="Inter" style={styles.loginTitle}>
+          <AppText style={styles.loginTitle}>
             Login Required
           </AppText>
-          <AppText weight="Inter" style={styles.loginMessage}>
+          <AppText style={styles.loginMessage}>
             Please log in to view your details and purchase history.
           </AppText>
           <TouchableOpacity
             style={styles.loginButton}
             onPress={() => navigation.navigate('SellerLoginScreen')}
           >
-            <AppText weight="Inter" style={styles.loginButtonText}>
+            <AppText style={styles.loginButtonText}>
               GO TO LOGIN
             </AppText>
           </TouchableOpacity>
@@ -1083,8 +594,6 @@ const SellerAccountPage = ({ navigation }) => {
       </View>
     );
   }
-
-  console.log("activeTab : " , activeTab)
 
   return (
     <View style={{ paddingTop: insets.top, paddingBottom: insets.bottom, flex: 1, backgroundColor: 'white' }}>
@@ -1104,7 +613,7 @@ const SellerAccountPage = ({ navigation }) => {
             style={[styles.tabButton, activeTab === 'purchase' && styles.activeTab]}
             onPress={() => setActiveTab('purchase')}
           >
-            <AppText weight='Inter' style={[styles.tabText, activeTab === 'purchase' && styles.activeTabText]}>
+            <AppText style={[styles.tabText, activeTab === 'purchase' && styles.activeTabText]}>
               PURCHASE HISTORY
             </AppText>
           </TouchableOpacity>
@@ -1113,47 +622,51 @@ const SellerAccountPage = ({ navigation }) => {
             style={[styles.tabButton, activeTab === 'personal' && styles.activeTab]}
             onPress={() => setActiveTab('personal')}
           >
-            <AppText weight='Inter' style={[styles.tabText, activeTab === 'personal' && styles.activeTabText]}>
+            <AppText style={[styles.tabText, activeTab === 'personal' && styles.activeTabText]}>
               BUSINESS INFORMATION
             </AppText>
-          </TouchableOpacity> 
+          </TouchableOpacity>
         </View>
 
         {/* Content */}
-      <ScrollView style={styles.contentContainer}>
-        {activeTab === 'personal' ? (
-          <>
-            {renderPersonalDetails()}
-            
-            {/* Additional Sections */}
-            <TouchableOpacity style={styles.menuItem}>
-              <AppText weight='Inter' style={styles.menuText}>TERMS & CONDITIONS</AppText>
-              <Icon name="chevron-right" size={24} color="#000" />
-            </TouchableOpacity>
+        <ScrollView
+          style={styles.contentContainer}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          {activeTab === 'personal' ? (
+            <>
+              {renderPersonalDetails()}
 
-            <TouchableOpacity style={styles.menuItem}>
-              <AppText weight='Inter' style={styles.menuText}>ABOUT US</AppText>
-              <Icon name="chevron-right" size={24} />
-            </TouchableOpacity>
+              {/* Additional Sections */}
+              <TouchableOpacity style={styles.menuItem}>
+                <AppText style={styles.menuText}>TERMS & CONDITIONS</AppText>
+                <Icon name="chevron-right" size={24} color="#000" />
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.menuItem}>
-              <AppText weight='Inter' style={styles.menuText}>CONTACT US</AppText>
-              <Icon name="chevron-right" size={24} color="#000" />
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.menuItem}>
+                <AppText style={styles.menuText}>ABOUT US</AppText>
+                <Icon name="chevron-right" size={24} />
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.menuItem, styles.logoutItem]}
-              onPress={handleLogout}
-            >
-              <AppText weight='Inter' style={[styles.menuText, styles.logoutText]}>LOGOUT</AppText>
-              <Icon name="exit-to-app" size={24} color="#f44336" />
-            </TouchableOpacity>
-          </>
-        ) : (
-          renderPurchaseHistory()
-        )}
-      </ScrollView>
+              <TouchableOpacity style={styles.menuItem}>
+                <AppText style={styles.menuText}>CONTACT US</AppText>
+                <Icon name="chevron-right" size={24} color="#000" />
+              </TouchableOpacity>
 
+              <TouchableOpacity
+                style={[styles.menuItem, styles.logoutItem]}
+                onPress={handleLogout}
+              >
+                <AppText style={[styles.menuText, styles.logoutText]}>LOGOUT</AppText>
+                <Icon name="exit-to-app" size={24} color="#f44336" />
+              </TouchableOpacity>
+            </>
+          ) : (
+            renderPurchaseHistory()
+          )}
+        </ScrollView>
 
         {renderInvoiceModal()}
       </View>
@@ -1173,18 +686,6 @@ const styles = StyleSheet.create({
   logo: {
     width: 100,
     height: 50,
-  },
-  invoicelogo: {
-    width: 120,
-    height: 60,
-  },
-  invoicelogocontainer: {
-    width: 120,
-    height: 60,
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center"
   },
   tabContainer: {
     flexDirection: 'row',
@@ -1249,17 +750,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#000',
   },
-  pickerInput: {
-    fontSize: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    color: '#000',
-    backgroundColor: '#f9f9f9',
-    marginBottom: 16
-  },
-  pickerIcon: { top: 20, right: 12 },
   editButton: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -1299,10 +789,6 @@ const styles = StyleSheet.create({
   purchaseDate: {
     fontSize: 14,
     color: '#666',
-  },
-  purchaseAmount: {
-    fontSize: 16,
-    color: '#000',
   },
   purchaseCustomer: {
     fontSize: 15,
@@ -1369,6 +855,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   invoiceContainer: {
+    // height: '95%',
     width: '90%',
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -1382,6 +869,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
     paddingBottom: 16,
+  },
+  headerActions: {
+    flexDirection: 'row',
   },
   invoiceTitle: {
     fontSize: 20,
@@ -1411,11 +901,12 @@ const styles = StyleSheet.create({
   invoiceLabel: {
     fontSize: 14,
     color: '#666',
-    width: 100,
+    width: 150,
   },
   invoiceValue: {
     fontSize: 14,
     color: '#000',
+    flex: 1,
   },
   invoiceTotal: {
     flexDirection: 'row',
@@ -1491,107 +982,8 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
   logoContainer: {
-  alignItems: 'center',
-  marginBottom: 16,
-},
-logo: {
-  width: 120,
-  height: 50,
-},
-
-invoiceContainer: {
-  width: '90%',
-  backgroundColor: '#fff',
-  borderRadius: 16,
-  padding: 24,
-},
-
-invoiceHeader: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginBottom: 20,
-  borderBottomWidth: 1,
-  borderBottomColor: '#f0f0f0',
-  paddingBottom: 16,
-},
-
-invoiceTitle: {
-  fontSize: 22,
-  color: '#000',
-  letterSpacing: 1,
-},
-
-invoiceSection: {
-  marginBottom: 20,
-},
-
-invoiceSectionTitle: {
-  fontSize: 16,
-  color: '#000',
-  marginBottom: 12,
-  borderBottomWidth: 1,
-  borderBottomColor: '#f0f0f0',
-  paddingBottom: 8,
-},
-
-invoiceText: {
-  fontSize: 14,
-  color: '#333',
-  marginBottom: 4,
-},
-
-invoiceRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginBottom: 6,
-},
-
-invoiceLabel: {
-  fontSize: 14,
-  color: '#666',
-  flex: 1,
-},
-
-invoiceValue: {
-  fontSize: 14,
-  color: '#000',
-  flex: 1,
-  textAlign: 'right',
-},
-
-invoiceTotal: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 10,
-  paddingTop: 16,
-  borderTopWidth: 2,
-  borderTopColor: '#000',
-},
-
-invoiceTotalLabel: {
-  fontSize: 16,
-  color: '#000',
-  fontWeight: '700',
-},
-
-invoiceTotalValue: {
-  fontSize: 18,
-  color: '#000',
-  fontWeight: '900',
-},
-
-invoiceFooter: {
-  marginTop: 20,
-  alignItems: 'center',
-},
-
-invoiceFooterText: {
-  fontSize: 14,
-  color: '#666',
-  fontStyle: 'italic',
-},
-
+    alignItems: 'center',
+  },
 });
 
 export default SellerAccountPage;

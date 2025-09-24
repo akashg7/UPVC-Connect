@@ -13,6 +13,7 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Video from 'react-native-video';
@@ -39,11 +40,12 @@ const WindowOptions = ({route}) => {
   const [addedQuotes, setAddedQuotes] = useState([]);
   const [quoteCount, setQuoteCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
   const [windowDesigns, setWindowDesigns] = useState([]);
   const [buyerId, setBuyerId] = useState(null);
   const navigation = useNavigation();
-  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false); 
 
   const [quoteData, setQuoteData] = useState({
     color: '',
@@ -78,56 +80,57 @@ const WindowOptions = ({route}) => {
 
   const scrollX = useRef(new Animated.Value(0)).current;
   const flatListRef = useRef(null);
- 
+
+  const fetchData = async () => {
+    try {
+      const token = await AsyncStorage.getItem('buyerToken');
+      console.log("token : ", token);
+      setIsLoggedIn(!!token);
+
+      if (token) {
+        setBuyerId(token);
+        const responseQuotes = await axios.get(
+          'http://10.7.10.49:9000/api/quotes/buyer',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        );
+        console.log("responseQuotes data : ", responseQuotes?.data);
+        setQuoteCount(
+          responseQuotes?.data?.quotes?.filter(q => q.isGenerated === false)?.length || 0
+        );
+      }
+
+      const response = await axios.get(
+        'http://10.7.10.49:9000/api/options',
+      );
+      const formattedData = response.data.map(item => ({
+        id: item._id,
+        name: item.title.toUpperCase(),
+        count: item.subOptions.length,
+        designs: item.subOptions.map(subItem => ({
+          id: subItem._id,
+          title: subItem.title,
+          video: subItem.videoUrl,
+          features: subItem.features,
+        })),
+      }));
+      setWindowDesigns(formattedData);
+    } catch (err) {
+      setError(err.message);
+      console.error('Error fetching data:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
 // Inside your component, replace the current useEffect with:
 useFocusEffect(
   React.useCallback(() => {
-    const fetchData = async () => {
-      try {
-        const token = await AsyncStorage.getItem('buyerToken');
-        console.log("token : ", token);
-        setIsLoggedIn(!!token);
-
-        if (token) {
-          setBuyerId(token);
-          const responseQuotes = await axios.get(
-            'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-            },
-          );
-          console.log("responseQuotes data : ", responseQuotes?.data);
-          setQuoteCount(
-            responseQuotes?.data?.quotes?.filter(q => q.isGenerated === false)?.length || 0
-          );
-        }
-
-        const response = await axios.get(
-          'https://upvc-backend-oh6m.onrender.com/api/options',
-        );
-        const formattedData = response.data.map(item => ({
-          id: item._id,
-          name: item.title.toUpperCase(),
-          count: item.subOptions.length,
-          designs: item.subOptions.map(subItem => ({
-            id: subItem._id,
-            title: subItem.title,
-            video: subItem.videoUrl,
-            features: subItem.features,
-          })),
-        }));
-        setWindowDesigns(formattedData);
-      } catch (err) {
-        setError(err.message);
-        console.error('Error fetching data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
 
     return () => {
@@ -135,6 +138,11 @@ useFocusEffect(
     };
   }, [])
 );
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
 
   const handleRequestQuote = () => {
     const finalQuoteData = {
@@ -275,7 +283,7 @@ useFocusEffect(
   const submitQuote = async (quoteData, token) => {
     try {
       const response = await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/quotes',
+        'http://10.7.10.49:9000/api/quotes',
         quoteData,
         {
           headers: {
@@ -317,7 +325,7 @@ useFocusEffect(
     </View>
   );
 
-  if (loading) {
+  if (loading && !refreshing) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" color="black" />
@@ -361,7 +369,16 @@ useFocusEffect(
           contentContainerStyle={[
             styles.scrollContainer,
             windowDesigns.length < 3 && {justifyContent: 'flex-start'},
-          ]}>
+          ]}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={['#000000']}
+              tintColor={'#000000'}
+            />
+          }
+        >
           <AppText weight="Inter" style={styles.screenTitle}>
             CHOOSE DESIGN FOR QUOTE
           </AppText>
@@ -728,7 +745,7 @@ useFocusEffect(
 //           setBuyerId(token);
 //           // Only fetch quotes if logged in
 //           const responseQuotes = await axios.get(
-//             'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
+//             'http://10.7.10.49:9000/api/quotes/buyer',
 //             {
 //               headers: {
 //                 Authorization: `Bearer ${token}`,
@@ -740,7 +757,7 @@ useFocusEffect(
 //         }
 
 //         const response = await axios.get(
-//           'https://upvc-backend-oh6m.onrender.com/api/options',
+//           'http://10.7.10.49:9000/api/options',
 //         );
 //         const formattedData = response.data.map(item => ({
 //           id: item._id,
@@ -870,7 +887,7 @@ useFocusEffect(
 //   const submitQuote = async (quoteData, token) => {
 //     try {
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/quotes',
+//         'http://10.7.10.49:9000/api/quotes',
 //         quoteData,
 //         {
 //           headers: {
@@ -1681,7 +1698,7 @@ export default WindowOptions;
 
 //         // Fetch window designs
 //         const response = await axios.get(
-//           'https://upvc-backend-oh6m.onrender.com/api/options',
+//           'http://10.7.10.49:9000/api/options',
 //         );
 //         setWindowDesigns(
 //           response.data.map(item => ({
@@ -1699,7 +1716,7 @@ export default WindowOptions;
 //         // Fetch quote count if logged in
 //         if (token) {
 //           const quotesResponse = await axios.get(
-//             'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
+//             'http://10.7.10.49:9000/api/quotes/buyer',
 //             {headers: {Authorization: `Bearer ${token}`}},
 //           );
 //           setQuoteCount(quotesResponse.data?.count || 0);
@@ -1740,7 +1757,7 @@ export default WindowOptions;
 
 //     try {
 //       await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/quotes',
+//         'http://10.7.10.49:9000/api/quotes',
 //         {
 //           product: selectedDesign.designs[currentDesignIndex].id,
 //           color: colorValue,
