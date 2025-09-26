@@ -50,7 +50,7 @@ const LeadsHistory = () => {
         setShowLoginModal(true);
         return;
       }
-      
+      console.log("token : " , token)
       const response = await axios.get(`${BASE_URL}/api/buyer/leads`, {
         headers: {
           Authorization: `Bearer ${token}`,

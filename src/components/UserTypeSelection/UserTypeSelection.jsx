@@ -9,6 +9,7 @@ import {
   Animated,
   Easing,
   Dimensions,
+  Platform,
 } from 'react-native';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -17,11 +18,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width, height} = Dimensions.get('window');
 
+// Responsive scaling functions
+const scale = (size) => (width / 375) * size;
+const verticalScale = (size) => (height / 812) * size;
+const moderateScale = (size, factor = 0.5) => size + (scale(size) - size) * factor;
+
 const UserTypeSelection = () => {
   const navigation = useNavigation();
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const buttonScale = React.useRef(new Animated.Value(1)).current;
-  const titlePosition = React.useRef(new Animated.Value(height * 0.05)).current; // Reduced initial position
+  const titlePosition = React.useRef(new Animated.Value(verticalScale(40))).current;
   const button1Position = React.useRef(new Animated.Value(width)).current;
   const button2Position = React.useRef(new Animated.Value(-width)).current;
 
@@ -59,7 +65,7 @@ const UserTypeSelection = () => {
   useFocusEffect(
     React.useCallback(() => {
       fadeAnim.setValue(0);
-      titlePosition.setValue(height * 0.05); // Reduced reset position
+      titlePosition.setValue(verticalScale(40));
       button1Position.setValue(width);
       button2Position.setValue(-width);
       Animated.parallel([
@@ -113,11 +119,10 @@ const UserTypeSelection = () => {
           useNativeDriver: true,
         }),
         Animated.timing(titlePosition, {
-          toValue:
-            screenName === 'SellerLoginScreen' ? -height * 0.05 : height * 0.05,
+          toValue: screenName === 'SellerLoginScreen' ? -verticalScale(40) : verticalScale(40),
           duration: 500,
           useNativeDriver: true,
-        }), // Reduced movement
+        }),
         Animated.timing(button1Position, {
           toValue: screenName === 'SellerLoginScreen' ? width : -width,
           duration: 500,
@@ -130,7 +135,6 @@ const UserTypeSelection = () => {
         }),
       ];
       Animated.parallel(animations).start(() =>
-        // navigation.navigate(screenName === 'SellerLoginScreen' ? 'WelcomeProfileSetup' : 'LoginScreen')
         navigation.navigate(
           screenName === 'SellerLoginScreen'
             ? 'SellerLoginScreen'
@@ -140,15 +144,16 @@ const UserTypeSelection = () => {
     });
   };
 
-    const checkToken = async ()=>{
-      const buyerToken =  await AsyncStorage.getItem('buyerToken'); 
-      if (buyerToken){
-        navigation.navigate('BuyerMain');
-      }
+  const checkToken = async () => {
+    const buyerToken = await AsyncStorage.getItem('buyerToken'); 
+    if (buyerToken) {
+      navigation.navigate('BuyerMain');
     }
-    useEffect(()=>{
-      checkToken()
-    }, [])
+  };
+
+  useEffect(() => {
+    checkToken();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -161,11 +166,13 @@ const UserTypeSelection = () => {
           <Image
             source={require('../../assets/logo.png')}
             style={styles.logo}
+            resizeMode="contain"
           />
 
-          <AppText weight="Inter"
-            style={styles.subtitle}>
-            {/* style={{fontFamily: 'Poppins-Bold', fontSize: 18, color: 'black'}}> */}
+          <AppText 
+            weight="Inter"
+            style={styles.subtitle}
+          >
             Your Premium Window to Better Deals
           </AppText>
         </Animated.View>
@@ -180,10 +187,9 @@ const UserTypeSelection = () => {
               style={[styles.button, styles.blackButton]}
               onPress={() => handlePress('BuyerOnboarding')}
               activeOpacity={0.8}>
-                {/* <Text style={{ flexDirection: 'row', alignItems: 'center' }}></Text> */}
               <Icon
                 name="shopping-cart"
-                size={26}
+                size={moderateScale(26)}
                 color="#FFF"
                 style={styles.buttonIcon}
               />
@@ -205,7 +211,7 @@ const UserTypeSelection = () => {
               activeOpacity={0.8}>
               <Icon
                 name="store"
-                size={26}
+                size={moderateScale(26)}
                 color="#FFF"
                 style={styles.buttonIcon}
               /> 
@@ -234,72 +240,85 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    paddingHorizontal: 25,
-    justifyContent: 'flex-start',
+    paddingHorizontal: moderateScale(25),
+    justifyContent: 'space-between',
+    paddingTop: verticalScale(Platform.OS === 'ios' ? 20 : 40),
+    paddingBottom: verticalScale(20),
   },
   logo: {
-    width: 300,
-    height: 300,
-    resizeMode: 'contain',
-    marginTop: height * 0,
+    width: moderateScale(250),
+    height: moderateScale(250),
+    maxWidth: '80%',
+    maxHeight: height * 0.3,
+    alignSelf: 'center',
   },
   titleContainer: {
     alignItems: 'center',
-    paddingTop: height * 0,
+    flex: 0.4,
+    justifyContent: 'center',
   },
   subtitle: { 
     color: '#333',
     textAlign: 'center',
     letterSpacing: 0.5,
-    // fontFamily: 'Poppins-Bold', 
-    fontSize: 16, 
-    // color: 'black'
+    fontSize: moderateScale(16),
+    marginTop: verticalScale(10),
+    paddingHorizontal: moderateScale(20),
+    lineHeight: moderateScale(22),
   },
   buttonContainer: {
-    flex: 1,
-    marginTop: height * 0.05,
+    flex: 0.5,
+    justifyContent: 'center',
+    paddingHorizontal: moderateScale(10),
   },
   buttonWrapper: {
-    marginBottom: 20,
+    marginBottom: verticalScale(20),
   },
   button: {
     width: '100%',
-    borderRadius: 14,
-    borderWidth: 1.2,
-    paddingVertical: 18,
-    paddingHorizontal: 20,
+    borderRadius: moderateScale(14),
+    borderWidth: moderateScale(1.2),
+    paddingVertical: verticalScale(18),
+    paddingHorizontal: moderateScale(20),
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 5},
+    shadowOffset: {
+      width: 0, 
+      height: moderateScale(5)
+    },
     shadowOpacity: 0.08,
-    shadowRadius: 6,
+    shadowRadius: moderateScale(6),
     elevation: 4,
+    minHeight: verticalScale(100),
+    justifyContent: 'center',
   },
   blackButton: {
     backgroundColor: '#000',
     borderColor: '#000',
   },
   buttonIcon: {
-    marginBottom: 8,
+    marginBottom: verticalScale(8),
   },
   buttonText: { 
     color: '#FFF',
-    marginBottom: 4, 
-    fontSize:20
+    marginBottom: verticalScale(4), 
+    fontSize: moderateScale(20),
+    textAlign: 'center',
   },
   buttonSubtext: {
-    fontSize: 14,
+    fontSize: moderateScale(14),
     color: '#FFF',
-    // fontWeight: '500', 
+    textAlign: 'center',
+    lineHeight: moderateScale(18),
   },
   footer: {
     alignItems: 'center',
-    marginBottom: 20,
+    flex: 0.1,
+    justifyContent: 'flex-end',
   },
   footerText: {
     color: '#888',
-    fontSize: 14,
-    // fontWeight: '500',
+    fontSize: moderateScale(14),
   },
 });
 
