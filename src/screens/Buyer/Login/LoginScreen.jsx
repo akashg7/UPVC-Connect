@@ -27,7 +27,7 @@
 
 //     try {
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/auth/login',
+//         'https://upvc-backend-ozpc.onrender.com/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,
@@ -266,7 +266,6 @@ const guidelineBaseWidth = 375;
 const scale = size => (width / guidelineBaseWidth) * size;
 
 const LoginScreen = ({ navigation }) => {
-  const [userName, setUserName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -279,9 +278,8 @@ const LoginScreen = ({ navigation }) => {
 
     try {
       const response = await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/auth/login',
+        'https://upvc-backend-ozpc.onrender.com/api/auth/login',
         {
-          name: userName,
           mobileNumber,
         },
         {
@@ -306,7 +304,6 @@ const LoginScreen = ({ navigation }) => {
           onHide: () =>
             navigation.navigate('OTPVerification', {
               mobileNumber,
-              userName,
               token: response.data.token,
               autootp: response.data.otp,
             }),
@@ -356,17 +353,6 @@ const LoginScreen = ({ navigation }) => {
         </Animatable.View>
 
         <Animatable.View animation="fadeInUp" delay={300} duration={800}>
-          {/* User Name Input */}
-          <View style={styles.inputRow}>
-            <TextInput
-              style={[styles.input, { marginLeft: 4 }]}
-              placeholder="Enter your name"
-              value={userName}
-              onChangeText={setUserName}
-              placeholderTextColor="#999"
-            />
-          </View>
-
           {/* Mobile Number Input */}
           <View style={styles.inputRow}>
             <Image

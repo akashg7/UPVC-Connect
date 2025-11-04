@@ -10,6 +10,18 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 const { width } = Dimensions.get('window');
 
 const SellerBottomNav = ({ state, descriptors, navigation }) => {
+  // Add comprehensive safety checks for navigation state
+  if (!state || typeof state.index !== 'number' || !navigation) {
+    console.warn('SellerBottomNav: Invalid navigation state or navigation object');
+    return null;
+  }
+
+  // Ensure state.routes is an array
+  if (!Array.isArray(state.routes)) {
+    console.warn('SellerBottomNav: state.routes is not an array:', state.routes);
+    return null;
+  }
+
   const tabs = [
     {
       name: 'LeadDetails',
@@ -61,14 +73,18 @@ const SellerBottomNav = ({ state, descriptors, navigation }) => {
           const IconComponent = tab.Icon;
 
           const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: tab.name,
-              canPreventDefault: true,
-            });
+            try {
+              const event = navigation.emit({
+                type: 'tabPress',
+                target: tab.name,
+                canPreventDefault: true,
+              });
 
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(tab.name);
+              if (!isFocused && !event?.defaultPrevented) {
+                navigation.navigate(tab.name);
+              }
+            } catch (error) {
+              console.error('Navigation error:', error);
             }
           };
 

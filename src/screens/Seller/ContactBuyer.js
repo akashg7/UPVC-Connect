@@ -16,7 +16,10 @@ import IconFA from 'react-native-vector-icons/FontAwesome';
 import LinearGradient from 'react-native-linear-gradient';
 import AppText from '../../components/AppText';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import RNHTMLtoPDF from 'react-native-html-to-pdf'; 
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import RNShare from 'react-native-share';
+import { PermissionsAndroid } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const ContactBuyer = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
@@ -199,49 +202,6 @@ const ContactBuyer = ({ route, navigation }) => {
     }
   };
 
-  const handleSharePDF = async () => {
-    try {
-      const filePath = await generatePDF();
-      if (filePath) {
-        // For iOS, we need to use a file URL, for Android we can use the file path
-        const shareOptions = {
-          title: 'Share Buyer Details',
-          url: Platform.OS === 'ios' ? `file://${filePath}` : filePath,
-          type: 'application/pdf',
-        };
-
-        await Share.share(shareOptions);
-      }
-    } catch (err) {
-      console.error('Error sharing PDF:', err);
-      Alert.alert('Error', 'Failed to share PDF');
-    }
-  };
-
-  const handlePrint = async () => {
-    try {
-      const filePath = await generatePDF();
-      if (filePath) {
-        // This would typically connect to a printing service
-        Alert.alert('Print', 'PDF generated successfully. Would connect to printer in production.');
-      }
-    } catch (err) {
-      console.error('Error printing:', err);
-      Alert.alert('Error', 'Failed to generate print document');
-    }
-  };
-
-  const handleDownload = async () => {
-    try {
-      const filePath = await generatePDF();
-      if (filePath) {
-        Alert.alert('Download', 'PDF downloaded successfully to your documents folder.');
-      }
-    } catch (err) {
-      console.error('Error downloading:', err);
-      Alert.alert('Error', 'Failed to download PDF');
-    }
-  };
 
   const openMap = () => {
     const mapUrl = buyerDetails.project.googleMapLink || 
@@ -250,6 +210,315 @@ const ContactBuyer = ({ route, navigation }) => {
       Alert.alert('Error', 'Unable to open maps');
       console.error('Error opening maps:', err);
     });
+  };
+
+  // PDF Generation Functions
+  const requestStoragePermission = async () => {
+    if (Platform.OS !== 'android') {
+      return true;
+    }
+
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message: 'UPVC Connect needs access to your storage to save buyer details PDFs.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'Allow',
+        },
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn('Permission request error:', err);
+      return false;
+    }
+  };
+
+  const generateBuyerDetailsPDF = async () => {
+    try {
+      Toast.show({
+        type: 'info',
+        position: 'top',
+        text1: 'Generating PDF',
+        text2: 'Please wait...',
+        visibilityTime: 2000,
+      });
+
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>Buyer Details</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 20px;
+                    background-color: #fff;
+                    color: #000;
+                }
+                .header {
+                    border-bottom: 2px solid #000;
+                    padding-bottom: 20px;
+                    margin-bottom: 30px;
+                }
+                .company-name {
+                    font-size: 24px;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-bottom: 10px;
+                }
+                .invoice-title {
+                    font-size: 20px;
+                    text-align: center;
+                    margin-bottom: 20px;
+                }
+                .details-section {
+                    margin-bottom: 30px;
+                    padding: 20px;
+                    border: 1px solid #ddd;
+                }
+                .details-row {
+                    display: table;
+                    width: 100%;
+                }
+                .details-column {
+                    display: table-cell;
+                    width: 50%;
+                    vertical-align: top;
+                    padding-right: 30px;
+                }
+                .details-label {
+                    font-weight: bold;
+                    font-size: 12px;
+                    color: #666;
+                    margin-bottom: 10px;
+                }
+                .company-name-bold {
+                    font-weight: bold;
+                    font-size: 16px;
+                    margin-bottom: 5px;
+                }
+                .details-text {
+                    font-size: 14px;
+                    margin-bottom: 3px;
+                }
+                .table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 30px;
+                }
+                .table th, .table td {
+                    border: 1px solid #ddd;
+                    padding: 8px;
+                    text-align: left;
+                }
+                .table th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                .summary {
+                    background-color: #f9f9f9;
+                    padding: 15px;
+                    border: 1px solid #ddd;
+                    margin-top: 20px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <div class="company-name">UPVC Connect Pvt Ltd</div>
+                <div class="invoice-title">BUYER DETAILS REPORT</div>
+            </div>
+
+            <div class="details-section">
+                <div class="details-row">
+                    <div class="details-column">
+                        <div class="details-label">PERSONAL INFORMATION</div>
+                        <div class="company-name-bold">${buyerDetails.personal.fullName}</div>
+                        <div class="details-text">Contact: ${buyerDetails.personal.contactNumber}</div>
+                        <div class="details-text">WhatsApp: ${buyerDetails.personal.whatsappNumber}</div>
+                        <div class="details-text">Email: ${buyerDetails.personal.email}</div>
+                    </div>
+                    <div class="details-column">
+                        <div class="details-label">PROJECT INFORMATION</div>
+                        <div class="company-name-bold">${buyerDetails.project.name}</div>
+                        <div class="details-text">Category: ${buyerDetails.project.category}</div>
+                        <div class="details-text">Stage: ${buyerDetails.project.stage}</div>
+                        <div class="details-text">Timeline: ${buyerDetails.project.timeline}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-section">
+                <div class="details-label">PROJECT ADDRESS</div>
+                <div class="details-text">${buyerDetails.project.address}</div>
+                <div class="details-text">Pin Code: ${buyerDetails.project.pinCode}</div>
+                <div class="details-text">Total Area: ${buyerDetails.project.totalSqFt}</div>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Design</th>
+                        <th>Color</th>
+                        <th>Size</th>
+                        <th>Location</th>
+                        <th>Quantity</th>
+                        <th>Total Sq Ft</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${selectedItems.map(item => `
+                        <tr>
+                            <td>${item.id}</td>
+                            <td>${item.design}</td>
+                            <td>${item.color}</td>
+                            <td>${item.size}</td>
+                            <td>${item.where}</td>
+                            <td>${item.qty}</td>
+                            <td>${item.total}</td>
+                            <td>${item.remarks}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+
+            <div class="summary">
+                <div class="details-label">SUMMARY</div>
+                <div class="details-text">Total Square Feet: ${totalSqFt}</div>
+                <div class="details-text">Total Quantity: ${totalQuantity}</div>
+                <div class="details-text">Generated on: ${new Date().toLocaleDateString()}</div>
+            </div>
+        </body>
+        </html>
+      `;
+
+      const options = {
+        html: htmlContent,
+        fileName: `Buyer_Details_${buyerDetails.personal.fullName.replace(/\s+/g, '_')}`,
+        directory: 'Downloads',
+        base64: false,
+        width: 595,
+        height: 842,
+        padding: 20,
+        bgColor: '#FFFFFF',
+      };
+
+      const pdf = await RNHTMLtoPDF.convert(options);
+      
+      if (pdf && pdf.filePath) {
+        Toast.show({
+          type: 'success',
+          position: 'top',
+          text1: 'PDF Downloaded Successfully!',
+          text2: `Saved to: ${pdf.filePath}`,
+          visibilityTime: 5000,
+        });
+        
+        return `file://${pdf.filePath}`;
+      } else {
+        throw new Error('PDF generation failed - no file path returned');
+      }
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      
+      // Check if it's a permission error
+      if (error.message.includes('permission') || error.message.includes('Permission')) {
+        const hasPermission = await requestStoragePermission();
+        if (hasPermission) {
+          // Retry PDF generation
+          try {
+            const retryPdf = await RNHTMLtoPDF.convert(options);
+            if (retryPdf && retryPdf.filePath) {
+              Toast.show({
+                type: 'success',
+                position: 'top',
+                text1: 'PDF Downloaded Successfully!',
+                text2: `Saved to: ${retryPdf.filePath}`,
+                visibilityTime: 5000,
+              });
+              return `file://${retryPdf.filePath}`;
+            }
+          } catch (retryError) {
+            console.error('Retry PDF generation error:', retryError);
+          }
+        }
+      }
+      
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'PDF Generation Failed',
+        text2: 'Unable to generate PDF. Please try again.',
+        visibilityTime: 4000,
+      });
+      
+      return null;
+    }
+  };
+
+  const handleSharePDF = async () => {
+    try {
+      const pdfPath = await generateBuyerDetailsPDF();
+      if (pdfPath) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const shareOptions = {
+          title: 'Share Buyer Details',
+          message: `Buyer details for ${buyerDetails.personal.fullName}`,
+          url: pdfPath,
+          type: 'application/pdf',
+          subject: `Buyer Details - ${buyerDetails.personal.fullName}`,
+          filename: `Buyer_Details_${buyerDetails.personal.fullName.replace(/\s+/g, '_')}.pdf`,
+        };
+        
+        await RNShare.open(shareOptions);
+      }
+    } catch (error) {
+      console.error('Share error:', error);
+      
+      if (error.message && error.message.includes('User did not share')) {
+        return;
+      }
+      
+      Alert.alert('Share Failed', 'Unable to share buyer details');
+    }
+  };
+
+  const handlePrint = async () => {
+    try {
+      const pdfPath = await generateBuyerDetailsPDF();
+      if (pdfPath) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (Platform.OS === 'android') {
+          try {
+            await Linking.openURL(pdfPath);
+          } catch (error) {
+            Alert.alert(
+              'Print Buyer Details',
+              `PDF has been downloaded successfully!\n\nFile location: ${pdfPath}\n\nYou can now open this file with any PDF viewer to print.`,
+              [{ text: 'OK' }]
+            );
+          }
+        } else {
+          await handleSharePDF();
+        }
+      }
+    } catch (error) {
+      console.error('Print error:', error);
+      Alert.alert('Print Failed', 'Unable to open PDF for printing');
+    }
+  };
+
+  const handleDownload = async () => {
+    await generateBuyerDetailsPDF();
   };
 
   return (
@@ -489,6 +758,7 @@ const ContactBuyer = ({ route, navigation }) => {
           </TouchableOpacity>
         </View> 
       </ScrollView>
+      <Toast />
     </View>
   );
 };

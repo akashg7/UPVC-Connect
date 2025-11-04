@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import AppText from '../../../components/AppText';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -61,15 +61,19 @@ const QuoteRequestPage = ({navigation, route}) => {
   // Load form data from storage on component mount
   const loadFormFromStorage = async () => {
     try {
+      console.log('🔄 Loading form data from storage...');
       const storedForm = await AsyncStorage.getItem(FORM_STORAGE_KEY);
+      
       if (storedForm) {
         const parsedForm = JSON.parse(storedForm);
+        console.log('📦 Found stored form data:', parsedForm);
         
         // Merge with default form data
         let finalFormData = { ...getDefaultFormData(), ...parsedForm };
         
         // Override with route params if available (highest priority)
         if (route.params?.formData) {
+          console.log('🔄 Overriding with route params:', route.params.formData);
           finalFormData = { ...finalFormData, ...route.params.formData };
         }
         
@@ -79,6 +83,7 @@ const QuoteRequestPage = ({navigation, route}) => {
           setSelectedCategoryl(route.params.selectedCategory.name);
         }
         
+        console.log('✅ Setting form data:', finalFormData);
         setFormData(finalFormData);
         
         // Set dropdown values from stored data
@@ -92,14 +97,22 @@ const QuoteRequestPage = ({navigation, route}) => {
         return finalFormData;
       } else if (route.params?.formData) {
         // If no stored data but form data exists in params
+        console.log('📦 No stored data, using route params:', route.params.formData);
         const finalFormData = { ...getDefaultFormData(), ...route.params.formData };
         setFormData(finalFormData);
         return finalFormData;
+      } else {
+        console.log('📦 No stored data or route params, using defaults');
+        const defaultData = getDefaultFormData();
+        setFormData(defaultData);
+        return defaultData;
       }
     } catch (error) {
-      console.error('Error loading form from storage:', error);
+      console.error('❌ Error loading form from storage:', error);
+      const defaultData = getDefaultFormData();
+      setFormData(defaultData);
+      return defaultData;
     }
-    return getDefaultFormData();
   };
 
   // Save form data to storage
@@ -136,7 +149,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       }
 
       const responseQuotes = await axios.get(
-        'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
+        'https://upvc-backend-ozpc.onrender.com/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -145,7 +158,7 @@ const QuoteRequestPage = ({navigation, route}) => {
         },
       );
 
-      const userRes = await axios.get('https://upvc-backend-oh6m.onrender.com/api/buyer', {
+      const userRes = await axios.get('https://upvc-backend-ozpc.onrender.com/api/buyer', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -223,7 +236,56 @@ const QuoteRequestPage = ({navigation, route}) => {
 
     return unsubscribe;
   }, [navigation, route.params]);
-  
+
+  // Enhanced form persistence with useFocusEffect
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('🔄 Screen focused - reloading form data...');
+      
+      const reloadFormData = async () => {
+        try {
+          const loadedFormData = await loadFormFromStorage();
+          console.log('✅ Form data reloaded on focus:', loadedFormData);
+          
+          // Update dropdown values if they exist in loaded data
+          if (loadedFormData.projectStage) {
+            setStageValue(loadedFormData.projectStage);
+          }
+          if (loadedFormData.timeline) {
+            setTimelineValue(loadedFormData.timeline);
+          }
+        } catch (error) {
+          console.error('❌ Error reloading form data on focus:', error);
+        }
+      };
+      
+      reloadFormData();
+    }, [])
+  );
+
+  // Save form data when component unmounts or when form data changes
+  useEffect(() => {
+    const saveFormData = async () => {
+      if (formData && Object.keys(formData).length > 0) {
+        try {
+          await saveFormToStorage(formData);
+          console.log('💾 Form data auto-saved:', formData);
+        } catch (error) {
+          console.error('❌ Error auto-saving form data:', error);
+        }
+      }
+    };
+
+    // Debounce the save operation to avoid too frequent saves
+    const timeoutId = setTimeout(saveFormData, 1000);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      // Save immediately on cleanup
+      saveFormData();
+    };
+  }, [formData]);
+
   // Update the category selection handler to preserve form data
   const handleSelectCategory = async () => {
     // Save current form data before navigating
@@ -378,7 +440,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       };
       
       const response = await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/seller/lead',
+        'https://upvc-backend-ozpc.onrender.com/api/seller/lead',
         leadData,
         {
           headers: {
@@ -448,7 +510,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       const token = await AsyncStorage.getItem('buyerToken');
 
       const response = await axios.put(
-        `https://upvc-backend-oh6m.onrender.com/api/quotes/${updatedQuote._id}`,
+        `https://upvc-backend-ozpc.onrender.com/api/quotes/${updatedQuote._id}`,
         updatedQuote,
         {
           headers: {
@@ -461,7 +523,7 @@ const QuoteRequestPage = ({navigation, route}) => {
       if (response.status === 200) {
         setIsEditModalVisible(false);
         const updatedQuotes = await axios.get(
-          'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
+          'https://upvc-backend-ozpc.onrender.com/api/quotes/buyer',
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -497,7 +559,7 @@ const QuoteRequestPage = ({navigation, route}) => {
   const handleDeleteItem = async quoteId => { 
     try {
       const token = await AsyncStorage.getItem('buyerToken');
-      await axios.delete(`https://upvc-backend-oh6m.onrender.com/api/quotes/${quoteId}`, {
+      await axios.delete(`https://upvc-backend-ozpc.onrender.com/api/quotes/${quoteId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -505,7 +567,7 @@ const QuoteRequestPage = ({navigation, route}) => {
 
       // Refresh quotes after deletion
       const response = await axios.get(
-        'https://upvc-backend-oh6m.onrender.com/api/quotes/buyer',
+        'https://upvc-backend-ozpc.onrender.com/api/quotes/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1612,7 +1674,7 @@ export default QuoteRequestPage;
 
 //       // Fetch cart data
 //       const response = await axios.get(
-//         'https://upvc-backend-oh6m.onrender.com/api/buyer',
+//         'https://upvc-backend-ozpc.onrender.com/api/buyer',
 //         {
 //           headers: {
 //             Authorization: `Bearer ${token}`,
@@ -1626,7 +1688,7 @@ export default QuoteRequestPage;
 //       // If no cart exists, create one
 //       if (!response.data) {
 //         await axios.post(
-//           'https://upvc-backend-oh6m.onrender.com/api/buyer',
+//           'https://upvc-backend-ozpc.onrender.com/api/buyer',
 //           { buyer: user._id },
 //           {
 //             headers: {
@@ -1642,7 +1704,7 @@ export default QuoteRequestPage;
 //       }
 
 //       // Fetch user data
-//       const userRes = await axios.get('https://upvc-backend-oh6m.onrender.com/api/buyer', {
+//       const userRes = await axios.get('https://upvc-backend-ozpc.onrender.com/api/buyer', {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //           'Content-Type': 'application/json',
@@ -1774,7 +1836,7 @@ export default QuoteRequestPage;
 //       };
 
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/seller/lead',
+//         'https://upvc-backend-ozpc.onrender.com/api/seller/lead',
 //         leadData,
 //         {
 //           headers: {
@@ -1786,7 +1848,7 @@ export default QuoteRequestPage;
 
 //       if (response.status === 201) {
 //         // Clear the cart after successful submission
-//         await axios.delete('https://upvc-backend-oh6m.onrender.com/api/buyer/cart', {
+//         await axios.delete('https://upvc-backend-ozpc.onrender.com/api/buyer/cart', {
 //           headers: {
 //             Authorization: `Bearer ${token}`,
 //           },
@@ -1857,7 +1919,7 @@ export default QuoteRequestPage;
 
 //       // Update the item in the cart
 //       const response = await axios.put(
-//         `https://upvc-backend-oh6m.onrender.com/api/buyer/cart/item/${updatedItem._id}`,
+//         `https://upvc-backend-ozpc.onrender.com/api/buyer/cart/item/${updatedItem._id}`,
 //         updatedItem,
 //         {
 //           headers: {
@@ -1884,7 +1946,7 @@ export default QuoteRequestPage;
 //     try {
 //       const token = await AsyncStorage.getItem('buyerToken');
 //       await axios.delete(
-//         `https://upvc-backend-oh6m.onrender.com/api/buyer/cart/item/${itemId}`,
+//         `https://upvc-backend-ozpc.onrender.com/api/buyer/cart/item/${itemId}`,
 //         {
 //           headers: {
 //             Authorization: `Bearer ${token}`,

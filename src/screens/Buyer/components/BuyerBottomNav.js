@@ -9,11 +9,28 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import AppText from '../../../components/AppText';
 
 const BuyerBottomNav = ({ state, descriptors, navigation }) => {
+  // Add safety checks for navigation state
+  if (!state || !state.routes || !Array.isArray(state.routes)) {
+    console.warn('BuyerBottomNav: Invalid navigation state or routes not an array:', state);
+    return null;
+  }
+
+  // Additional validation for navigation object
+  if (!navigation) {
+    console.warn('BuyerBottomNav: Navigation object is missing');
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       {state.routes.map((route, index) => {
+        // Add safety checks for route and descriptors
+        if (!route || !route.key || !descriptors || !descriptors[route.key]) {
+          return null;
+        }
+        
         const { options } = descriptors[route.key];
-        const label = options.tabBarLabel || options.title || route.name;
+        const label = options?.tabBarLabel || options?.title || route.name;
 
         const isFocused = state.index === index;
 

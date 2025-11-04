@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
-  Alert,
+  Alert, 
   RefreshControl
 } from 'react-native';
 import Video from 'react-native-video';
@@ -19,7 +19,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Share } from 'react-native'
 
 const { width } = Dimensions.get('window');
-const BASE_URL = 'https://upvc-backend-oh6m.onrender.com/api/advertisments';
+const BASE_URL = 'https://upvc-backend-ozpc.onrender.com/api/advertisments';
 
 const MarketInsights = () => {
   const insets = useSafeAreaInsets();
@@ -28,6 +28,7 @@ const MarketInsights = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [videoStates, setVideoStates] = useState({}); // Track mute state for each video
 
   const fetchData = async () => {
     try {
@@ -50,7 +51,7 @@ const MarketInsights = () => {
         },
       });
 
-      const sellerResponse = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
+      const sellerResponse = await axios.get('https://upvc-backend-ozpc.onrender.com/api/sellers', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -67,7 +68,7 @@ const MarketInsights = () => {
     }
   };
 
-  useEffect(() => {
+   useEffect(() => {
     fetchData();
   }, [activeTab]);
 
@@ -110,8 +111,8 @@ const MarketInsights = () => {
     try {
       const shareOptions = {
         message: `${item.title}\n\n${item.description}\n\nCheck this out: ${item.type === 'video' 
-          ? `https://upvc-backend-oh6m.onrender.com/${item.mediaUrl}`
-          : `https://upvc-backend-oh6m.onrender.com/uploads/${item.mediaUrl}`
+          ? `https://upvc-backend-ozpc.onrender.com/${item.mediaUrl}`
+          : `https://upvc-backend-ozpc.onrender.com/uploads/${item.mediaUrl}`
         }`,
       };
       await Share.share(shareOptions);
@@ -119,6 +120,17 @@ const MarketInsights = () => {
       console.error('Error sharing ad:', error);
       Alert.alert('Error', 'Failed to share the post');
     }
+  };
+
+  // Toggle mute for specific video
+  const toggleMute = (videoId) => {
+    setVideoStates(prev => ({
+      ...prev,
+      [videoId]: {
+        ...prev[videoId],
+        isMuted: !prev[videoId]?.isMuted
+      }
+    }));
   };
 
   const renderItem = ({ item }) => (
@@ -130,18 +142,31 @@ const MarketInsights = () => {
       {item.type === 'video' ? (
         <View style={styles.videoContainer}>
           <Video
-            source={{ uri: `https://upvc-backend-oh6m.onrender.com/${item.mediaUrl}` }}
+            source={{ uri: `https://upvc-backend-ozpc.onrender.com/${item.mediaUrl}` }}
             style={styles.video}
             resizeMode="cover"
-            poster={item.thumbnailUrl ? `https://upvc-backend-oh6m.onrender.com/${item.thumbnailUrl}` : undefined}
+            poster={item.thumbnailUrl ? `https://upvc-backend-ozpc.onrender.com/${item.thumbnailUrl}` : undefined}
             posterResizeMode="cover"
-            controls
+            controls={true}
             paused
+            muted={videoStates[item._id]?.isMuted ?? true}
+            ignoreSilentSwitch="obey"
           />
+          {/* Custom Mute Button */}
+          <TouchableOpacity 
+            style={styles.muteButton} 
+            onPress={() => toggleMute(item._id)}
+          >
+            <Icon 
+              name={videoStates[item._id]?.isMuted ? "volume-off" : "volume-up"} 
+              size={20} 
+              color="#fff" 
+            />
+          </TouchableOpacity>
         </View>
       ) : (
         <Image
-          source={{ uri: `https://upvc-backend-oh6m.onrender.com/uploads/${item.mediaUrl}` }}
+          source={{ uri: `https://upvc-backend-ozpc.onrender.com/uploads/${item.mediaUrl}` }}
           style={styles.image}
           resizeMode="cover"
         />
@@ -312,6 +337,18 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  muteButton: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 16,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
   image: {
     width: '100%',
     aspectRatio: 16 / 9,
@@ -352,7 +389,7 @@ const styles = StyleSheet.create({
     color: '#888',
   },
 });
-
+ 
 export default MarketInsights;
 
 // import React, { useState, useEffect } from 'react';
@@ -375,7 +412,7 @@ export default MarketInsights;
 // import { Share } from 'react-native'
 
 // const { width } = Dimensions.get('window');
-// const BASE_URL = 'https://upvc-backend-oh6m.onrender.com/api/advertisments';
+// const BASE_URL = 'https://upvc-backend-ozpc.onrender.com/api/advertisments';
 
 // const MarketInsights = () => {
 
@@ -405,7 +442,7 @@ export default MarketInsights;
 //         },
 //       });
 
-//       const sellerResponse = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
+//       const sellerResponse = await axios.get('https://upvc-backend-ozpc.onrender.com/api/sellers', {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //         },
@@ -460,8 +497,8 @@ export default MarketInsights;
 //     try {
 //       const shareOptions = {
 //         message: `${item.title}\n\n${item.description}\n\nCheck this out: ${item.type === 'video' 
-//           ? `https://upvc-backend-oh6m.onrender.com/${item.mediaUrl}`
-//           : `https://upvc-backend-oh6m.onrender.com/uploads/${item.mediaUrl}`
+//           ? `https://upvc-backend-ozpc.onrender.com/${item.mediaUrl}`
+//           : `https://upvc-backend-ozpc.onrender.com/uploads/${item.mediaUrl}`
 //         }`,
 //       };
 //       await Share.share(shareOptions);
@@ -481,10 +518,10 @@ export default MarketInsights;
 //       {item.type === 'video' ? (
 //         <View style={styles.videoContainer}>
 //           <Video
-//             source={{ uri: `https://upvc-backend-oh6m.onrender.com/${item.mediaUrl}` }}
+//             source={{ uri: `https://upvc-backend-ozpc.onrender.com/${item.mediaUrl}` }}
 //             style={styles.video}
 //             resizeMode="cover"
-//             poster={item.thumbnailUrl ? `https://upvc-backend-oh6m.onrender.com/${item.thumbnailUrl}` : undefined}
+//             poster={item.thumbnailUrl ? `https://upvc-backend-ozpc.onrender.com/${item.thumbnailUrl}` : undefined}
 //             posterResizeMode="cover"
 //             controls
 //             paused
@@ -492,7 +529,7 @@ export default MarketInsights;
 //         </View>
 //       ) : (
 //         <Image
-//           source={{ uri: `https://upvc-backend-oh6m.onrender.com/uploads/${item.mediaUrl}` }}
+//           source={{ uri: `https://upvc-backend-ozpc.onrender.com/uploads/${item.mediaUrl}` }}
 //           style={styles.image}
 //           resizeMode="cover"
 //         />

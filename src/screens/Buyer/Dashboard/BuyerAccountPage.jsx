@@ -47,15 +47,13 @@ const UserAccount = () => {
     setToken(token);
     if (!token) {
       setShowLoginModal(true);
-      // Alert.alert('Login Required', 'Please login to Select a Category');
-      // setShowQuoteForm(false);
-      return;
+    return;
     }
     try {
       setLoading(true);
       // Fetch video data
       const userResponse = await axios.get(
-        'https://upvc-backend-oh6m.onrender.com/api/buyer',
+        'https://upvc-backend-ozpc.onrender.com/api/buyer',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -93,7 +91,7 @@ const UserAccount = () => {
       setLoading(true);
 
       const response = await axios.patch(
-        `https://upvc-backend-oh6m.onrender.com/api/buyer/update`,
+        `https://upvc-backend-ozpc.onrender.com/api/buyer/update`,
         {name, mobileNumber: phone},
         {
           headers: {
@@ -133,7 +131,7 @@ const UserAccount = () => {
       setLoading(true);
 
       await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/feedback',
+        'https://upvc-backend-ozpc.onrender.com/api/feedback',
         {
           name: userData?.name,
           phone: userData?.mobileNumber,
@@ -218,6 +216,38 @@ const UserAccount = () => {
         position: 'top',
         text1: 'Error',
         text2: 'Failed to logout',
+        visibilityTime: 3000,
+      });
+    }
+  };
+
+  const handleSwitchUserType = async () => {
+    try {
+      // Clear all stored data
+      await AsyncStorage.clear();
+
+      // Navigate to user type selection
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'UserTypeSelection'}],
+        }),
+      );
+
+      Toast.show({
+        type: 'success',
+        position: 'top',
+        text1: 'Switched Mode',
+        text2: 'Please select your user type',
+        visibilityTime: 3000,
+      });
+    } catch (error) {
+      console.error('Switch user type error:', error);
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Error',
+        text2: 'Failed to switch user type',
         visibilityTime: 3000,
       });
     }
@@ -473,6 +503,14 @@ const UserAccount = () => {
             </TouchableOpacity>
           </View>
 
+          {/* Switch User Type Button */}
+          <TouchableOpacity style={styles.switchButton} onPress={handleSwitchUserType}>
+            <AppText weight="Inter" style={styles.switchButtonText}>
+              SWITCH TO SELLER MODE
+            </AppText>
+            <Icon name="swap-horiz" size={24} color="#000" />
+          </TouchableOpacity>
+
           {/* Logout Button */}
           {/* <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <AppText weight="Inter" style={styles.logoutButtonText}>
@@ -643,6 +681,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     // fontWeight: '700',
     marginRight: 5,
+  },
+  switchButton: {
+    backgroundColor: '#f0f0f0',
+    borderWidth: 1,
+    borderColor: '#000',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  switchButtonText: {
+    color: '#000',
+    fontSize: 16,
+    // fontWeight: '700',
+    letterSpacing: 1,
+    marginRight: 10,
   },
   logoutButton: {
     backgroundColor: '#fff',

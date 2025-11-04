@@ -24,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
-const BASE_URL = 'https://upvc-backend-oh6m.onrender.com';
+const BASE_URL = 'https://upvc-backend-ozpc.onrender.com';
 
 const LeadsHistory = () => {
   const [leadsData, setLeadsData] = useState([]);

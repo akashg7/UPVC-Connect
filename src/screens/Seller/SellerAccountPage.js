@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,21 @@ import {
   TextInput,
   Alert,
   RefreshControl,
+  Share,
+  Platform,
+  Linking,
+  PermissionsAndroid,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AppText from '../../components/AppText';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import axios from 'axios';
 import Toast from 'react-native-toast-message';
+import { CommonActions } from '@react-navigation/native';
+import RNHTMLtoPDF from 'react-native-html-to-pdf';
+import RNShare from 'react-native-share';
 
 const SellerAccountPage = ({ navigation }) => {
   const insets = useSafeAreaInsets();
@@ -26,8 +34,37 @@ const SellerAccountPage = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedPurchase, setSelectedPurchase] = useState(null);
+  const [modalKey, setModalKey] = useState(0);
+  const modalRef = useRef(null);
+  const scrollRef = useRef(null);
+  const [modalReady, setModalReady] = useState(false);
 
   console.log("selectedPurchase : " , selectedPurchase)
+
+  // Clear modal state function
+  const clearModalState = () => {
+    setSelectedPurchase(null);
+    setModalReady(false);
+    // Reset scroll position when closing
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ y: 0, animated: false });
+    }
+  };
+
+  // Handle opening invoice modal
+  const handleOpenInvoice = (purchase) => {
+    setSelectedPurchase(purchase);
+    setInvoiceVisible(true);
+    // Delay rendering ScrollView until after modal mount
+    setTimeout(() => setModalReady(true), 300);
+  };
+
+  // Handle closing invoice modal
+  const handleCloseInvoice = () => {
+    setInvoiceVisible(false);
+    setModalReady(false);
+    setSelectedPurchase(null);
+  };
 
   // Seller information
   const [sellerInfo, setSellerInfo] = useState({
@@ -50,7 +87,56 @@ const SellerAccountPage = ({ navigation }) => {
 
   useEffect(() => {
     fetchSellerData();
+    requestStoragePermissionOnStartup();
   }, []);
+
+  // Request storage permission on app startup
+  const requestStoragePermissionOnStartup = async () => {
+    if (Platform.OS !== 'android') {
+      return; // iOS doesn't need this permission
+    }
+
+    try {
+      // Check if permission is already granted
+      const hasPermission = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+      );
+
+      if (!hasPermission) {
+        // Show permission request dialog
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message: 'UPVC Connect needs access to your storage to save invoice PDFs and documents.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Deny',
+            buttonPositive: 'Allow',
+          },
+        );
+
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          Toast.show({
+            type: 'success',
+            position: 'top',
+            text1: 'Permission Granted',
+            text2: 'You can now download and share invoices',
+            visibilityTime: 3000,
+          });
+        } else if (granted === PermissionsAndroid.RESULTS.DENIED) {
+          Toast.show({
+            type: 'info',
+            position: 'top',
+            text1: 'Permission Denied',
+            text2: 'You can enable it later in Settings',
+            visibilityTime: 3000,
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Startup permission request error:', err);
+    }
+  };
 
   const fetchSellerData = async () => {
     try {
@@ -59,7 +145,7 @@ const SellerAccountPage = ({ navigation }) => {
       if (!storedToken) {
         return;
       }
-      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
+      const response = await axios.get('https://upvc-backend-ozpc.onrender.com/api/sellers', {
         headers: {
           Authorization: `Bearer ${storedToken}`,
         },
@@ -156,7 +242,7 @@ const SellerAccountPage = ({ navigation }) => {
       setIsEditing(false);
       return;
       const response = await axios.put(
-        'https://upvc-backend-oh6m.onrender.com/api/sellers',
+        'https://upvc-backend-ozpc.onrender.com/api/sellers',
         updateData,
         {
           headers: {
@@ -400,10 +486,7 @@ const SellerAccountPage = ({ navigation }) => {
 
             <TouchableOpacity
               style={styles.invoiceButton}
-              onPress={() => {
-                setSelectedPurchase(purchase);
-                setInvoiceVisible(true);
-              }}
+              onPress={() => handleOpenInvoice(purchase)}
             >
               <AppText style={styles.invoiceButtonText}>VIEW INVOICE</AppText>
               <Icon name="receipt" size={20} color="#000" />
@@ -569,34 +652,48 @@ const renderInvoiceModal = () => {
       visible={invoiceVisible}
       animationType="slide"
       transparent={true}
-      onRequestClose={() => setInvoiceVisible(false)}
+      onRequestClose={handleCloseInvoice}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.invoiceContainer}>
-          {/* Modern Header */}
-          <View style={styles.modernHeader}>
-            <View style={styles.headerLeft}>
-              <View style={styles.logoContainer}>
-                <Image
-                  source={require('../../assets/logo.png')}
-                  style={styles.modalLogo}
-                  resizeMode="contain"
-                />
-                <View style={styles.companyInfo}>
-                  <AppText style={styles.companyName}>UPVC CONNECT</AppText>
-                  {/* <AppText style={styles.companyTagline}>Premium Lead Services</AppText> */}
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.invoiceContainer}>
+            {modalReady ? (
+              <>
+                {/* Modern Header */}
+                <View style={styles.modernHeader}>
+                  <View style={styles.headerLeft}>
+                    <View style={styles.logoContainer}>
+                      <Image
+                        source={require('../../assets/logo.png')}
+                        style={styles.modalLogo}
+                        resizeMode="contain"
+                      />
+                      <View style={styles.companyInfo}>
+                        <AppText style={styles.companyName}>UPVC CONNECT</AppText>
+                        {/* <AppText style={styles.companyTagline}>Premium Lead Services</AppText> */}
+                      </View>
+                    </View>
+                  </View>
+                  <TouchableOpacity 
+                    onPress={handleCloseInvoice}
+                    style={styles.closeBtn}
+                  >
+                    <Icon name="close" size={24} color="#000" />
+                  </TouchableOpacity>
                 </View>
-              </View>
-            </View>
-            <TouchableOpacity 
-              onPress={() => setInvoiceVisible(false)}
-              style={styles.closeBtn}
-            >
-              <Icon name="close" size={24} color="#000" />
-            </TouchableOpacity>
-          </View>
 
-          <ScrollView style={styles.invoiceScrollView} showsVerticalScrollIndicator={false}>
+                <ScrollView 
+                  key={modalKey}
+                  ref={scrollRef}
+                  style={styles.invoiceScrollView} 
+                  showsVerticalScrollIndicator={true}
+                  scrollEnabled={true}
+                  nestedScrollEnabled={true}
+                  contentContainerStyle={styles.scrollContentContainer}
+                  bounces={true}
+                  alwaysBounceVertical={false}
+                  removeClippedSubviews={false}
+                >
             {/* Invoice Title */}
             <View style={styles.titleSection}>
               <AppText style={styles.invoiceTitle}>TAX INVOICE</AppText>
@@ -746,20 +843,43 @@ const renderInvoiceModal = () => {
               <View style={styles.footerDivider} />
               <AppText style={styles.footerTitle}>Thank you for choosing UPVC Connect</AppText>
               {/* <AppText style={styles.footerSubtitle}>Your trusted partner in premium lead generation</AppText> */}
-              
-              <TouchableOpacity 
-                style={styles.downloadButton}
-                onPress={() => alert('Downloading invoice...')}
-              >
-                <Icon name="get-app" size={20} color="#fff" />
-                <AppText style={styles.downloadButtonText}>Download PDF</AppText>
-              </TouchableOpacity>
             </View>
 
             <View style={styles.bottomSpacer} />
           </ScrollView>
+
+          {/* Action Buttons - Outside ScrollView */}
+          <View style={styles.actionButtonsContainer}>
+            <TouchableOpacity 
+              onPress={downloadInvoicePDF}
+              style={styles.actionButtonBottom}
+            >
+              <Icon name="get-app" size={28} color="#fff" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              onPress={printInvoice}
+              style={styles.actionButtonBottom}
+            >
+              <Icon name="print" size={28} color="#fff" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              onPress={shareInvoice}
+              style={styles.actionButtonBottom}
+            >
+              <Icon name="share" size={28} color="#fff" />
+            </TouchableOpacity>
+          </View>
+              </>
+            ) : (
+              <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <AppText>Loading...</AppText>
+              </View>
+            )}
+          </View>
         </View>
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 };
@@ -786,6 +906,539 @@ const renderInvoiceModal = () => {
         text2: 'Something went wrong while logging out',
         visibilityTime: 1000,
       });
+    }
+  };
+
+  const handleSwitchUserType = async () => {
+    try {
+      // Clear all stored data
+      await AsyncStorage.clear();
+
+      // Navigate to user type selection
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{name: 'UserTypeSelection'}],
+        }),
+      );
+
+      Toast.show({
+        type: 'success',
+        position: 'top',
+        text1: 'Switched Mode',
+        text2: 'Please select your user type',
+        visibilityTime: 3000,
+      });
+    } catch (error) {
+      console.error('Switch user type error:', error);
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'Error',
+        text2: 'Failed to switch user type',
+        visibilityTime: 3000,
+      });
+    }
+  };
+
+  // PDF Generation and Sharing Functions
+  
+  // Request storage permission for Android
+  const requestStoragePermission = async () => {
+    if (Platform.OS !== 'android') {
+      return true; // iOS doesn't need this permission
+    }
+
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+        {
+          title: 'Storage Permission',
+          message: 'UPVC Connect needs access to your storage to save invoice PDFs.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'Allow',
+        },
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } catch (err) {
+      console.warn('Permission request error:', err);
+      return false;
+    }
+  };
+
+  const generateInvoiceHTML = (purchase) => {
+    const totalAmount = purchase.amount || 0;
+    const customerPinCode = purchase.details.project.pinCode;
+    const sellerPinCode = sellerInfo.pinCode;
+    
+    // Calculate GST inclusive breakdown
+    const calculateGSTInclusive = (totalAmount, customerPinCode, sellerPinCode) => {
+      const isIntraState = customerPinCode && sellerPinCode && 
+                           customerPinCode.substring(0, 2) === sellerPinCode.substring(0, 2);
+      
+      const baseAmount = totalAmount / 1.18;
+      const totalGST = totalAmount - baseAmount;
+      
+      return {
+        type: 'intra',
+        baseAmount: baseAmount,
+        cgst: totalGST / 2,
+        sgst: totalGST / 2,
+        totalGST: totalGST,
+        total: totalAmount
+      };
+    };
+    
+    const gstDetails = calculateGSTInclusive(totalAmount, customerPinCode, sellerPinCode);
+    const amountInWords = convertNumberToWords(Math.round(gstDetails.total));
+    const sacNumber = generateSACNumber();
+    const invoiceNumber = `INV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <title>Tax Invoice</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #fff;
+                color: #000;
+            }
+            .header {
+                border-bottom: 2px solid #000;
+                padding-bottom: 20px;
+                margin-bottom: 30px;
+            }
+            .company-name {
+                font-size: 24px;
+                font-weight: bold;
+            }
+            .invoice-title {
+                text-align: center;
+                font-size: 28px;
+                font-weight: bold;
+                margin: 30px 0;
+            }
+            .meta-info {
+                margin-bottom: 30px;
+            }
+            .meta-row {
+                display: table;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .meta-item {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-right: 20px;
+            }
+            .meta-label {
+                font-weight: bold;
+                font-size: 12px;
+                color: #666;
+            }
+            .meta-value {
+                font-size: 14px;
+                margin-top: 2px;
+            }
+            .details-section {
+                margin-bottom: 30px;
+                padding: 20px;
+                border: 1px solid #ddd;
+            }
+            .details-row {
+                display: table;
+                width: 100%;
+            }
+            .details-column {
+                display: table-cell;
+                width: 50%;
+                vertical-align: top;
+                padding-right: 30px;
+            }
+            .details-label {
+                font-weight: bold;
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 10px;
+            }
+            .company-name-bold {
+                font-weight: bold;
+                font-size: 16px;
+                margin-bottom: 5px;
+            }
+            .details-text {
+                font-size: 14px;
+                margin-bottom: 3px;
+            }
+            .table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 30px;
+            }
+            .table th, .table td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: left;
+            }
+            .table th {
+                background-color: #f5f5f5;
+                font-weight: bold;
+                font-size: 12px;
+            }
+            .table td {
+                font-size: 14px;
+            }
+            .totals-section {
+                margin-bottom: 30px;
+            }
+            .total-line {
+                margin-bottom: 8px;
+                padding: 5px 0;
+            }
+            .total-label {
+                font-size: 14px;
+                float: left;
+            }
+            .total-value {
+                font-size: 14px;
+                font-weight: bold;
+                float: right;
+            }
+            .grand-total-line {
+                border-top: 2px solid #000;
+                padding-top: 10px;
+                margin-top: 10px;
+                clear: both;
+            }
+            .grand-total-label {
+                font-size: 16px;
+                font-weight: bold;
+                float: left;
+            }
+            .grand-total-value {
+                font-size: 16px;
+                font-weight: bold;
+                float: right;
+            }
+            .amount-words {
+                margin-bottom: 30px;
+                padding: 15px;
+                background-color: #f9f9f9;
+                clear: both;
+            }
+            .amount-words-label {
+                font-weight: bold;
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+            .amount-words-value {
+                font-size: 14px;
+                font-style: italic;
+            }
+            .terms-section {
+                margin-bottom: 30px;
+            }
+            .terms-title {
+                font-weight: bold;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+            .terms-item {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+            .footer {
+                text-align: center;
+                border-top: 1px solid #ddd;
+                padding-top: 20px;
+            }
+            .footer-title {
+                font-weight: bold;
+                font-size: 16px;
+                margin-bottom: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <div class="company-name">UPVC CONNECT</div>
+        </div>
+
+        <div class="invoice-title">TAX INVOICE</div>
+
+        <div class="meta-info">
+            <div class="meta-row">
+                <div class="meta-item">
+                    <div class="meta-label">Invoice Number</div>
+                    <div class="meta-value">${invoiceNumber}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Invoice Date</div>
+                    <div class="meta-value">${purchase.date}</div>
+                </div>
+            </div>
+            <div class="meta-row">
+                <div class="meta-item">
+                    <div class="meta-label">Place of Supply</div>
+                    <div class="meta-value">${customerPinCode && customerPinCode.substring(0, 2) === '29' ? 'Karnataka' : 'Other State'}</div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Supply Type</div>
+                    <div class="meta-value">${gstDetails.type === 'intra' ? 'Intra-State' : 'Inter-State'}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="details-section">
+            <div class="details-row">
+                <div class="details-column">
+                    <div class="details-label">FROM</div>
+                    <div class="company-name-bold">UPVC Connect Pvt Ltd</div>
+                    <div class="details-text">14, 1st Main Road, Bank Avenue</div>
+                    <div class="details-text">Bengaluru, Karnataka - 560043</div>
+                    <div class="details-text">GSTIN: 29AKWPS1667B1ZL</div>
+                    <div class="details-text">Email: contact@upvcconnect.com</div>
+                </div>
+                <div class="details-column">
+                    <div class="details-label">BILL TO</div>
+                    <div class="company-name-bold">${sellerInfo.company}</div>
+                    <div class="details-text">${sellerInfo.address}</div>
+                    <div class="details-text">${sellerInfo.city} - ${sellerInfo.pinCode}</div>
+                    <div class="details-text">GSTIN: ${sellerInfo.gst}</div>
+                </div>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>SAC</th>
+                    <th>Qty</th>
+                    <th>Rate (₹)</th>
+                    <th>Amount (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${sacNumber}</td>
+                    <td>${purchase.rawData?.totalQuantity || 1}</td>
+                    <td>${gstDetails.baseAmount.toFixed(2)}</td>
+                    <td>${gstDetails.baseAmount.toFixed(2)}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="totals-section">
+            <div class="total-line">
+                <span class="total-label">Subtotal</span>
+                <span class="total-value">₹${gstDetails.baseAmount.toFixed(2)}</span>
+            </div>
+            <div class="total-line">
+                <span class="total-label">CGST @ 9%</span>
+                <span class="total-value">₹${gstDetails.cgst.toFixed(2)}</span>
+            </div>
+            <div class="total-line">
+                <span class="total-label">SGST @ 9%</span>
+                <span class="total-value">₹${gstDetails.sgst.toFixed(2)}</span>
+            </div>
+            <div class="total-line">
+                <span class="total-label">Total Tax</span>
+                <span class="total-value">₹${gstDetails.totalGST.toFixed(2)}</span>
+            </div>
+            <div class="grand-total-line">
+                <span class="grand-total-label">Total Amount</span>
+                <span class="grand-total-value">₹${gstDetails.total.toFixed(2)}</span>
+            </div>
+        </div>
+
+        <div class="amount-words">
+            <div class="amount-words-label">Amount in Words:</div>
+            <div class="amount-words-value">${amountInWords}</div>
+        </div>
+
+        <div class="terms-section">
+            <div class="terms-title">Payment Terms & Conditions</div>
+            <div class="terms-item">• Payment due upon receipt of invoice</div>
+            <div class="terms-item">• All prices are inclusive of applicable GST</div>
+            <div class="terms-item">• Service provided as per agreed terms</div>
+        </div>
+
+        <div class="footer">
+            <div class="footer-title">Thank you for choosing UPVC Connect</div>
+        </div>
+    </body>
+    </html>
+    `;
+  };
+
+  const downloadInvoicePDF = async () => {
+    if (!selectedPurchase) return null;
+
+    try {
+      Toast.show({
+        type: 'info',
+        position: 'top',
+        text1: 'Generating PDF',
+        text2: 'Please wait...',
+        visibilityTime: 2000,
+      });
+
+      const htmlContent = generateInvoiceHTML(selectedPurchase);
+      
+      // Simplified options for better PDF generation
+      const options = {
+        html: htmlContent,
+        fileName: `Invoice_${selectedPurchase.date.replace(/\//g, '-')}`,
+        directory: 'Downloads',
+        base64: false, // Set to false for better file generation
+        width: 595,
+        height: 842,
+        padding: 20,
+        bgColor: '#FFFFFF',
+      };
+
+      console.log('Starting PDF generation...');
+      const pdf = await RNHTMLtoPDF.convert(options);
+      console.log('PDF generation result:', pdf);
+      
+      if (pdf && pdf.filePath) {
+        const pdfPath = `file://${pdf.filePath}`;
+        
+        Toast.show({
+          type: 'success',
+          position: 'top',
+          text1: 'PDF Downloaded Successfully!',
+          text2: `Saved to: ${pdf.filePath}`,
+          visibilityTime: 5000,
+        });
+        
+        return pdfPath;
+      } else {
+        console.log('PDF generation failed - no file path');
+        throw new Error('PDF generation failed - no file path returned');
+      }
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      console.error('Error details:', error.message);
+      
+      // Check if it's a permission error
+      if (error.message.includes('permission') || error.message.includes('Permission')) {
+        // Request permission only when there's an error
+        const hasPermission = await requestStoragePermission();
+        if (hasPermission) {
+          // Retry PDF generation after permission is granted
+          Toast.show({
+            type: 'info',
+            position: 'top',
+            text1: 'Retrying PDF Generation',
+            text2: 'Please wait...',
+            visibilityTime: 2000,
+          });
+          
+          // Retry the PDF generation
+          try {
+            const retryPdf = await RNHTMLtoPDF.convert(options);
+            if (retryPdf && retryPdf.filePath) {
+              const pdfPath = `file://${retryPdf.filePath}`;
+              
+              Toast.show({
+                type: 'success',
+                position: 'top',
+                text1: 'PDF Downloaded Successfully',
+                text2: `Saved to: ${retryPdf.filePath}`,
+                visibilityTime: 5000,
+              });
+              
+              return pdfPath;
+            }
+          } catch (retryError) {
+            console.error('Retry PDF generation error:', retryError);
+          }
+        } else {
+          Alert.alert(
+            'Permission Required', 
+            'Storage permission is needed to save PDF files. Please allow permission and try again.',
+            [{ text: 'OK' }]
+          );
+        }
+      }
+      
+      // Show a more helpful error message
+      let errorMessage = 'Unable to generate PDF. Please try again.';
+      if (error.message.includes('couldn\'t load object')) {
+        errorMessage = 'PDF generation failed. Please check your device storage and try again.';
+      }
+      
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: 'PDF Generation Failed',
+        text2: errorMessage,
+        visibilityTime: 4000,
+      });
+      
+      return null;
+    }
+  };
+
+  const printInvoice = async () => {
+    try {
+      const pdfPath = await downloadInvoicePDF();
+      if (pdfPath) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        if (Platform.OS === 'android') {
+          try {
+            await Linking.openURL(pdfPath);
+          } catch (error) {
+            Alert.alert(
+              'Print Invoice',
+              `PDF has been downloaded successfully!\n\nFile location: ${pdfPath}\n\nYou can now open this file with any PDF viewer to print.`,
+              [{ text: 'OK' }]
+            );
+          }
+        } else {
+          await shareInvoice();
+        }
+      }
+    } catch (error) {
+      console.error('Print error:', error);
+      Alert.alert('Print Failed', 'Unable to open PDF for printing');
+    }
+  };
+
+  const shareInvoice = async () => {
+    try {
+      const pdfPath = await downloadInvoicePDF();
+      if (pdfPath) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const shareOptions = {
+          title: 'Share Invoice',
+          message: `Invoice for ${selectedPurchase.customerName}`,
+          url: pdfPath,
+          type: 'application/pdf',
+          subject: `Invoice - ${selectedPurchase.customerName}`,
+          filename: `Invoice_${selectedPurchase.date.replace(/\//g, '-')}.pdf`,
+        };
+        
+        await RNShare.open(shareOptions);
+      }
+    } catch (error) {
+      console.error('Share error:', error);
+      
+      if (error.message && error.message.includes('User did not share')) {
+        return;
+      }
+      
+      Alert.alert('Share Failed', 'Unable to share invoice');
     }
   };
 
@@ -879,6 +1532,14 @@ const renderInvoiceModal = () => {
               <TouchableOpacity style={styles.menuItem}>
                 <AppText style={styles.menuText}>CONTACT US</AppText>
                 <Icon name="chevron-right" size={24} color="#000" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.menuItem, styles.switchItem]}
+                onPress={handleSwitchUserType}
+              >
+                <AppText style={[styles.menuText, styles.switchText]}>SWITCH TO BUYER MODE</AppText>
+                <Icon name="swap-horiz" size={24} color="#000" />
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -1067,6 +1728,14 @@ const styles = StyleSheet.create({
     color: '#000',
     letterSpacing: 2,
   },
+  switchItem: {
+    marginTop: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  switchText: {
+    color: '#000',
+  },
   logoutItem: {
     marginTop: 20,
     borderBottomWidth: 0,
@@ -1121,20 +1790,22 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'flex-start',
+    alignItems: 'stretch',
   },
   invoiceContainer: {
-    height: '95%',
-    width: '95%',
+    flex: 1,
+    margin: 20,
     backgroundColor: '#ffffff',
     borderRadius: 16,
+    overflow: 'hidden',
     elevation: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
+    flexDirection: 'column',
   },
   
   // Modern Header Styles
@@ -1192,11 +1863,14 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
+  scrollContentContainer: { 
+    paddingBottom: 2,
+  },
   
   // Title Section
   titleSection: {
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingVertical: 23,
   },
   invoiceTitle: {
     fontSize: 24,
@@ -1254,7 +1928,7 @@ const styles = StyleSheet.create({
   },
   servicesTable: {
     padding: 0,
-    overflow: 'hidden',
+    overflow: 'visible',
   },
   detailsRow: {
     flexDirection: 'col',
@@ -1267,7 +1941,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e9ecef',
     marginHorizontal: 16,
   },
-  detailsLabel: {
+  detailsLabel: { 
     fontSize: 12,
     color: '#6c757d',
     fontWeight: 'bold',
@@ -1510,10 +2184,44 @@ const styles = StyleSheet.create({
   bottomSpacer: {
     height: 40,
   },
+
+  // Action Buttons at Bottom
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 20,
+    paddingHorizontal: 20,
+    backgroundColor: '#f8f8f8',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    marginHorizontal: 0,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  actionButtonBottom: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#000',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    minWidth: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
 });
 
 export default SellerAccountPage;
-// import React, { useState, useEffect } from 'react';
+// import React, { useState, useRef, useEffect } from 'react';
 // import {
 //   View,
 //   Text,
@@ -1574,7 +2282,7 @@ export default SellerAccountPage;
 //       if (!storedToken) {
 //         return;
 //       }
-//       const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
+//       const response = await axios.get('https://upvc-backend-ozpc.onrender.com/api/sellers', {
 //         headers: {
 //           Authorization: `Bearer ${storedToken}`,
 //         },
@@ -1671,7 +2379,7 @@ export default SellerAccountPage;
 //       setIsEditing(false);
 //       return;
 //       const response = await axios.put(
-//         'https://upvc-backend-oh6m.onrender.com/api/sellers',
+//         'https://upvc-backend-ozpc.onrender.com/api/sellers',
 //         updateData,
 //         {
 //           headers: {

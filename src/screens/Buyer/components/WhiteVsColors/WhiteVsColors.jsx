@@ -31,8 +31,8 @@
 //     const fetchData = async () => {
 //       try {
 //         const [videoResponse, differenceResponse] = await Promise.all([
-//           axios.get('https://upvc-backend-oh6m.onrender.com/api/color/video'),
-//           axios.get('https://upvc-backend-oh6m.onrender.com/api/color/comparisons'),
+//           axios.get('https://upvc-backend-ozpc.onrender.com/api/color/video'),
+//           axios.get('https://upvc-backend-ozpc.onrender.com/api/color/comparisons'),
 //         ]);
 
 //         if (videoResponse.data.length > 0) {
@@ -111,7 +111,7 @@
 //               <View style={styles.videoContainer}>
 //                 <Video
 //                   source={{
-//                     uri: `https://upvc-backend-oh6m.onrender.com${video.src}`,
+//                     uri: `https://upvc-backend-ozpc.onrender.com${video.src}`,
 //                   }}
 //                   style={styles.video}
 //                   resizeMode="cover"
@@ -128,7 +128,7 @@
 //                   <View style={styles.sponsorDivider} />
 //                   <Image
 //                     source={{
-//                       uri: `https://upvc-backend-oh6m.onrender.com/${video.sponsorLogo}`,
+//                       uri: `https://upvc-backend-ozpc.onrender.com/${video.sponsorLogo}`,
 //                     }}
 //                     style={styles.premiumSponsorLogo}
 //                     resizeMode="contain"
@@ -351,8 +351,8 @@
 //     const fetchData = async () => {
 //       try {
 //         const [videoResponse, differenceResponse] = await Promise.all([
-//           axios.get('https://upvc-backend-oh6m.onrender.com/api/color/video'),
-//           axios.get('https://upvc-backend-oh6m.onrender.com/api/color/comparisons'),
+//           axios.get('https://upvc-backend-ozpc.onrender.com/api/color/video'),
+//           axios.get('https://upvc-backend-ozpc.onrender.com/api/color/comparisons'),
 //         ]);
 
 //         if (videoResponse.data.length > 0) {
@@ -431,7 +431,7 @@
 //               <View style={styles.videoContainer}>
 //                 <Video
 //                   source={{
-//                     uri: `https://upvc-backend-oh6m.onrender.com${video.src}`,
+//                     uri: `https://upvc-backend-ozpc.onrender.com${video.src}`,
 //                   }}
 //                   style={styles.video}
 //                   resizeMode="cover"
@@ -449,7 +449,7 @@
 //                     <View style={styles.sponsorContent}>
 //                       <Image
 //                         source={{
-//                           uri: `https://upvc-backend-oh6m.onrender.com/${video.sponsorLogo}`,
+//                           uri: `https://upvc-backend-ozpc.onrender.com/${video.sponsorLogo}`,
 //                         }}
 //                         style={styles.sponsorLogo}
 //                         resizeMode="contain"
@@ -689,8 +689,8 @@ const WhiteVsColor = () => {
   const fetchData = async () => {
     try {
       const [videoResponse, differenceResponse] = await Promise.all([
-        axios.get('https://upvc-backend-oh6m.onrender.com/api/color/video'),
-        axios.get('https://upvc-backend-oh6m.onrender.com/api/color/comparisons'),
+        axios.get('https://upvc-backend-ozpc.onrender.com/api/color/video'),
+        axios.get('https://upvc-backend-ozpc.onrender.com/api/color/comparisons'),
       ]);
 
       if (videoResponse.data.length > 0) {
@@ -867,7 +867,7 @@ const [token, setToken] = useState(null);
               <View style={styles.videoContainer}>
                 <Video
                   source={{
-                    uri: `https://upvc-backend-oh6m.onrender.com${video.src}`,
+                    uri: `https://upvc-backend-ozpc.onrender.com${video.src}`,
                   }}
                   style={styles.video}
                   resizeMode="cover" 
@@ -884,7 +884,7 @@ const [token, setToken] = useState(null);
                     <View style={styles.sponsorContent}>
                       <Image
                         source={{
-                          uri: `https://upvc-backend-oh6m.onrender.com/${video.sponsorLogo}`,
+                          uri: `https://upvc-backend-ozpc.onrender.com/${video.sponsorLogo}`,
                         }}
                         style={styles.sponsorLogo}
                         resizeMode="contain"

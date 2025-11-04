@@ -11,7 +11,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import SmsRetriever from 'react-native-sms-retriever';
 
 const OTPVerification = ({route, navigation}) => {
-  const {mobileNumber, userName, token , autootp} = route.params;
+  const {mobileNumber, token , autootp} = route.params;
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [canResend, setCanResend] = useState(false);
@@ -90,7 +90,7 @@ const OTPVerification = ({route, navigation}) => {
 
     try {
       const response = await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/auth/verify-otp',
+        'https://upvc-backend-ozpc.onrender.com/api/auth/verify-otp',
         {
           mobileNumber,
           otp: submittedOtp,
@@ -142,9 +142,8 @@ const OTPVerification = ({route, navigation}) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/auth/login',
+        'https://upvc-backend-ozpc.onrender.com/api/auth/login',
         {
-          name: userName,
           mobileNumber,
         },
         {
@@ -290,7 +289,7 @@ export default OTPVerification;
 //     setLoading(true);
 //     try {
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/auth/verify-otp',
+//         'https://upvc-backend-ozpc.onrender.com/api/auth/verify-otp',
 //         {mobileNumber, otp: submittedOtp},
 //         {
 //           headers: {
@@ -332,7 +331,7 @@ export default OTPVerification;
 //     try {
 //       setLoading(true);
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/auth/login',
+//         'https://upvc-backend-ozpc.onrender.com/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,
@@ -540,7 +539,7 @@ export default OTPVerification;
 //     setLoading(true);
 //     try {
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/auth/verify-otp',
+//         'https://upvc-backend-ozpc.onrender.com/api/auth/verify-otp',
 //         {mobileNumber, otp: submittedOtp},
 //         {
 //           headers: {
@@ -582,7 +581,7 @@ export default OTPVerification;
 //     try {
 //       setLoading(true);
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/auth/login',
+//         'https://upvc-backend-ozpc.onrender.com/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,
@@ -772,7 +771,7 @@ export default OTPVerification;
 //     setLoading(true);
 //     try {
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/auth/verify-otp',
+//         'https://upvc-backend-ozpc.onrender.com/api/auth/verify-otp',
 //         {mobileNumber, otp: submittedOtp},
 //         {
 //           headers: {
@@ -814,7 +813,7 @@ export default OTPVerification;
 //     try {
 //       setLoading(true);
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/auth/login',
+//         'https://upvc-backend-ozpc.onrender.com/api/auth/login',
 //         {
 //           name: userName,
 //           mobileNumber,

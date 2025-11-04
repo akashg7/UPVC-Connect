@@ -116,26 +116,28 @@ function BuyerTabs() {
 // Seller Bottom Tab Navigator
 function SellerTabs() {
   return (
-    <Tab.Navigator
-      tabBar={props => <SellerBottomNav {...props} />}
-      screenOptions={{
-        headerShown: false,
-      }}>
-      <Tab.Screen name="LeadDetails" component={LeadDetails} />
-      <Tab.Screen name="SellerDashboard" component={SellerDashboard} />
-      <Tab.Screen name="MarketInsights" component={MarketInsights} />
+    <GestureHandlerRootView style={{flex: 1}}>
+      <Tab.Navigator
+        tabBar={props => <SellerBottomNav {...props} />}
+        screenOptions={{
+          headerShown: false,
+        }}>
+        <Tab.Screen name="LeadDetails" component={LeadDetails} />
+        <Tab.Screen name="SellerDashboard" component={SellerDashboard} />
+        <Tab.Screen name="MarketInsights" component={MarketInsights} />
 
-      <Tab.Screen
-        name="SellerAccount"
-        component={SellerAccountPage}
-        options={{
-          tabBarLabel: 'Account',
-          tabBarIcon: ({color, size}) => (
-            <MaterialIcons name="account-circle" size={size} color={color} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+        <Tab.Screen
+          name="SellerAccount"
+          component={SellerAccountPage}
+          options={{
+            tabBarLabel: 'Account',
+            tabBarIcon: ({color, size}) => (
+              <MaterialIcons name="account-circle" size={size} color={color} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+    </GestureHandlerRootView>
   );
 }
 

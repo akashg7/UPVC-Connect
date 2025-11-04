@@ -30,6 +30,9 @@ const SellerHome = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMuted, setIsMuted] = useState(true); // Add muted state
+  const [showThumbnail, setShowThumbnail] = useState(true); // Add thumbnail visibility state
+  const [isPlaying, setIsPlaying] = useState(false); // Add playing state
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
   const videoRef = useRef(null);
@@ -52,6 +55,31 @@ const SellerHome = () => {
     // Check if seller already has a video
     checkExistingVideo();
   }, []);
+
+  // Cleanup effect to pause video when component unmounts
+  useEffect(() => {
+    return () => {
+      // Pause video when component unmounts
+      if (videoRef.current && isPlaying) {
+        setIsPlaying(false);
+        setShowThumbnail(true);
+      }
+    };
+  }, [isPlaying]);
+
+  // Pause video when screen loses focus
+  useFocusEffect(
+    React.useCallback(() => {
+      // Screen is focused - video can play
+      return () => {
+        // Screen is losing focus - pause video
+        if (videoRef.current && isPlaying) {
+          setIsPlaying(false);
+          setShowThumbnail(true);
+        }
+      };
+    }, [isPlaying])
+  );
 
   useEffect(() => {
     // Animate progress bar when uploadProgress changes
@@ -89,7 +117,7 @@ const SellerHome = () => {
         return;
       }
 
-      const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
+      const response = await axios.get('https://upvc-backend-ozpc.onrender.com/api/sellers', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -97,7 +125,7 @@ const SellerHome = () => {
       
       if (response.data.success && response.data.seller.businessProfileVideo) {
         setHasVideo(true);
-        setVideoUri(`https://upvc-backend-oh6m.onrender.com${response.data.seller.businessProfileVideo}`);
+        setVideoUri(`https://upvc-backend-ozpc.onrender.com${response.data.seller.businessProfileVideo}`);
       } else {
         setHasVideo(false);
         setVideoUri(null);
@@ -115,6 +143,51 @@ const SellerHome = () => {
   const onRefresh = () => {
     setRefreshing(true);
     checkExistingVideo();
+  };
+
+  // Toggle mute/unmute function
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+
+  // Video event handlers
+  const onVideoLoad = () => {
+    console.log('Video loaded');
+    setShowThumbnail(true);
+    setIsPlaying(false);
+  };
+
+  const onVideoEnd = () => {
+    console.log('Video ended');
+    setShowThumbnail(true); // Show thumbnail when video ends
+    setIsPlaying(false);
+  };
+
+  const onVideoPlay = () => {
+    console.log('Video playing');
+    setShowThumbnail(false); // Hide thumbnail when playing
+    setIsPlaying(true);
+  };
+
+  const onVideoPause = () => {
+    console.log('Video paused');
+    setShowThumbnail(true); // Show thumbnail when paused
+    setIsPlaying(false);
+  };
+
+  // Handle thumbnail tap to play video
+  const handleThumbnailPress = () => {
+    if (videoRef.current) {
+      videoRef.current.seek(0); // Reset to beginning
+      setIsPlaying(true);
+      setShowThumbnail(false);
+    }
+  };
+
+  // Pause video function
+  const pauseVideo = () => {
+    setIsPlaying(false);
+    setShowThumbnail(true);
   };
 
   const selectVideo = async () => {
@@ -166,7 +239,7 @@ const SellerHome = () => {
       });
 
       const response = await axios.post(
-        'https://upvc-backend-oh6m.onrender.com/api/sellers/business-video',
+        'https://upvc-backend-ozpc.onrender.com/api/sellers/business-video',
         formData,
         {
           headers: {
@@ -186,7 +259,7 @@ const SellerHome = () => {
 
       if (response.data.success) {
         setHasVideo(true);
-        setVideoUri(`https://upvc-backend-oh6m.onrender.com${response.data.videoUrl}`);
+        setVideoUri(`https://upvc-backend-ozpc.onrender.com${response.data.videoUrl}`);
         Alert.alert('Success', 'Video uploaded successfully!');
       } else {
         throw new Error(response.data.message || 'Failed to upload video');
@@ -220,13 +293,38 @@ const SellerHome = () => {
               style={styles.videoPlayer}
               resizeMode="cover"
               controls={true}
-              paused={false}
+              paused={!isPlaying}
+              muted={isMuted}
               ignoreSilentSwitch="obey"
+              onLoad={onVideoLoad}
+              onEnd={onVideoEnd}
+              onPlay={onVideoPlay}
+              onPause={onVideoPause}
             />
+            {/* Thumbnail overlay */}
+            {showThumbnail && (
+              <TouchableOpacity 
+                style={styles.thumbnailOverlay}
+                onPress={handleThumbnailPress}
+                activeOpacity={0.8}
+              >
+                <Icon name="play-circle-filled" size={60} color="rgba(255,255,255,0.8)" />
+              </TouchableOpacity>
+            )}
             <View style={styles.videoBadge}>
               <Icon name="check-circle" size={16} color="#4CAF50" />
               <AppText weight='Inter' style={styles.videoBadgeText}>UPLOADED</AppText>
             </View>
+            <TouchableOpacity 
+              style={styles.muteButton} 
+              onPress={toggleMute}
+            >
+              <Icon 
+                name={isMuted ? "volume-off" : "volume-up"} 
+                size={24} 
+                color="#fff" 
+              />
+            </TouchableOpacity>
           </View>
         ) : (
           <TouchableOpacity
@@ -383,6 +481,29 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#000',
     marginLeft: 4,
+  },
+  muteButton: {
+    position: 'absolute',
+    bottom: 12,
+    right: 100, // Move to left side to avoid all right-side controls
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10, // Ensure it's above video controls
+  },
+  thumbnailOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1,
   },
   uploadPlaceholder: {
     width: '100%',
@@ -590,7 +711,7 @@ export default SellerHome;
 //       const token = await AsyncStorage.getItem('sellerToken');
 //       if (!token) return;
 
-//       const response = await axios.get('https://upvc-backend-oh6m.onrender.com/api/sellers', {
+//       const response = await axios.get('https://upvc-backend-ozpc.onrender.com/api/sellers', {
 //         headers: {
 //           Authorization: `Bearer ${token}`,
 //         },
@@ -598,7 +719,7 @@ export default SellerHome;
 //       console.log("response data : ", response.data)
 //       if (response.data.success && response.data.seller.businessProfileVideo) {
 //         setHasVideo(true);
-//         setVideoUri(`https://upvc-backend-oh6m.onrender.com${response.data.seller.businessProfileVideo}`);
+//         setVideoUri(`https://upvc-backend-ozpc.onrender.com${response.data.seller.businessProfileVideo}`);
 //       }
 //     } catch (error) {
 //       console.error('Error checking existing video:', error);
@@ -654,7 +775,7 @@ export default SellerHome;
 //       });
 
 //       const response = await axios.post(
-//         'https://upvc-backend-oh6m.onrender.com/api/sellers/business-video',
+//         'https://upvc-backend-ozpc.onrender.com/api/sellers/business-video',
 //         formData,
 //         {
 //           headers: {
@@ -672,7 +793,7 @@ export default SellerHome;
 
 //       if (response.data.success) {
 //         setHasVideo(true);
-//         setVideoUri(`https://upvc-backend-oh6m.onrender.com${response.data.videoUrl}`);
+//         setVideoUri(`https://upvc-backend-ozpc.onrender.com${response.data.videoUrl}`);
 //         Alert.alert('Success', 'Video uploaded successfully!');
 //       } else {
 //         throw new Error(response.data.message || 'Failed to upload video');
